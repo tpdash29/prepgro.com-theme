@@ -1,0 +1,61 @@
+/*
+ * PrepGro Theme — `--pg-*` semantic contract + module context tokens.
+ *
+ * Phase 1 of the 2026-07 front-end redesign. Two tiers:
+ *
+ *   1. `--pg-color-*` — the global semantic roles the redesign components
+ *      consume. Every value aliases an existing `--pge-*` role so the two
+ *      namespaces can never drift; new code uses `--pg-*`, old code keeps
+ *      working on `--pge-*`.
+ *
+ *   2. `--pg-{evaluate,elevate,excel}-*` — module context environments.
+ *      Ground hexes are the owner-approved admin grounds (brand kit v34.1);
+ *      accents are the kit's module accents. The engine's app shell applies
+ *      them via `body.pg-module-*`; the plugin always consumes these with
+ *      hex fallbacks, so either side can ship first.
+ *
+ * Rules encoded elsewhere but worth restating: grounds are for page canvases
+ * and restrained context bands only — dense content (reports, forms, exam
+ * questions, mock execution) stays on neutral surfaces, and module colors
+ * never carry status meaning.
+ */
+:root {
+	/* ── Global semantic roles ─────────────────────────────────────── */
+	--pg-color-brand-primary:   var(--pge-color-primary);
+	--pg-color-brand-secondary: var(--pge-color-accent);
+	--pg-color-text-primary:    var(--pge-color-ink);
+	--pg-color-text-secondary:  var(--pge-color-muted);
+	--pg-color-text-inverse:    #ffffff;
+	--pg-color-surface-default: var(--pge-color-base);
+	--pg-color-surface-raised:  var(--pge-card-bg);
+	--pg-color-surface-muted:   var(--pge-color-surface);
+	--pg-color-border-subtle:   var(--pge-color-line);
+	--pg-color-border-strong:   var(--pge-gray-300, #c7ceda);
+	--pg-color-focus-ring:      var(--pge-color-primary);
+	--pg-color-success:         var(--pge-color-success);
+	--pg-color-warning:         var(--pge-amber-600, #b45309);
+	--pg-color-danger:          var(--pge-color-danger);
+	--pg-color-info:            var(--pge-color-accent);
+
+	/* ── Evaluate — soft azure ground ──────────────────────────────── */
+	--pg-evaluate-ground:        #dae7f9;
+	--pg-evaluate-ground-subtle: #edf4fd;
+	--pg-evaluate-surface:       #ffffff;
+	--pg-evaluate-border:        #bdd3f0;
+	--pg-evaluate-accent:        #2d7ef5;
+
+	/* ── Elevate — soft aqua ground ────────────────────────────────── */
+	--pg-elevate-ground:         #d6ecef;
+	--pg-elevate-ground-subtle:  #eaf7f9;
+	--pg-elevate-surface:        #ffffff;
+	--pg-elevate-border:         #b7dce2;
+	--pg-elevate-accent:         #0fb2c9;
+
+	/* ── Excel — warm gold/cream ground ────────────────────────────── */
+	--pg-excel-ground:           #f4eddb;
+	--pg-excel-ground-subtle:    #faf6ec;
+	--pg-excel-surface:          #ffffff;
+	--pg-excel-border:           #e4d6b0;
+	--pg-excel-accent:           #ffb020; /* non-text use only */
+	--pg-excel-accent-ink:       #8a6100; /* AA-safe text/icon gold */
+}

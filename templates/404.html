@@ -1,0 +1,33 @@
+<!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
+<main class="wp-block-group">
+
+	<!-- wp:html -->
+	<section class="pgt-404 pgt-container pgt-container--narrow">
+		<p class="pgt-404__code" aria-hidden="true">404</p>
+		<h1 class="pgt-404__title">We can't find that page.</h1>
+		<p class="pgt-404__lead">The link may have moved, or the page may have been retired. Your progress is safe — let's get you back to practicing.</p>
+
+		<form class="pgt-hero__search" action="/all-exams/" method="get" role="search">
+			<span class="pgt-hero__search-icon" aria-hidden="true">🔍</span>
+			<input type="text" name="s" placeholder="Search SAT, AP Biology, Grade 8 Math…" aria-label="Search practice tests">
+			<button type="submit" class="pgt-btn pgt-btn--primary">Search</button>
+		</form>
+
+		<p class="pgt-404__kicker">Or jump back in</p>
+		<div class="pgt-404__links">
+			<a class="pgt-chip" href="/all-exams/">Browse all practice tests</a>
+			<a class="pgt-chip" href="/all-exams/?s=sat">SAT practice</a>
+			<a class="pgt-chip" href="/all-exams/?s=act">ACT practice</a>
+			<a class="pgt-chip" href="/all-exams/?s=ap">AP practice</a>
+			<a class="pgt-chip" href="/my-dashboard/">My dashboard</a>
+			<a class="pgt-chip" href="/pricing/">Pricing</a>
+		</div>
+	</section>
+	<!-- /wp:html -->
+
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->

@@ -1,0 +1,11 @@
+/*
+ * PrepGro Theme — default brand bundle.
+ * Single stylesheet the token loader enqueues: imports the primitive scale,
+ * then the semantic roles. A country child theme can enqueue its own bundle
+ * after this to override the semantic roles only.
+ *
+ * Branding precedence: child theme.json > parent theme.json > these fallbacks.
+ */
+@import url("./_core.css");
+@import url("./_semantic.css");
+@import url("./_pg-modules.css");

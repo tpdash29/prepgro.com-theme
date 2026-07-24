@@ -1,0 +1,67 @@
+/*
+ * PrepGro Theme — core design tokens (primitive scale).
+ * Raw values only. Semantic tokens (_semantic.css) reference these; the
+ * PrepGro Engine plugin consumes the semantic --pge-* names, never these.
+ *
+ * v3 "Meridian" system — derived strictly from prepgro-logo-kit-v34:
+ *   Brand Blue #2563EB · chip gradient 135° #1A4FC4→#2D7EF5→#5299FF
+ *   Ink #0F1419 · dark surface #121C30 · on-dark blue #7CB0FF
+ *   Outfit typography · hairline borders · layered soft elevation.
+ */
+:root {
+	/* Brand ramp (kit color tokens) */
+	--pge-blue-700: #1A4FC4;  /* chip start  */
+	--pge-blue-600: #2563EB;  /* brand blue  */
+	--pge-blue-500: #2D7EF5;  /* chip mid    */
+	--pge-blue-400: #5299FF;  /* chip end    */
+	--pge-blue-300: #7CB0FF;  /* on-dark     */
+	--pge-blue-100: #E8F0FE;
+	--pge-blue-50:  #EEF3FF;
+
+	/* Ink / neutrals (kit) */
+	--pge-ink-950: #0F1419;
+	--pge-ink-900: #121C30;
+	--pge-ink-700: #313B4B;
+	--pge-ink-500: #687078;
+	--pge-ink-400: #8B93A2;
+	--pge-gray-200: #E3E8F0;
+	--pge-gray-100: #EDF1F7;
+	--pge-gray-75:  #F5F7FB;
+	--pge-gray-50:  #F8FAFC;
+	--pge-gray-25:  #FBFDFF;
+	--pge-white:    #ffffff;
+
+	/* Signature gradient */
+	--pge-gradient-chip: linear-gradient(135deg, #1A4FC4 0%, #2D7EF5 52%, #5299FF 100%);
+
+	/* Status */
+	--pge-green-600: #0E9F6E;
+	--pge-green-50:  #E7F6F0;
+	--pge-red-600:   #DC2626;
+	--pge-red-50:    #FDECEC;
+	--pge-amber-600: #D97706;
+	--pge-amber-50:  #FCF3E3;
+
+	/* Radii — refined (chip is 20%-radius; scale echoes it, never balloons) */
+	--pge-radius-sm: 8px;
+	--pge-radius-md: 12px;
+	--pge-radius-lg: 16px;
+	--pge-radius-pill: 999px;
+
+	/* Elevation — layered, blue-tinted, restrained */
+	--pge-shadow-sm: 0 1px 2px rgba(15, 20, 25, 0.05);
+	--pge-shadow-md: 0 1px 2px rgba(15, 20, 25, 0.05), 0 8px 24px -12px rgba(26, 79, 196, 0.18);
+	--pge-shadow-lg: 0 2px 4px rgba(15, 20, 25, 0.05), 0 24px 48px -16px rgba(26, 79, 196, 0.22);
+
+	/* Hairline borders (the system's edge language) */
+	--pge-hairline: 1px solid #E3E8F0;
+	--pge-hairline-dark: 1px solid rgba(124, 176, 255, 0.16);
+
+	/* Spacing scale (mirrors theme.json spacingSizes) */
+	--pge-space-1: 0.5rem;
+	--pge-space-2: 1rem;
+	--pge-space-3: 1.5rem;
+	--pge-space-4: 2.5rem;
+	--pge-space-5: 4rem;
+	--pge-space-6: 6rem;
+}

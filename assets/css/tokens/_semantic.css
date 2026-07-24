@@ -1,0 +1,53 @@
+/*
+ * PrepGro Theme — semantic design tokens.
+ * These are the contract the PrepGro Engine plugin consumes (with fallbacks),
+ * e.g.  color: var(--pge-color-primary, #2563eb);
+ * Per-country branding overrides ONLY these (theme setting / child theme.json),
+ * never the plugin's component CSS.
+ */
+:root {
+	/* Colour roles */
+	--pge-color-primary:        var(--pge-blue-600);
+	--pge-color-primary-strong: var(--pge-blue-700);
+	--pge-color-primary-soft:   var(--pge-blue-50);
+	--pge-color-accent:         var(--pge-blue-400);
+	--pge-color-accent-soft:    var(--pge-blue-100);
+	--pge-color-on-dark:        var(--pge-blue-300);
+
+	/* Legacy accent roles — mapped into the kit family so older
+	   consumers stay on-brand (no yellow/coral in the kit). */
+	--pge-color-coral:          var(--pge-red-600);
+	--pge-color-coral-soft:     var(--pge-red-50);
+	--pge-color-mint:           var(--pge-green-600);
+	--pge-color-mint-soft:      var(--pge-green-50);
+	--pge-color-lilac:          var(--pge-blue-500);
+	--pge-color-lilac-soft:     var(--pge-blue-100);
+
+	--pge-color-ink:            var(--pge-ink-950);
+	--pge-color-ink-2:          var(--pge-ink-900);
+	--pge-color-body:           var(--pge-ink-700);
+	--pge-color-muted:          var(--pge-ink-500);
+	--pge-color-line:           var(--pge-gray-200);
+	--pge-color-surface:        var(--pge-gray-75);
+	--pge-color-base:           var(--pge-white);
+
+	--pge-color-success:        var(--pge-green-600);
+	--pge-color-danger:         var(--pge-red-600);
+
+	/* Signature gradient */
+	--pge-gradient:             var(--pge-gradient-chip);
+
+	/* Typography roles — Outfit drives the wordmark AND the UI (brand kit). */
+	--pge-font-sans:    'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--pge-font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	--pge-font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	/* Surface roles */
+	--pge-card-bg:      var(--pge-white);
+	--pge-card-radius:  var(--pge-radius-lg);
+	--pge-card-shadow:  var(--pge-shadow-sm);
+
+	/* Control roles */
+	--pge-btn-radius:   10px;
+	--pge-focus-ring:   0 0 0 3px rgba(37, 99, 235, 0.30);
+}

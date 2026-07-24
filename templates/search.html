@@ -1,0 +1,49 @@
+<!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","className":"pgt-archive","layout":{"type":"constrained"}} -->
+<main class="wp-block-group pgt-archive">
+
+	<!-- wp:group {"className":"pgt-archive__head","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group pgt-archive__head">
+		<!-- wp:paragraph {"className":"pgt-eyebrow"} -->
+		<p class="pgt-eyebrow">Search results</p>
+		<!-- /wp:paragraph -->
+		<!-- wp:query-title {"type":"search","className":"pgt-archive__title"} /-->
+		<!-- wp:search {"label":"Search","showLabel":false,"placeholder":"Search again…","buttonText":"Search","className":"pgt-archive__search"} /-->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:query {"queryId":0,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","inherit":true}} -->
+	<div class="wp-block-query">
+		<!-- wp:post-template {"className":"pgt-archive__list"} -->
+			<!-- wp:post-title {"isLink":true} /-->
+			<!-- wp:post-excerpt {"moreText":"Read more →"} /-->
+		<!-- /wp:post-template -->
+
+		<!-- wp:query-pagination {"className":"pgt-archive__pagination"} -->
+			<!-- wp:query-pagination-previous /-->
+			<!-- wp:query-pagination-numbers /-->
+			<!-- wp:query-pagination-next /-->
+		<!-- /wp:query-pagination -->
+
+		<!-- wp:query-no-results -->
+			<!-- wp:group {"className":"pgt-archive__empty","layout":{"type":"constrained"}} -->
+			<div class="wp-block-group pgt-archive__empty">
+				<!-- wp:heading {"level":2} -->
+				<h2>No matches found.</h2>
+				<!-- /wp:heading -->
+				<!-- wp:paragraph -->
+				<p>Try a different keyword, or browse every practice test we offer.</p>
+				<!-- /wp:paragraph -->
+				<!-- wp:paragraph {"className":"pgt-archive__empty-cta"} -->
+				<p class="pgt-archive__empty-cta"><a class="pgt-btn pgt-btn--primary" href="/all-exams/">Browse all practice tests</a></p>
+				<!-- /wp:paragraph -->
+			</div>
+			<!-- /wp:group -->
+		<!-- /wp:query-no-results -->
+	</div>
+	<!-- /wp:query -->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->
