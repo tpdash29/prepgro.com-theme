@@ -8,32 +8,201 @@
 
 	var REDUCED = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
-	/* ---------- Mobile menu ---------- */
-	function initMenu() {
-		var burger = document.querySelector( '.pgt-burger' );
-		var panel = document.getElementById( 'pgt-mobile' );
-		if ( ! burger || ! panel ) {
+	/* ---------- Header scroll compaction ----------
+	 * Adds .is-scrolled past a small threshold; CSS shrinks the bar and adds
+	 * a shadow. rAF-throttled; the transition itself is disabled by CSS under
+	 * prefers-reduced-motion. */
+	function initHeaderCompaction() {
+		var header = document.querySelector( '[data-pgt-header]' );
+		if ( ! header ) {
 			return;
+		}
+		var ticking = false;
+		function apply() {
+			header.classList.toggle( 'is-scrolled', window.scrollY > 12 );
+			ticking = false;
+		}
+		window.addEventListener( 'scroll', function () {
+			if ( ! ticking ) {
+				ticking = true;
+				requestAnimationFrame( apply );
+			}
+		}, { passive: true } );
+		apply();
+	}
+
+	/* ---------- Mobile drawer ----------
+	 * Full-screen dialog: scroll-lock, focus trap, Escape, focus restore. */
+	function initDrawer() {
+		var burger = document.querySelector( '.pgt-burger' );
+		var drawer = document.getElementById( 'pgt-drawer' );
+		if ( ! burger || ! drawer ) {
+			return;
+		}
+		var closeBtn = drawer.querySelector( '.pgt-drawer__close' );
+
+		function focusables() {
+			return drawer.querySelectorAll( 'a[href], button:not([disabled])' );
+		}
+
+		function open() {
+			burger.setAttribute( 'aria-expanded', 'true' );
+			drawer.removeAttribute( 'hidden' );
+			// Force a style flush so the opening transition runs from the
+			// hidden state instead of being skipped.
+			void drawer.offsetHeight;
+			drawer.classList.add( 'is-open' );
+			document.documentElement.classList.add( 'pgt-no-scroll' );
+			track( 'drawer:open' );
+			if ( closeBtn ) {
+				closeBtn.focus();
+			}
+			document.addEventListener( 'keydown', onKeydown, true );
+		}
+
+		function close( restoreFocus ) {
+			burger.setAttribute( 'aria-expanded', 'false' );
+			drawer.classList.remove( 'is-open' );
+			drawer.setAttribute( 'hidden', '' );
+			document.documentElement.classList.remove( 'pgt-no-scroll' );
+			document.removeEventListener( 'keydown', onKeydown, true );
+			if ( restoreFocus !== false ) {
+				burger.focus();
+			}
+		}
+
+		function onKeydown( e ) {
+			if ( e.key === 'Escape' ) {
+				e.preventDefault();
+				close();
+				return;
+			}
+			if ( e.key !== 'Tab' ) {
+				return;
+			}
+			var f = focusables();
+			if ( ! f.length ) {
+				return;
+			}
+			var first = f[ 0 ];
+			var last = f[ f.length - 1 ];
+			if ( e.shiftKey && document.activeElement === first ) {
+				e.preventDefault();
+				last.focus();
+			} else if ( ! e.shiftKey && document.activeElement === last ) {
+				e.preventDefault();
+				first.focus();
+			}
 		}
 
 		burger.addEventListener( 'click', function () {
-			var open = burger.getAttribute( 'aria-expanded' ) === 'true';
-			burger.setAttribute( 'aria-expanded', String( ! open ) );
-			if ( open ) {
-				panel.classList.remove( 'is-open' );
-				panel.setAttribute( 'hidden', '' );
+			if ( burger.getAttribute( 'aria-expanded' ) === 'true' ) {
+				close();
 			} else {
-				panel.removeAttribute( 'hidden' );
-				panel.classList.add( 'is-open' );
+				open();
 			}
 		} );
-
-		// Close when a link is tapped.
-		panel.addEventListener( 'click', function ( e ) {
+		if ( closeBtn ) {
+			closeBtn.addEventListener( 'click', function () {
+				close();
+			} );
+		}
+		// A tapped link navigates; unlock scroll without stealing focus.
+		drawer.addEventListener( 'click', function ( e ) {
 			if ( e.target.closest( 'a' ) ) {
-				burger.setAttribute( 'aria-expanded', 'false' );
-				panel.classList.remove( 'is-open' );
-				panel.setAttribute( 'hidden', '' );
+				close( false );
+			}
+		} );
+		// Crossing to the desktop layout while open would strand the
+		// scroll-lock (CSS hides the drawer above 920px).
+		var mq = window.matchMedia( '(min-width: 921px)' );
+		var onChange = function ( e ) {
+			if ( e.matches && burger.getAttribute( 'aria-expanded' ) === 'true' ) {
+				close( false );
+			}
+		};
+		if ( mq.addEventListener ) {
+			mq.addEventListener( 'change', onChange );
+		}
+	}
+
+	/* ---------- Account (avatar) disclosure menu ---------- */
+	function initAccountMenu() {
+		var wrap = document.querySelector( '[data-pgt-account]' );
+		if ( ! wrap ) {
+			return;
+		}
+		var btn = wrap.querySelector( '.pgt-account__btn' );
+		var menu = wrap.querySelector( '.pgt-account__menu' );
+		if ( ! btn || ! menu ) {
+			return;
+		}
+
+		function open() {
+			btn.setAttribute( 'aria-expanded', 'true' );
+			menu.removeAttribute( 'hidden' );
+			var first = menu.querySelector( 'a' );
+			if ( first ) {
+				first.focus();
+			}
+			document.addEventListener( 'keydown', onKeydown, true );
+			document.addEventListener( 'click', onOutside, true );
+		}
+
+		function close( restoreFocus ) {
+			btn.setAttribute( 'aria-expanded', 'false' );
+			menu.setAttribute( 'hidden', '' );
+			document.removeEventListener( 'keydown', onKeydown, true );
+			document.removeEventListener( 'click', onOutside, true );
+			if ( restoreFocus !== false ) {
+				btn.focus();
+			}
+		}
+
+		function onKeydown( e ) {
+			if ( e.key === 'Escape' ) {
+				e.preventDefault();
+				close();
+			}
+		}
+
+		function onOutside( e ) {
+			if ( ! wrap.contains( e.target ) ) {
+				close( false );
+			}
+		}
+
+		btn.addEventListener( 'click', function () {
+			if ( btn.getAttribute( 'aria-expanded' ) === 'true' ) {
+				close();
+			} else {
+				open();
+			}
+		} );
+	}
+
+	/* ---------- Navigation analytics ----------
+	 * Pushes intent events to a tag manager IF one is present; a hard no-op
+	 * otherwise. Consent handling stays the tag manager's job; no PII —
+	 * region:id labels only (see MENU_DATA_MODEL.md). */
+	function track( label ) {
+		if ( ! window.dataLayer || typeof window.dataLayer.push !== 'function' ) {
+			return;
+		}
+		var parts = String( label ).split( ':' );
+		window.dataLayer.push( {
+			event: label === 'drawer:open' ? 'mobile_menu_opened'
+				: ( parts[ 1 ] === 'readiness-cta' ? 'cta_readiness_check_clicked' : 'nav_item_clicked' ),
+			nav_region: parts[ 0 ],
+			nav_id: parts[ 1 ] || ''
+		} );
+	}
+
+	function initNavAnalytics() {
+		document.addEventListener( 'click', function ( e ) {
+			var el = e.target.closest( '[data-nav]' );
+			if ( el ) {
+				track( el.getAttribute( 'data-nav' ) );
 			}
 		} );
 	}
@@ -208,7 +377,10 @@
 	}
 
 	function init() {
-		initMenu();
+		initHeaderCompaction();
+		initDrawer();
+		initAccountMenu();
+		initNavAnalytics();
 		initReveals();
 		initCounters();
 		initProctorAlerts();

@@ -38,7 +38,29 @@ final class Theme_Setup {
 	 */
 	public function init() {
 		add_action( 'after_setup_theme', array( $this, 'add_theme_supports' ) );
+		add_action( 'after_setup_theme', array( $this, 'register_menus' ) );
 		add_action( 'after_setup_theme', array( $this, 'load_textdomain' ) );
+	}
+
+	/**
+	 * Classic menu locations consumed by the Chrome header/footer. Registering
+	 * them re-enables Appearance → Menus in this block theme so the owner can
+	 * edit chrome navigation without code. Chrome falls back to its built-in
+	 * defaults when a location has no menu assigned, and the engine plugin
+	 * seeds editable menus into these locations on activation
+	 * (PrepGro\Engine\Menu_Seeder).
+	 *
+	 * @return void
+	 */
+	public function register_menus() {
+		register_nav_menus(
+			array(
+				'pgt-header'         => __( 'Header — primary navigation', 'prepgro-theme' ),
+				'pgt-footer-explore' => __( 'Footer — Explore column', 'prepgro-theme' ),
+				'pgt-footer-support' => __( 'Footer — Support column', 'prepgro-theme' ),
+				'pgt-footer-legal'   => __( 'Footer — Legal column', 'prepgro-theme' ),
+			)
+		);
 	}
 
 	/**

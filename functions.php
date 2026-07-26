@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PGT_VERSION', '3.2.1' );
+define( 'PGT_VERSION', '3.3.0' );
 define( 'PGT_DIR', get_template_directory() );
 define( 'PGT_URI', get_template_directory_uri() );
 
