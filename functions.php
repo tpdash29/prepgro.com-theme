@@ -19,6 +19,13 @@ define( 'PGT_URI', get_template_directory_uri() );
 
 require_once PGT_DIR . '/inc/class-theme-setup.php';
 require_once PGT_DIR . '/inc/class-token-loader.php';
+require_once PGT_DIR . '/inc/class-icons.php';
+require_once PGT_DIR . '/inc/class-media.php';
+require_once PGT_DIR . '/inc/class-pricing-levels.php';
+require_once PGT_DIR . '/inc/class-module-pages.php';
+require_once PGT_DIR . '/inc/class-pricing-page.php';
+require_once PGT_DIR . '/inc/class-exams-page.php';
+require_once PGT_DIR . '/inc/class-blog.php';
 require_once PGT_DIR . '/inc/class-theme-options.php';
 require_once PGT_DIR . '/inc/class-chrome.php';
 require_once PGT_DIR . '/inc/class-homepage-sections.php';
@@ -28,6 +35,10 @@ require_once PGT_DIR . '/inc/class-homepage-sections.php';
 \PrepGro\Theme\Theme_Options::instance()->init();
 \PrepGro\Theme\Chrome::instance()->init();
 \PrepGro\Theme\Homepage_Sections::instance()->init();
+\PrepGro\Theme\Module_Pages::instance()->init();
+\PrepGro\Theme\Pricing_Page::instance()->init();
+\PrepGro\Theme\Exams_Page::instance()->init();
+\PrepGro\Theme\Blog::instance()->init();
 
 /**
  * Site icon (favicon) from the bundled brand-kit mark — no Media Library
@@ -70,12 +81,12 @@ add_action(
 		?>
 		<style id="pgt-brand-bridge">
 			:root {
-				--brand-primary: #2563EB;
-				--brand-accent: #2563EB;
-				--brand-ink: #0F1419;
-				--brand-canvas: #F5F7FB;
-				--brand-heading-font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-				--brand-font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				--brand-primary: var(--pge-color-primary);
+				--brand-accent: var(--pge-color-primary);
+				--brand-ink: var(--pge-color-ink);
+				--brand-canvas: var(--pge-color-surface);
+				--brand-heading-font: var(--pge-font-heading);
+				--brand-font: var(--pge-font-sans);
 			}
 			/*
 			 * v2 "Playful Bold" reskin of the engine's neumorphic depth system.
@@ -90,60 +101,65 @@ add_action(
 			 */
 			body {
 				/*
-				 * v3 "Meridian": layered soft elevation replaces both the misty
-				 * neumorphic pair AND v2's hard "pop" offsets. Blue-tinted,
-				 * restrained — matches --pge-shadow-* in tokens/_core.css.
+				 * v4 "Meridian / electric": layered soft elevation, re-tinted onto
+				 * the A1 palette. Every value below resolves through a --pge-*
+				 * token, so the portal can never fork the palette — change
+				 * assets/css/tokens/_core.css and this follows.
 				 */
 				--tb-neu-shl: 255,255,255;
-				--tb-neu-shd: 15,20,25;
-				--tb-neu-out:    0 2px 4px rgba(15,20,25,.05), 0 24px 48px -16px rgba(26,79,196,.22);
-				--tb-neu-out-sm: 0 1px 2px rgba(15,20,25,.05), 0 8px 24px -12px rgba(26,79,196,.18);
-				--tb-neu-out-xs: 0 1px 2px rgba(15,20,25,.05);
-				--tb-neu-in:      inset 0 2px 5px rgba(15,20,25,.08);
-				--tb-neu-in-deep: inset 0 3px 7px rgba(15,20,25,.12);
-				--tb-neu-shadow-sm:         0 1px 2px rgba(15,20,25,.05);
-				--tb-neu-shadow:            0 1px 2px rgba(15,20,25,.05), 0 8px 24px -12px rgba(26,79,196,.18);
-				--tb-neu-shadow-lg:         0 2px 4px rgba(15,20,25,.05), 0 24px 48px -16px rgba(26,79,196,.22);
-				--tb-neu-shadow-xl:         0 2px 4px rgba(15,20,25,.05), 0 24px 48px -16px rgba(26,79,196,.22);
-				--tb-neu-shadow-inset:      inset 0 2px 5px rgba(15,20,25,.08);
-				--tb-neu-shadow-inset-sm:   inset 0 2px 5px rgba(15,20,25,.08);
-				--tb-neu-shadow-inset-deep: inset 0 3px 7px rgba(15,20,25,.12);
-				--tb-neu-accent-out: 0 8px 24px -12px rgba(26,79,196,.35);
+				--tb-neu-shd: 3,5,15;
+				--tb-neu-out:    var(--pge-shadow-lg);
+				--tb-neu-out-sm: var(--pge-shadow-md);
+				--tb-neu-out-xs: var(--pge-shadow-sm);
+				--tb-neu-in:      inset 0 2px 5px rgba(3,5,15,.08);
+				--tb-neu-in-deep: inset 0 3px 7px rgba(3,5,15,.12);
+				--tb-neu-shadow-sm:         var(--pge-shadow-sm);
+				--tb-neu-shadow:            var(--pge-shadow-md);
+				--tb-neu-shadow-lg:         var(--pge-shadow-lg);
+				--tb-neu-shadow-xl:         var(--pge-shadow-lg);
+				--tb-neu-shadow-inset:      inset 0 2px 5px rgba(3,5,15,.08);
+				--tb-neu-shadow-inset-sm:   inset 0 2px 5px rgba(3,5,15,.08);
+				--tb-neu-shadow-inset-deep: inset 0 3px 7px rgba(3,5,15,.12);
+				--tb-neu-accent-out: 0 8px 24px -12px rgba(18,38,200,.35);
 				--tb-neu-coral-out:  0 8px 24px -12px rgba(220,38,38,.30);
-				--tb-neu-halo-primary: 0 0 0 3px rgba(37,99,235,.30);
+				--tb-neu-halo-primary: var(--pge-focus-ring);
 
 				/* Kit hairlines */
-				--tb-neu-border:        #E3E8F0;
-				--tb-neu-border-strong: rgba(15,20,25,.30);
+				--tb-neu-border:        var(--pge-color-line);
+				--tb-neu-border-strong: rgba(3,5,15,.30);
 
 				/* Kit surfaces + ink ramp */
-				--tb-neu-bg-warm:   #F5F7FB;
-				--tb-neu-ink-soft:  #313B4B;
-				--tb-neu-ink-faint: #687078;
+				--tb-neu-bg-warm:   var(--pge-color-surface);
+				--tb-neu-ink-soft:  var(--pge-color-body);
+				--tb-neu-ink-faint: var(--pge-color-muted);
 
 				/* Status accents from the kit ramp (no coral/teal) */
-				--tb-neu-coral:      #DC2626;
-				--tb-neu-coral-deep: #B91C1C;
-				--tb-neu-coral-soft: #FDECEC;
-				--tb-neu-good: #0E9F6E;
-				--tb-neu-focus-ring: 0 0 0 3px rgba(37,99,235,.30);
+				--tb-neu-coral:      var(--pge-red-600);
+				--tb-neu-coral-deep: var(--red-700);
+				--tb-neu-coral-soft: var(--pge-red-50);
+				--tb-neu-good: var(--pge-color-success);
+				--tb-neu-focus-ring: var(--pge-focus-ring);
 
-				/* Flat (non-neumorphic) component tokens used by newer screens */
-				--tb-bg: #F8FAFC;
-				--tb-surface: #FFFFFF;
-				--tb-border: #E3E8F0;
-				--tb-border-hover: #8B93A2;
-				--tb-text-main: #0F1419;
-				--tb-text-secondary: #313B4B;
-				--tb-text-muted: #687078;
-				--tb-font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-				--tb-shadow-sm: 0 1px 2px rgba(15,20,25,.05);
-				--tb-shadow:    0 1px 2px rgba(15,20,25,.05), 0 8px 24px -12px rgba(26,79,196,.18);
-				--tb-shadow-lg: 0 2px 4px rgba(15,20,25,.05), 0 24px 48px -16px rgba(26,79,196,.22);
-				--tb-shadow-xl: 0 2px 4px rgba(15,20,25,.05), 0 24px 48px -16px rgba(26,79,196,.22);
-				--tb-radius: 10px;
-				--tb-radius-lg: 14px;
-				--tb-radius-xl: 16px;
+				/* Flat (non-neumorphic) component tokens used by newer screens.
+				   The engine's assets/css/elevate/elevate.css derives its own
+				   --pge-primary/--pge-ink from these, so they carry the palette
+				   into the Elevate module too. */
+				--tb-bg: var(--pge-gray-50);
+				--tb-surface: var(--pge-white);
+				--tb-border: var(--pge-color-line);
+				--tb-border-hover: var(--pge-ink-400);
+				--tb-text-main: var(--pge-color-ink);
+				--tb-text-secondary: var(--pge-color-body);
+				--tb-text-muted: var(--pge-color-muted);
+				--tb-primary: var(--pge-color-primary);
+				--tb-font-family: var(--pge-font-sans);
+				--tb-shadow-sm: var(--pge-shadow-sm);
+				--tb-shadow:    var(--pge-shadow-md);
+				--tb-shadow-lg: var(--pge-shadow-lg);
+				--tb-shadow-xl: var(--pge-shadow-lg);
+				--tb-radius: var(--pge-radius-md);
+				--tb-radius-lg: 16px;
+				--tb-radius-xl: var(--pge-radius-lg);
 			}
 		</style>
 		<?php

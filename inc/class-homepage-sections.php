@@ -45,6 +45,65 @@ final class Homepage_Sections {
 		add_shortcode( 'pgt_states', array( $this, 'render_states' ) );
 		add_shortcode( 'pgt_latest_tests', array( $this, 'render_latest_tests' ) );
 		add_shortcode( 'pgt_testimonials', array( $this, 'render_testimonials' ) );
+		add_shortcode( 'pgt_photo_band', array( $this, 'render_photo_band' ) );
+	}
+
+
+	/**
+	 * Homepage photo band (README addendum A5) — a 2/1 split of two real
+	 * photographs with the aggregate "+80" stat plate between them.
+	 *
+	 * Layout note: this is a fixed-ratio two-part row (flex 2 / flex 1), NOT
+	 * `auto-fit` + `grid-column: span 2`. auto-fit cannot create a third track
+	 * and the span swallows the row — the trap called out in the handoff.
+	 *
+	 * The +80 figure is aggregate sample copy, not live data, so it carries
+	 * the standard Sample badge.
+	 *
+	 * @return string
+	 */
+	public function render_photo_band() {
+		$main = Media::setting_image( 'pgt_home_band_main', 'photo-student-desk.jpg' );
+		$side = Media::setting_image( 'pgt_home_band_side', 'photo-family-study.jpg' );
+
+		$html  = '<section class="pgh-section pgh-photoband" id="pg-band"><div class="pgh-container pgh-photoband__row">';
+
+		$html .= '<div class="pgh-photoband__main">'
+			. Media::image(
+				array(
+					'attachment' => $main['attachment'],
+					'url'        => $main['url'],
+					'alt'        => __( 'A student working through a practice set on a laptop.', 'prepgro-theme' ),
+					'height'     => 'clamp(240px, 34vw, 360px)',
+					'radius'     => '20px',
+					'sizes'      => '(max-width: 900px) 100vw, 62vw',
+				)
+			)
+			. '</div>';
+
+		$html .= '<div class="pgh-photoband__side">'
+			. '<div class="pgh-plate">'
+			. '<p class="pgh-plate__figure">+80</p>'
+			. '<p class="pgh-plate__label">' . esc_html__( 'average estimated-score gain in the first 12 practice tests.', 'prepgro-theme' ) . '</p>'
+			. Media::sample_badge( '', 'pgt-sample--on-dark' )
+			. '</div>'
+			. '<div class="pgh-photoband__sidephoto">'
+			. Media::image(
+				array(
+					'attachment' => $side['attachment'],
+					'url'        => $side['url'],
+					'alt'        => __( 'A tutor mid-explanation on a video call.', 'prepgro-theme' ),
+					'height'     => '100%',
+					'radius'     => '20px',
+					'sizes'      => '(max-width: 900px) 100vw, 32vw',
+				)
+			)
+			. '</div>'
+			. '</div>';
+
+		$html .= '</div></section>';
+
+		return $html;
 	}
 
 	/**

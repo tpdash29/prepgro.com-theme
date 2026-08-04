@@ -1,0 +1,280 @@
+/*
+ * PrepGro Theme — pricing page (README §7 + addendum A4).
+ *
+ * All four levels are in the DOM; the tabs toggle which price set is
+ * visible. That keeps the chart and the cards reading one source and makes
+ * the level swap instant, while `?level=` still decides server-side so the
+ * page is correct with JS off.
+ */
+
+.pgp { --pgp-max: 1060px; }
+
+/* ── Header + level selector ───────────────────────────────────────── */
+.pgp-head {
+	padding: clamp(40px, 6vw, 60px) clamp(18px, 4vw, 32px) 40px;
+	background:
+		radial-gradient(var(--pge-gray-200) 1px, transparent 1px) 0 0 / 22px 22px,
+		linear-gradient(180deg, var(--pge-gray-50), #fff 70%);
+	text-align: center;
+}
+.pgp-head__copy { max-width: 800px; margin-inline: auto; }
+.pgp-chip {
+	display: inline-block;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	padding: 6px 14px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--pge-ink-500);
+}
+.pgp-h1 {
+	font-size: clamp(34px, 5.6vw, 56px);
+	line-height: 1.05;
+	letter-spacing: -.035em;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+	margin: 20px 0 0;
+}
+.pgp-h1__quiet { color: var(--neutral-400); }
+.pgp-lede { font-size: 17.5px; line-height: 1.6; color: var(--pge-ink-500); margin: 18px auto 0; max-width: 50ch; }
+
+.pgp-levels {
+	max-width: var(--pgp-max);
+	margin: 38px auto 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.pgp-levels__label { font-size: 13px; font-weight: 600; color: var(--neutral-400); }
+.pgp-tabs {
+	display: flex;
+	gap: 4px;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	padding: 4px;
+	box-shadow: var(--pge-shadow-sm);
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.pgp-tab {
+	font-size: 13.5px;
+	font-weight: 600;
+	padding: 9px 17px;
+	border-radius: var(--pge-radius-pill);
+	white-space: nowrap;
+	color: var(--pge-ink-500);
+	background: transparent;
+	text-decoration: none;
+	border: 0;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background-color 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
+}
+.pgp-tab:hover { color: var(--pge-color-ink); text-decoration: none; }
+.pgp-tab.is-on { background: var(--pge-color-ink); color: #fff; }
+.pgp-tab.is-on:hover { color: #fff; }
+.pgp-showing { text-align: center; font-size: 13.5px; color: var(--neutral-400); margin: 14px 0 0; }
+.pgp-levelname { color: var(--pge-color-body); font-weight: 600; }
+.pgp-levelname[hidden] { display: none; }
+
+/* ── Body ──────────────────────────────────────────────────────────── */
+.pgp-body { padding: 26px clamp(18px, 4vw, 32px) clamp(48px, 7vw, 80px); }
+
+/* ── Plan pair ─────────────────────────────────────────────────────── */
+/* No overflow:hidden here — the featured card's badge pins outside it. */
+.pgp-plans {
+	max-width: var(--pgp-max);
+	margin-inline: auto;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+	gap: 20px;
+	align-items: start;
+}
+.pgp-card { border-radius: 24px; position: relative; }
+.pgp-card--quiet {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-color-line);
+	padding: clamp(24px, 3vw, 32px) clamp(20px, 3vw, 30px);
+}
+.pgp-card--featured {
+	background: var(--blue-600);
+	color: #fff;
+	padding: clamp(24px, 3vw, 34px) clamp(20px, 3vw, 32px);
+	box-shadow: 0 12px 34px -14px rgba(27,59,235,.55), 0 2px 6px rgba(3,5,15,.08);
+}
+.pgp-badge {
+	position: absolute;
+	top: -18px; right: -14px;
+	width: 56px; height: 56px;
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: 0 10px 22px -8px rgba(3,5,15,.22);
+	display: flex; align-items: center; justify-content: center;
+}
+.pgp-tag {
+	display: inline-block;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	padding: 5px 12px;
+	font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+	color: var(--pge-ink-500);
+}
+.pgp-tag--onblue { background: rgba(255,255,255,.16); border-color: transparent; color: #fff; }
+.pgp-card__h {
+	font-size: 27px; line-height: 1.15; letter-spacing: -.028em; font-weight: 600;
+	color: var(--pge-color-ink);
+	margin: 16px 0 10px;
+}
+.pgp-card__h--onblue { color: #fff; }
+.pgp-card__b { font-size: 15.5px; line-height: 1.6; color: var(--pge-ink-500); margin: 0 0 24px; }
+.pgp-card__b--onblue { color: rgba(255,255,255,.78); }
+
+.pgp-priceblock {
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 18px;
+	padding: 22px 24px;
+}
+.pgp-priceblock--onblue { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.22); }
+.pgp-priceset[hidden] { display: none; }
+.pgp-figure { display: flex; align-items: baseline; gap: 5px; }
+.pgp-figure__n { font-size: 44px; font-weight: 600; letter-spacing: -.04em; color: var(--pge-color-ink); }
+.pgp-figure__u { font-size: 18px; color: var(--neutral-400); }
+.pgp-figure--lg .pgp-figure__n { font-size: 50px; color: #fff; }
+.pgp-figure--lg .pgp-figure__u { font-size: 19px; color: rgba(255,255,255,.75); }
+.pgp-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.pgp-term { border: 1px solid var(--pge-gray-100); border-radius: 12px; padding: 12px 14px; }
+.pgp-term__l { margin: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--neutral-400); }
+.pgp-term__v { margin: 5px 0 0; font-family: var(--pge-font-mono); font-size: 17px; font-weight: 700; color: var(--pge-color-ink); }
+.pgp-subline { margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,.8); }
+
+.pgp-cta {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 18px;
+	font-size: 15px;
+	font-weight: 600;
+	padding: 14px;
+	border-radius: var(--pge-radius-pill);
+	min-height: 48px;
+	white-space: nowrap;
+	text-decoration: none;
+	transition: filter 140ms var(--pgt-ease);
+}
+.pgp-cta:hover { text-decoration: none; filter: brightness(.92); }
+.pgp-cta--primary { color: #fff; background: var(--pge-color-primary); }
+.pgp-cta--primary:hover { color: #fff; }
+.pgp-cta--ink { color: var(--pge-color-ink); background: #fff; }
+.pgp-cta--ink:hover { color: var(--pge-color-ink); }
+.pgp-cta--inline { margin-top: 0; display: inline-flex; padding: 15px 28px; }
+
+.pgp-includes {
+	list-style: none;
+	margin: 24px 0 0;
+	padding: 24px 0 0;
+	border-top: 1px solid var(--pge-color-line);
+	display: grid;
+	gap: 12px;
+}
+.pgp-includes li { display: flex; gap: 10px; font-size: 14.5px; line-height: 1.5; color: var(--pge-color-body); }
+.pgp-includes li svg { flex: none; margin-top: 4px; color: var(--pge-color-ink); }
+.pgp-includes--onblue { border-top-color: rgba(255,255,255,.24); }
+.pgp-includes--onblue li { color: rgba(255,255,255,.94); }
+.pgp-includes--onblue li svg { color: #fff; }
+.pgp-note { margin: 20px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--neutral-400); }
+.pgp-note--onblue { color: rgba(255,255,255,.72); }
+
+/* ── A4 cost-by-level chart ────────────────────────────────────────── */
+.pgp-chart {
+	max-width: var(--pgp-max);
+	margin: 26px auto 0;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 24px;
+	padding: clamp(22px, 3vw, 32px);
+	box-shadow: 0 1px 2px rgba(3,5,15,.04);
+}
+.pgp-chart__head {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 24px;
+}
+.pgp-kicker { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--neutral-400); }
+.pgp-chart__h {
+	font-size: clamp(22px, 2.6vw, 28px);
+	line-height: 1.16;
+	letter-spacing: -.028em;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+	margin: 10px 0 0;
+}
+.pgp-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+.pgp-legend__i { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--pge-ink-500); }
+.pgp-sw { width: 10px; height: 10px; border-radius: 3px; }
+.pgp-sw--pack { background: var(--blue-400); }
+.pgp-sw--tutor { background: var(--blue-600); }
+
+.pgp-chartrows { display: grid; gap: 18px; }
+.pgp-chartrow { display: grid; grid-template-columns: minmax(110px, 150px) 1fr; gap: 16px; align-items: center; }
+.pgp-chartrow__l { font-size: 13.5px; font-weight: 500; color: var(--pge-ink-500); }
+/* The selected level's row is the one the eye should land on. */
+.pgp-chartrow.is-on .pgp-chartrow__l { font-weight: 700; color: var(--pge-color-ink); }
+.pgp-chartrow__bars { display: grid; gap: 7px; min-width: 0; }
+.pgp-barline { display: flex; align-items: center; gap: 10px; }
+.pgp-bar { display: block; height: 15px; border-radius: 5px; min-width: 2px; }
+.pgp-bar--pack { background: var(--blue-400); }
+.pgp-bar--tutor { background: var(--blue-600); }
+.pgp-barval { font-family: var(--pge-font-mono); font-size: 12.5px; color: var(--pge-ink-500); white-space: nowrap; }
+.pgp-barval--strong { font-weight: 600; color: var(--pge-color-ink); }
+
+.pgp-facts {
+	position: relative;
+	margin-top: 26px;
+	padding-top: 22px;
+	border-top: 1px solid var(--pge-gray-100);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+	gap: 16px;
+}
+.pgp-facts .pgt-sample { position: absolute; top: 22px; right: 0; }
+.pgp-fact__v { margin: 0; font-family: var(--pge-font-mono); font-size: 22px; font-weight: 700; color: var(--pge-color-ink); }
+.pgp-fact__l { margin: 5px 0 0; font-size: 13px; line-height: 1.5; color: var(--pge-ink-500); }
+
+/* ── Readiness band ────────────────────────────────────────────────── */
+.pgp-band {
+	max-width: var(--pgp-max);
+	margin: 20px auto 0;
+	background: var(--blue-50);
+	border: 1px solid var(--blue-200);
+	border-radius: 24px;
+	padding: clamp(24px, 3vw, 34px) clamp(20px, 3vw, 36px);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 28px;
+	flex-wrap: wrap;
+}
+.pgp-band__copy { max-width: 56ch; }
+.pgp-band__eyebrow { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pge-color-primary); }
+.pgp-band__h { font-size: 26px; line-height: 1.2; letter-spacing: -.025em; font-weight: 600; color: var(--pge-color-ink); margin: 10px 0 8px; }
+.pgp-band__b { margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--pge-ink-500); }
+
+/* ── Small print ───────────────────────────────────────────────────── */
+.pgp-print { max-width: var(--pgp-max); margin: 26px auto 0; }
+.pgp-print__l { margin: 0 0 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--neutral-400); }
+.pgp-print ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.pgp-print li { display: flex; gap: 9px; font-size: 13px; line-height: 1.55; color: var(--neutral-400); }
+.pgp-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--neutral-300); flex: none; margin-top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+	.pgp-tab, .pgp-cta { transition: none; }
+}

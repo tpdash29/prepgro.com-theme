@@ -30,32 +30,36 @@
 	--pg-color-surface-raised:  var(--pge-card-bg);
 	--pg-color-surface-muted:   var(--pge-color-surface);
 	--pg-color-border-subtle:   var(--pge-color-line);
-	--pg-color-border-strong:   var(--pge-gray-300, #c7ceda);
+	--pg-color-border-strong:   var(--neutral-300, #bcc4e3);
 	--pg-color-focus-ring:      var(--pge-color-primary);
 	--pg-color-success:         var(--pge-color-success);
-	--pg-color-warning:         var(--pge-amber-600, #b45309);
+	--pg-color-warning:         var(--pge-amber-600, #d97706);
 	--pg-color-danger:          var(--pge-color-danger);
 	--pg-color-info:            var(--pge-color-accent);
 
-	/* ── Evaluate — soft azure ground ──────────────────────────────── */
-	--pg-evaluate-ground:        #dae7f9;
-	--pg-evaluate-ground-subtle: #edf4fd;
+	/* ── Evaluate — royal blue ground ──────────────────────────────── */
+	--pg-evaluate-ground:        var(--blue-100, #dbe3ff);
+	--pg-evaluate-ground-subtle: var(--blue-50, #edf1ff);
 	--pg-evaluate-surface:       #ffffff;
-	--pg-evaluate-border:        #bdd3f0;
-	--pg-evaluate-accent:        #2d7ef5;
+	--pg-evaluate-border:        var(--blue-200, #b8c6ff);
+	--pg-evaluate-accent:        var(--blue-600, #1b3beb);
 
-	/* ── Elevate — soft aqua ground ────────────────────────────────── */
-	--pg-elevate-ground:         #d6ecef;
-	--pg-elevate-ground-subtle:  #eaf7f9;
+	/* ── Elevate — azure ground ────────────────────────────────────────
+	   A1 retires the old teal (#0e8a9c / #0fb2c9). Elevate now reads in
+	   azure, one ramp step off Evaluate's royal blue. */
+	--pg-elevate-ground:         #d3e9ff;
+	--pg-elevate-ground-subtle:  #edf6ff;
 	--pg-elevate-surface:        #ffffff;
-	--pg-elevate-border:         #b7dce2;
-	--pg-elevate-accent:         #0fb2c9;
+	--pg-elevate-border:         #aed4ff;
+	--pg-elevate-accent:         var(--blue-500, #0a84ff);
 
-	/* ── Excel — warm gold/cream ground ────────────────────────────── */
-	--pg-excel-ground:           #f4eddb;
-	--pg-excel-ground-subtle:    #faf6ec;
+	/* ── Excel — warm amber ground ─────────────────────────────────────
+	   Amber survives A1 as a phase label only, never as a fill or accent
+	   with status meaning. */
+	--pg-excel-ground:           #f6ecd9;
+	--pg-excel-ground-subtle:    #fffbeb;
 	--pg-excel-surface:          #ffffff;
-	--pg-excel-border:           #e4d6b0;
-	--pg-excel-accent:           #ffb020; /* non-text use only */
-	--pg-excel-accent-ink:       #8a6100; /* AA-safe text/icon gold */
+	--pg-excel-border:           #e8d4a6;
+	--pg-excel-accent:           #f59e0b; /* non-text use only */
+	--pg-excel-accent-ink:       #b45309; /* AA-safe text/icon amber */
 }
