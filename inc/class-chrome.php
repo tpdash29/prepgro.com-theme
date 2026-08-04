@@ -680,7 +680,7 @@ final class Chrome {
 
 	/**
 	 * Brand-kit chip mark + wordmark lockup (per prepgro-logo-kit-v34:
-	 * chip gradient #1A4FC4→#2D7EF5→#5299FF, wordmark "prep" ink / "Gro"
+	 * chip gradient #0c1b9e→#0a84ff→#4d93ff, wordmark "prep" ink / "Gro"
 	 * brand-blue, Outfit). Real text in the DOM so it stays crisp and
 	 * accessible.
 	 *
@@ -697,7 +697,7 @@ final class Chrome {
 		return '<span class="pgt-brandlogo">'
 			. '<svg class="pgt-brandlogo__chip" width="34" height="34" viewBox="0 0 92 92" aria-hidden="true">'
 			. '<defs><linearGradient id="' . esc_attr( $grad_id ) . '" x1="0" y1="0" x2="1" y2="1">'
-			. '<stop offset="0%" stop-color="#1A4FC4"/><stop offset="52%" stop-color="#2D7EF5"/><stop offset="100%" stop-color="#5299FF"/>'
+			. '<stop offset="0%" stop-color="#0c1b9e"/><stop offset="52%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#4d93ff"/>'
 			. '</linearGradient></defs>'
 			. '<rect x="6" y="6" width="80" height="80" rx="16" fill="url(#' . esc_attr( $grad_id ) . ')"/>'
 			. '<path d="M74 23 L74 43 L67 36 L33 70 L17 54 L23 48 L33 58 L61 30 L54 23 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>'

@@ -1,7 +1,10 @@
 /*
  * PrepGro Theme — semantic design tokens.
  * These are the contract the PrepGro Engine plugin consumes (with fallbacks),
- * e.g.  color: var(--pge-color-primary, #2563eb);
+ * e.g.  color: var(--pge-color-primary, #1b3beb);
+ * NOTE: the engine plugin still carries #2563eb literals as its var()
+ * fallbacks. Those only surface if this bundle fails to load; they are
+ * refreshed in the engine as part of the portal step.
  * Per-country branding overrides ONLY these (theme setting / child theme.json),
  * never the plugin's component CSS.
  */
@@ -12,10 +15,12 @@
 	--pge-color-primary-soft:   var(--pge-blue-50);
 	--pge-color-accent:         var(--pge-blue-400);
 	--pge-color-accent-soft:    var(--pge-blue-100);
-	--pge-color-on-dark:        var(--pge-blue-300);
+	/* A1 breaks on-dark away from the blue-300 ramp step. */
+	--pge-color-on-dark:        var(--color-accent-on-dark);
 
 	/* Legacy accent roles — mapped into the kit family so older
-	   consumers stay on-brand (no yellow/coral in the kit). */
+	   consumers stay on-brand (no yellow/coral in the kit). --lilac now
+	   resolves to azure, which is where the retired teal accent went. */
 	--pge-color-coral:          var(--pge-red-600);
 	--pge-color-coral-soft:     var(--pge-red-50);
 	--pge-color-mint:           var(--pge-green-600);
@@ -50,5 +55,5 @@
 	/* Control roles — pill buttons (Acorn-language shape pass, 2026-08-04;
 	   supersedes the old "never balloon" restrained-radius rule below). */
 	--pge-btn-radius:   var(--pge-radius-pill);
-	--pge-focus-ring:   0 0 0 3px rgba(37, 99, 235, 0.30);
+	--pge-focus-ring:   0 0 0 3px rgba(27, 59, 235, 0.30);
 }

@@ -13,26 +13,26 @@
 			"customGradient": true,
 			"defaultPalette": false,
 			"palette": [
-				{ "slug": "primary",      "color": "#2563EB", "name": "Brand Blue" },
-				{ "slug": "primary-dark", "color": "#1A4FC4", "name": "Chip Start" },
-				{ "slug": "primary-mid",  "color": "#2D7EF5", "name": "Chip Mid" },
-				{ "slug": "accent",       "color": "#5299FF", "name": "Chip End" },
-				{ "slug": "on-dark",      "color": "#7CB0FF", "name": "On-dark Blue" },
-				{ "slug": "ink",          "color": "#0F1419", "name": "Ink" },
-				{ "slug": "ink-2",        "color": "#121C30", "name": "Ink Deep" },
-				{ "slug": "body",         "color": "#313B4B", "name": "Body Text" },
-				{ "slug": "muted",        "color": "#687078", "name": "Muted" },
-				{ "slug": "line",         "color": "#E3E8F0", "name": "Hairline" },
-				{ "slug": "surface",      "color": "#F5F7FB", "name": "Surface" },
+				{ "slug": "primary",      "color": "#1b3beb", "name": "Brand Blue" },
+				{ "slug": "primary-dark", "color": "#0c1b9e", "name": "Chip Start" },
+				{ "slug": "primary-mid",  "color": "#0a84ff", "name": "Chip Mid" },
+				{ "slug": "accent",       "color": "#4d93ff", "name": "Chip End" },
+				{ "slug": "on-dark",      "color": "#6ba4ff", "name": "On-dark Blue" },
+				{ "slug": "ink",          "color": "#03050f", "name": "Ink" },
+				{ "slug": "ink-2",        "color": "#151c42", "name": "Ink Deep" },
+				{ "slug": "body",         "color": "#3d4570", "name": "Body Text" },
+				{ "slug": "muted",        "color": "#5f6894", "name": "Muted" },
+				{ "slug": "line",         "color": "#dbe0f1", "name": "Hairline" },
+				{ "slug": "surface",      "color": "#eceff9", "name": "Surface" },
 				{ "slug": "base",         "color": "#FFFFFF", "name": "Base" },
-				{ "slug": "success",      "color": "#0E9F6E", "name": "Success" },
+				{ "slug": "success",      "color": "#16a34a", "name": "Success" },
 				{ "slug": "danger",       "color": "#DC2626", "name": "Danger" }
 			],
 			"gradients": [
 				{
 					"slug": "chip",
 					"name": "PrepGro Chip",
-					"gradient": "linear-gradient(135deg, #1A4FC4 0%, #2D7EF5 52%, #5299FF 100%)"
+					"gradient": "linear-gradient(135deg, #0c1b9e 0%, #0a84ff 52%, #4d93ff 100%)"
 				}
 			]
 		},
@@ -105,7 +105,7 @@
 					"background": "var(--wp--preset--color--primary)",
 					"text": "#ffffff"
 				},
-				"border": { "radius": "10px" },
+				"border": { "radius": "999px" },
 				"spacing": { "padding": { "top": "0.72rem", "bottom": "0.72rem", "left": "1.25rem", "right": "1.25rem" } },
 				"typography": { "fontWeight": "600" },
 				":hover": {

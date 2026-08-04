@@ -7,8 +7,8 @@
  * with strictly higher specificity (doubled body class) + !important, keeping
  * the fix at the theme level so plugin updates never wipe it.
  *
- * Design language (from prepgro-logo-kit-v34): Outfit, brand blue #2563EB,
- * ink #0F1419/#121C30, chip gradient #1A4FC4→#2D7EF5→#5299FF as the single
+ * Design language (from prepgro-logo-kit-v34): Outfit, brand blue #1b3beb,
+ * ink #03050f/#151c42, chip gradient #0c1b9e→#0a84ff→#4d93ff as the single
  * signature, hairline borders, layered soft elevation. No thick borders,
  * no offset shadows, no decorative rotation.
  */
@@ -20,22 +20,22 @@
    without touching the compiled bundle. */
 body.tb-portal-testprep,
 body.tb-portal-competitive {
-	--tb-primary: var(--pge-color-primary, #2563EB);
-	--tb-secondary: var(--pge-ink-500, #687078);
-	--tb-secondary-hover: var(--pge-ink-700, #313B4B);
-	--tb-success: var(--pge-green-600, #0E9F6E);
-	--tb-success-light: var(--pge-green-50, #E7F6F0);
+	--tb-primary: var(--pge-color-primary, #1b3beb);
+	--tb-secondary: var(--pge-ink-500, #5f6894);
+	--tb-secondary-hover: var(--pge-ink-700, #3d4570);
+	--tb-success: var(--pge-green-600, #16a34a);
+	--tb-success-light: var(--pge-green-50, #f0fdf4);
 	--tb-warning: var(--pge-amber-600, #D97706);
-	--tb-warning-light: var(--pge-amber-50, #FCF3E3);
+	--tb-warning-light: var(--pge-amber-50, #fffbeb);
 	--tb-danger: var(--pge-red-600, #DC2626);
-	--tb-danger-light: var(--pge-red-50, #FDECEC);
-	--tb-bg: var(--pge-gray-50, #F8FAFC);
+	--tb-danger-light: var(--pge-red-50, #fef2f2);
+	--tb-bg: var(--pge-gray-50, #f6f7fc);
 	--tb-surface: var(--pge-white, #ffffff);
-	--tb-border: var(--pge-gray-200, #E3E8F0);
-	--tb-border-hover: var(--pge-ink-400, #8B93A2);
-	--tb-text-main: var(--pge-ink-950, #0F1419);
-	--tb-text-secondary: var(--pge-ink-700, #313B4B);
-	--tb-text-muted: var(--pge-ink-500, #687078);
+	--tb-border: var(--pge-gray-200, #dbe0f1);
+	--tb-border-hover: var(--pge-ink-400, #868fb6);
+	--tb-text-main: var(--pge-ink-950, #03050f);
+	--tb-text-secondary: var(--pge-ink-700, #3d4570);
+	--tb-text-muted: var(--pge-ink-500, #5f6894);
 	--tb-font-family: var(--pge-font-sans, 'Outfit', sans-serif);
 }
 
@@ -44,9 +44,9 @@ body.tb-portal-competitive {
    (body.pg-module-*); this flat canvas must not overrule them. */
 body.tb-portal-testprep.tb-portal-testprep:not(.pg-app),
 body.tb-portal-competitive.tb-portal-competitive:not(.pg-app) {
-	background: #F5F7FB !important;
+	background: #eceff9 !important;
 	animation: none !important;
-	color: #0F1419 !important;
+	color: #03050f !important;
 }
 
 /* ── Portal typography ── */
@@ -76,38 +76,38 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar {
 	background: #ffffff !important;
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
-	border: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border: 1px solid var(--pge-color-line, #dbe0f1) !important;
 	border-radius: 14px !important;
-	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(15,20,25,.05)) !important;
+	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header {
-	border-bottom: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border-bottom: 1px solid var(--pge-color-line, #dbe0f1) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header h2,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header h2 {
-	color: var(--pge-color-ink, #0F1419) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header p,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header p {
-	color: var(--pge-color-muted, #687078) !important;
+	color: var(--pge-color-muted, #5f6894) !important;
 }
 
 /* ── Sidebar nav items ── */
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item {
-	color: var(--pge-color-muted, #687078) !important;
+	color: var(--pge-color-muted, #5f6894) !important;
 	font-weight: 500 !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item:hover,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item:hover {
-	background: var(--pge-color-surface, #F5F7FB) !important;
-	color: var(--pge-color-ink, #0F1419) !important;
+	background: var(--pge-color-surface, #eceff9) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item.active,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active {
-	background: var(--pge-color-primary-soft, #EEF3FF) !important;
-	color: var(--pge-color-primary, #2563EB) !important;
+	background: var(--pge-color-primary-soft, #edf1ff) !important;
+	color: var(--pge-color-primary, #1b3beb) !important;
 	font-weight: 600 !important;
 	box-shadow: none !important;
 	border-radius: 10px !important;
@@ -115,7 +115,7 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active {
 /* Active indicator bar — chip gradient */
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item.active::before,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active::before {
-	background: var(--pge-gradient, linear-gradient(135deg, #1A4FC4, #2D7EF5, #5299FF)) !important;
+	background: var(--pge-gradient, linear-gradient(135deg, #0c1b9e, #0a84ff, #4d93ff)) !important;
 }
 
 /* The app now renders its own keyed SVG icons (TabIcon) — the old
@@ -139,9 +139,9 @@ body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-card,
 body.tb-portal-competitive.tb-portal-competitive .tb-empty-state {
 	background: #ffffff !important;
-	border: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border: 1px solid var(--pge-color-line, #dbe0f1) !important;
 	border-radius: 14px !important;
-	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(15,20,25,.05)) !important;
+	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 	transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card:hover,
@@ -149,18 +149,18 @@ body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat:hover,
 body.tb-portal-competitive.tb-portal-competitive .tb-card:hover,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat:hover {
 	transform: translateY(-2px) !important;
-	border-color: rgba(37, 99, 235, .40) !important;
-	box-shadow: var(--pge-shadow-md, 0 8px 24px -12px rgba(26,79,196,.18)) !important;
+	border-color: rgba(27, 59, 235, .40) !important;
+	box-shadow: var(--pge-shadow-md, 0 8px 24px -12px rgba(18,38,200,.18)) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card-header,
 body.tb-portal-competitive.tb-portal-competitive .tb-card-header {
-	border-bottom: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border-bottom: 1px solid var(--pge-color-line, #dbe0f1) !important;
 }
 
 /* ── Stat tile icons — one quiet tint, brand blue ── */
 body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-icon,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-icon {
-	background: var(--pge-color-primary-soft, #EEF3FF) !important;
+	background: var(--pge-color-primary-soft, #edf1ff) !important;
 	border: 0 !important;
 	border-radius: 10px !important;
 	box-shadow: none !important;
@@ -168,13 +168,13 @@ body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-icon {
 body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat:hover .tb-neu-stat-icon {
 	transform: none !important;
-	background: var(--pge-color-accent-soft, #E8F0FE) !important;
+	background: var(--pge-color-accent-soft, #dbe3ff) !important;
 }
 
 /* ── Stat values / labels — mono numerals, editorial labels ── */
 body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-value,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-value {
-	color: var(--pge-color-ink, #0F1419) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 	font-family: var(--pge-font-mono, 'JetBrains Mono', monospace) !important;
 	font-weight: 700 !important;
 	letter-spacing: -0.02em;
@@ -182,7 +182,7 @@ body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-value {
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-label,
 body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-label {
-	color: var(--pge-color-muted, #687078) !important;
+	color: var(--pge-color-muted, #5f6894) !important;
 	font-weight: 500 !important;
 	letter-spacing: .06em;
 	text-transform: uppercase;
@@ -192,9 +192,9 @@ body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-label {
 /* ── Flat stat cards (tb-stat-card family) ── */
 body.tb-portal-testprep.tb-portal-testprep .tb-stat-card,
 body.tb-portal-competitive.tb-portal-competitive .tb-stat-card {
-	border: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border: 1px solid var(--pge-color-line, #dbe0f1) !important;
 	border-left-width: 4px !important;
-	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(15,20,25,.05)) !important;
+	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 	border-radius: 12px !important;
 }
 
@@ -202,18 +202,18 @@ body.tb-portal-competitive.tb-portal-competitive .tb-stat-card {
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-bar,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-bar {
 	background: #ffffff !important;
-	border: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border: 1px solid var(--pge-color-line, #dbe0f1) !important;
 	border-radius: 12px !important;
-	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(15,20,25,.05)) !important;
+	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-toggle,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-toggle {
-	color: var(--pge-color-ink, #0F1419) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-item.active,
 body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-item.active {
-	background: var(--pge-color-primary-soft, #EEF3FF) !important;
-	color: var(--pge-color-primary, #2563EB) !important;
+	background: var(--pge-color-primary-soft, #edf1ff) !important;
+	color: var(--pge-color-primary, #1b3beb) !important;
 }
 
 /* ── Proficiency distribution bar — slim segmented track.
@@ -226,7 +226,7 @@ body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28
 	height: 12px !important;
 	border-radius: 999px !important;
 	gap: 2px;
-	background: var(--pge-gray-100, #EDF1F7);
+	background: var(--pge-gray-100, #eceff9);
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"][style*="border-radius: 8px"] > div,
 body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"][style*="border-radius: 8px"] > div {
@@ -240,11 +240,11 @@ body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"],
 body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"] {
-	background: var(--pge-green-600, #0E9F6E) !important;
+	background: var(--pge-green-600, #16a34a) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"],
 body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"] {
-	background: var(--pge-blue-600, #2563EB) !important;
+	background: var(--pge-blue-600, #1b3beb) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"],
 body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"] {
@@ -255,35 +255,35 @@ body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28
    Duplicates the source-level fix so pre-rebuild bundles render on-brand. ── */
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card,
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card {
-	background: linear-gradient(135deg, var(--pge-blue-50, #EEF3FF) 0%, var(--pge-gray-25, #FBFDFF) 100%) !important;
-	border: 1px solid var(--pge-gray-200, #E3E8F0) !important;
+	background: linear-gradient(135deg, var(--pge-blue-50, #edf1ff) 0%, var(--pge-gray-25, #f6f7fc) 100%) !important;
+	border: 1px solid var(--pge-gray-200, #dbe0f1) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card > div > div:first-child,
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card > div > div:first-child {
-	color: var(--pge-color-ink, #0F1419) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card p,
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card p {
-	color: var(--pge-color-body, #313B4B) !important;
+	color: var(--pge-color-body, #3d4570) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card a,
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card a {
-	background: var(--pge-color-primary, #2563EB) !important;
+	background: var(--pge-color-primary, #1b3beb) !important;
 	border-radius: 10px !important;
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 2px 8px rgba(37, 99, 235, .25) !important;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 2px 8px rgba(27, 59, 235, .25) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card a:hover,
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card a:hover {
-	background: var(--pge-color-primary-strong, #1A4FC4) !important;
+	background: var(--pge-color-primary-strong, #0c1b9e) !important;
 }
 body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge="dismiss"],
 body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
-	color: var(--pge-ink-400, #8B93A2) !important;
+	color: var(--pge-ink-400, #868fb6) !important;
 }
 
 /* ── Profile-gate banner: urgent but composed ── */
 #tb-profile-gate-banner {
-	background: var(--pge-color-ink-2, #121C30) !important;
+	background: var(--pge-color-ink-2, #151c42) !important;
 	color: #ffffff !important;
 	border-bottom: 0 !important;
 	box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .35) !important;
@@ -309,7 +309,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 }
 #tb-profile-gate-banner a {
 	background: #ffffff !important;
-	color: var(--pge-color-ink, #0F1419) !important;
+	color: var(--pge-color-ink, #03050f) !important;
 	border: 0 !important;
 	border-radius: 10px !important;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, .25) !important;
@@ -324,17 +324,17 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
    everything else uses the kit system.
    ═══════════════════════════════════════════════════════════════ */
 .tb-lg-wrapper {
-	border: 1px solid var(--pge-color-line, #E3E8F0) !important;
+	border: 1px solid var(--pge-color-line, #dbe0f1) !important;
 	border-radius: 16px !important;
-	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(26,79,196,.22)) !important;
+	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
 	background: #ffffff !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
 .tb-lg-theme-us-school .tb-lg-brand,
 .tb-lg-theme-edu .tb-lg-brand {
 	background:
-		radial-gradient(720px 480px at 82% -10%, rgba(45, 126, 245, .28), transparent 60%),
-		linear-gradient(160deg, var(--pge-color-ink, #0F1419), var(--pge-color-ink-2, #121C30)) !important;
+		radial-gradient(720px 480px at 82% -10%, rgba(10, 132, 255, .28), transparent 60%),
+		linear-gradient(160deg, var(--pge-color-ink, #03050f), var(--pge-color-ink-2, #151c42)) !important;
 }
 /* Flag tricolor stays flag-true — the country-of-operation cue. */
 .tb-lg-theme-us-school .tb-lg-tricolor { height: 4px !important; }
@@ -359,38 +359,38 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 }
 .tb-lg-theme-us-school .tb-lg-brand-title-accent,
 .tb-lg-wrapper .tb-lg-brand-title-accent {
-	color: var(--pge-color-on-dark, #7CB0FF) !important;
+	color: var(--pge-color-on-dark, #6ba4ff) !important;
 	background: none !important;
 	-webkit-background-clip: initial !important;
 	background-clip: initial !important;
-	-webkit-text-fill-color: var(--pge-color-on-dark, #7CB0FF) !important;
+	-webkit-text-fill-color: var(--pge-color-on-dark, #6ba4ff) !important;
 }
-.tb-lg-theme-us-school .tb-lg-feature-icon { color: var(--pge-color-on-dark, #7CB0FF) !important; }
+.tb-lg-theme-us-school .tb-lg-feature-icon { color: var(--pge-color-on-dark, #6ba4ff) !important; }
 .tb-lg-theme-us-school .tb-lg-input:focus {
-	border-color: var(--pge-color-primary, #2563EB) !important;
-	box-shadow: 0 0 0 3px rgba(37, 99, 235, .22) !important;
+	border-color: var(--pge-color-primary, #1b3beb) !important;
+	box-shadow: 0 0 0 3px rgba(27, 59, 235, .22) !important;
 }
 .tb-lg-theme-us-school .tb-lg-btn,
 .tb-lg-theme-edu .tb-lg-btn {
-	background: var(--pge-color-primary, #2563EB) !important;
+	background: var(--pge-color-primary, #1b3beb) !important;
 	color: #ffffff !important;
 	border: 0 !important;
 	border-radius: 10px !important;
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 1px 2px rgba(15,20,25,.1) !important;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 1px 2px rgba(3,5,15,.1) !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
 }
 .tb-lg-theme-us-school .tb-lg-btn:hover,
 .tb-lg-theme-edu .tb-lg-btn:hover {
-	background: var(--pge-color-primary-strong, #1A4FC4) !important;
+	background: var(--pge-color-primary-strong, #0c1b9e) !important;
 	transform: translateY(-1px);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 24px -12px rgba(26,79,196,.4) !important;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 24px -12px rgba(18,38,200,.4) !important;
 }
 .tb-lg-theme-us-school .tb-lg-forgot,
-.tb-lg-theme-us-school .tb-lg-signup-prompt a { color: var(--pge-color-primary, #2563EB) !important; }
-.tb-lg-tabs { border: 1px solid var(--pge-color-line, #E3E8F0) !important; border-radius: 10px !important; overflow: hidden; }
+.tb-lg-theme-us-school .tb-lg-signup-prompt a { color: var(--pge-color-primary, #1b3beb) !important; }
+.tb-lg-tabs { border: 1px solid var(--pge-color-line, #dbe0f1) !important; border-radius: 10px !important; overflow: hidden; }
 .tb-lg-tab.active, .tb-lg-tab[aria-selected="true"] {
-	background: var(--pge-color-primary, #2563EB) !important;
+	background: var(--pge-color-primary, #1b3beb) !important;
 	color: #ffffff !important;
 }
 
@@ -405,15 +405,15 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 
 /* ── Floating CTA pill: amber → brand gradient ── */
 #tb-floating-cta-btn {
-	background: var(--pge-gradient, linear-gradient(135deg, #1A4FC4, #2D7EF5, #5299FF)) !important;
+	background: var(--pge-gradient, linear-gradient(135deg, #0c1b9e, #0a84ff, #4d93ff)) !important;
 	color: #fff !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
-	box-shadow: 0 8px 24px -8px rgba(26, 79, 196, .5) !important;
+	box-shadow: 0 8px 24px -8px rgba(18, 38, 200, .5) !important;
 	animation: none !important;
 }
 #tb-floating-cta-btn:hover {
-	box-shadow: 0 12px 32px -8px rgba(26, 79, 196, .6) !important;
+	box-shadow: 0 12px 32px -8px rgba(18, 38, 200, .6) !important;
 }
 
 /* ── Friendly proctor warning overlay (see theme.js initProctorAlerts) ── */
@@ -425,15 +425,15 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	align-items: flex-start;
 	justify-content: center;
 	padding-top: 12vh;
-	background: rgba(15, 20, 25, .45);
+	background: rgba(3, 5, 15, .45);
 	backdrop-filter: blur(3px);
 }
 #pgt-proctor-toast.is-open { display: flex; }
 .pgt-proctor-toast__card {
 	background: #fff;
-	border: 1px solid var(--pge-color-line, #E3E8F0);
+	border: 1px solid var(--pge-color-line, #dbe0f1);
 	border-radius: 14px;
-	box-shadow: 0 24px 48px -16px rgba(15, 20, 25, .4);
+	box-shadow: 0 24px 48px -16px rgba(3, 5, 15, .4);
 	max-width: 420px;
 	width: calc(100% - 32px);
 	padding: 1.6rem 1.7rem;
@@ -446,7 +446,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	content: "";
 	position: absolute; top: 0; left: 0; right: 0;
 	height: 3px;
-	background: var(--pge-gradient, linear-gradient(135deg, #1A4FC4, #2D7EF5, #5299FF));
+	background: var(--pge-gradient, linear-gradient(135deg, #0c1b9e, #0a84ff, #4d93ff));
 }
 .pgt-proctor-toast__card.is-final::before { background: var(--pge-color-danger, #DC2626); }
 @keyframes pgt-toast-in { from { opacity: 0; transform: translateY(-12px) scale(.98); } to { opacity: 1; transform: none; } }
@@ -455,18 +455,18 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	font-family: var(--pge-font-heading, 'Outfit', sans-serif);
 	font-weight: 600;
 	font-size: 1.15rem;
-	color: var(--pge-color-ink, #0F1419);
+	color: var(--pge-color-ink, #03050f);
 	margin-bottom: .7rem;
 }
 .pgt-proctor-toast__card.is-final .pgt-proctor-toast__head { color: var(--pge-color-danger, #DC2626); }
-.pgt-proctor-toast__reason { color: var(--pge-color-body, #313B4B); margin: 0 0 .6rem; font-size: .98rem; line-height: 1.55; }
-.pgt-proctor-toast__count { color: var(--pge-color-muted, #687078); font-size: .84rem; font-weight: 500; margin-bottom: 1.1rem; }
+.pgt-proctor-toast__reason { color: var(--pge-color-body, #3d4570); margin: 0 0 .6rem; font-size: .98rem; line-height: 1.55; }
+.pgt-proctor-toast__count { color: var(--pge-color-muted, #5f6894); font-size: .84rem; font-weight: 500; margin-bottom: 1.1rem; }
 .pgt-proctor-toast__ok {
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif);
 	font-weight: 600;
 	font-size: .93rem;
 	color: #fff;
-	background: var(--pge-color-primary, #2563EB);
+	background: var(--pge-color-primary, #1b3beb);
 	border: 0;
 	border-radius: 10px;
 	box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
@@ -474,7 +474,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	cursor: pointer;
 	transition: background .15s ease;
 }
-.pgt-proctor-toast__ok:hover { background: var(--pge-color-primary-strong, #1A4FC4); }
+.pgt-proctor-toast__ok:hover { background: var(--pge-color-primary-strong, #0c1b9e); }
 @media (prefers-reduced-motion: reduce) { .pgt-proctor-toast__card { animation: none; } }
 
 /* ── Reduced motion ── */
