@@ -8,27 +8,273 @@
 
 	var REDUCED = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
-	/* ---------- Header scroll compaction ----------
-	 * Adds .is-scrolled past a small threshold; CSS shrinks the bar and adds
-	 * a shadow. rAF-throttled; the transition itself is disabled by CSS under
-	 * prefers-reduced-motion. */
-	function initHeaderCompaction() {
-		var header = document.querySelector( '[data-pgt-header]' );
-		if ( ! header ) {
+	/* ---------- Header disclosures ----------
+	 * One controller for the three mutually exclusive header regions: the mega
+	 * panels, the search band and the account menu. Opening any one closes the
+	 * other two (README "Interactions & Behavior").
+	 *
+	 * Modules open on mouseenter and toggle on click; the whole header wrapper
+	 * closes the open panel on mouseleave. Touch and keyboard never depend on
+	 * hover — click/Enter is always an opener, and the module name stays a real
+	 * link, so a tap on it navigates rather than only disclosing.
+	 */
+	function initHeaderDisclosures() {
+		var wrap = document.querySelector( '[data-pgt-headerwrap]' );
+		if ( ! wrap ) {
 			return;
 		}
-		var ticking = false;
-		function apply() {
-			header.classList.toggle( 'is-scrolled', window.scrollY > 12 );
-			ticking = false;
+
+		var panelTriggers = Array.prototype.slice.call( wrap.querySelectorAll( '[data-pgt-panel]' ) );
+		var searchToggle = wrap.querySelector( '[data-pgt-search-toggle]' );
+		var searchBand = wrap.querySelector( '[data-pgt-search]' );
+		var accountWrap = wrap.querySelector( '[data-pgt-account]' );
+		var accountBtn = accountWrap && accountWrap.querySelector( '.pgt-account__btn' );
+		var accountMenu = accountWrap && accountWrap.querySelector( '.pgt-account__menu' );
+
+		var openPanel = null;   // panel key, or null
+		var hoverIntent = null; // pointer-type guard
+
+		function panelBody( key ) {
+			return wrap.querySelector( '[data-pgt-panel-body="' + key + '"]' );
 		}
-		window.addEventListener( 'scroll', function () {
-			if ( ! ticking ) {
-				ticking = true;
-				requestAnimationFrame( apply );
+
+		function setPanel( key ) {
+			panelTriggers.forEach( function ( t ) {
+				var mine = t.getAttribute( 'data-pgt-panel' ) === key;
+				t.setAttribute( 'aria-expanded', mine ? 'true' : 'false' );
+			} );
+			panelTriggers.forEach( function ( t ) {
+				var body = panelBody( t.getAttribute( 'data-pgt-panel' ) );
+				if ( ! body ) {
+					return;
+				}
+				if ( t.getAttribute( 'data-pgt-panel' ) === key ) {
+					body.removeAttribute( 'hidden' );
+				} else {
+					body.setAttribute( 'hidden', '' );
+				}
+			} );
+			openPanel = key;
+			if ( key ) {
+				closeSearch( false );
+				closeAccount( false );
 			}
-		}, { passive: true } );
-		apply();
+			bindGlobal();
+		}
+
+		function closePanels( restoreFocus ) {
+			if ( ! openPanel ) {
+				return;
+			}
+			var prev = openPanel;
+			setPanel( null );
+			if ( restoreFocus ) {
+				var trigger = wrap.querySelector( '[data-pgt-panel="' + prev + '"]' );
+				if ( trigger ) {
+					trigger.focus();
+				}
+			}
+		}
+
+		function openSearch() {
+			if ( ! searchBand || ! searchToggle ) {
+				return;
+			}
+			searchBand.removeAttribute( 'hidden' );
+			searchToggle.setAttribute( 'aria-expanded', 'true' );
+			setPanel( null );
+			closeAccount( false );
+			var input = searchBand.querySelector( '.pgt-search__input' );
+			if ( input ) {
+				input.focus();
+			}
+			bindGlobal();
+		}
+
+		function closeSearch( restoreFocus ) {
+			if ( ! searchBand || ! searchToggle || searchBand.hasAttribute( 'hidden' ) ) {
+				return;
+			}
+			searchBand.setAttribute( 'hidden', '' );
+			searchToggle.setAttribute( 'aria-expanded', 'false' );
+			if ( restoreFocus ) {
+				searchToggle.focus();
+			}
+		}
+
+		function openAccount() {
+			if ( ! accountMenu || ! accountBtn ) {
+				return;
+			}
+			accountMenu.removeAttribute( 'hidden' );
+			accountBtn.setAttribute( 'aria-expanded', 'true' );
+			setPanel( null );
+			closeSearch( false );
+			var first = accountMenu.querySelector( 'a' );
+			if ( first ) {
+				first.focus();
+			}
+			bindGlobal();
+		}
+
+		function closeAccount( restoreFocus ) {
+			if ( ! accountMenu || ! accountBtn || accountMenu.hasAttribute( 'hidden' ) ) {
+				return;
+			}
+			accountMenu.setAttribute( 'hidden', '' );
+			accountBtn.setAttribute( 'aria-expanded', 'false' );
+			if ( restoreFocus ) {
+				accountBtn.focus();
+			}
+		}
+
+		function anythingOpen() {
+			return !! openPanel
+				|| ( searchBand && ! searchBand.hasAttribute( 'hidden' ) )
+				|| ( accountMenu && ! accountMenu.hasAttribute( 'hidden' ) );
+		}
+
+		function onKeydown( e ) {
+			if ( e.key !== 'Escape' ) {
+				return;
+			}
+			e.preventDefault();
+			if ( openPanel ) {
+				closePanels( true );
+			} else if ( searchBand && ! searchBand.hasAttribute( 'hidden' ) ) {
+				closeSearch( true );
+			} else {
+				closeAccount( true );
+			}
+			bindGlobal();
+		}
+
+		function onOutside( e ) {
+			if ( ! wrap.contains( e.target ) ) {
+				closePanels( false );
+				closeSearch( false );
+				closeAccount( false );
+				bindGlobal();
+			}
+		}
+
+		var globalBound = false;
+		function bindGlobal() {
+			var want = anythingOpen();
+			if ( want && ! globalBound ) {
+				document.addEventListener( 'keydown', onKeydown, true );
+				document.addEventListener( 'click', onOutside, true );
+				globalBound = true;
+			} else if ( ! want && globalBound ) {
+				document.removeEventListener( 'keydown', onKeydown, true );
+				document.removeEventListener( 'click', onOutside, true );
+				globalBound = false;
+			}
+		}
+
+		panelTriggers.forEach( function ( t ) {
+			var key = t.getAttribute( 'data-pgt-panel' );
+
+			t.addEventListener( 'mouseenter', function () {
+				if ( hoverIntent === 'touch' ) {
+					return;
+				}
+				setPanel( key );
+			} );
+
+			t.addEventListener( 'pointerdown', function ( e ) {
+				hoverIntent = e.pointerType === 'mouse' ? 'mouse' : 'touch';
+			} );
+
+			t.addEventListener( 'click', function ( e ) {
+				// On a link trigger, a plain click should navigate to the module
+				// landing page — EXCEPT on touch, where there is no hover to
+				// reveal the panel, so the first tap discloses instead.
+				var isLink = t.tagName === 'A';
+				if ( ! isLink ) {
+					e.preventDefault();
+					setPanel( openPanel === key ? null : key );
+					return;
+				}
+				if ( hoverIntent === 'touch' && openPanel !== key ) {
+					e.preventDefault();
+					setPanel( key );
+				}
+			} );
+
+			t.addEventListener( 'keydown', function ( e ) {
+				if ( e.key === 'ArrowDown' ) {
+					e.preventDefault();
+					setPanel( key );
+					var body = panelBody( key );
+					var first = body && body.querySelector( 'a' );
+					if ( first ) {
+						first.focus();
+					}
+				}
+			} );
+		} );
+
+		// Focus moving out of the header closes whatever it left open.
+		wrap.addEventListener( 'focusout', function ( e ) {
+			if ( ! e.relatedTarget || ! wrap.contains( e.relatedTarget ) ) {
+				closePanels( false );
+				closeAccount( false );
+				bindGlobal();
+			}
+		} );
+
+		wrap.addEventListener( 'mouseleave', function () {
+			if ( hoverIntent !== 'touch' ) {
+				closePanels( false );
+				bindGlobal();
+			}
+		} );
+
+		if ( searchToggle ) {
+			searchToggle.addEventListener( 'click', function () {
+				if ( searchToggle.getAttribute( 'aria-expanded' ) === 'true' ) {
+					closeSearch( true );
+					bindGlobal();
+				} else {
+					openSearch();
+				}
+			} );
+		}
+
+		if ( accountBtn ) {
+			accountBtn.addEventListener( 'click', function () {
+				if ( accountBtn.getAttribute( 'aria-expanded' ) === 'true' ) {
+					closeAccount( true );
+					bindGlobal();
+				} else {
+					openAccount();
+				}
+			} );
+		}
+	}
+
+	/* ---------- Drawer accordions ----------
+	 * The mobile drawer renders each module panel as an accordion; the module
+	 * name itself stays a link, so only the caret toggles. */
+	function initDrawerAccordions() {
+		var carets = document.querySelectorAll( '.pgt-drawer__caret' );
+		Array.prototype.forEach.call( carets, function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var id = btn.getAttribute( 'aria-controls' );
+				var sub = id && document.getElementById( id );
+				if ( ! sub ) {
+					return;
+				}
+				var open = btn.getAttribute( 'aria-expanded' ) === 'true';
+				btn.setAttribute( 'aria-expanded', open ? 'false' : 'true' );
+				if ( open ) {
+					sub.setAttribute( 'hidden', '' );
+				} else {
+					sub.removeAttribute( 'hidden' );
+				}
+			} );
+		} );
 	}
 
 	/* ---------- Mobile drawer ----------
@@ -115,7 +361,7 @@
 		} );
 		// Crossing to the desktop layout while open would strand the
 		// scroll-lock (CSS hides the drawer above 920px).
-		var mq = window.matchMedia( '(min-width: 921px)' );
+		var mq = window.matchMedia( '(min-width: 861px)' );
 		var onChange = function ( e ) {
 			if ( e.matches && burger.getAttribute( 'aria-expanded' ) === 'true' ) {
 				close( false );
@@ -126,60 +372,6 @@
 		}
 	}
 
-	/* ---------- Account (avatar) disclosure menu ---------- */
-	function initAccountMenu() {
-		var wrap = document.querySelector( '[data-pgt-account]' );
-		if ( ! wrap ) {
-			return;
-		}
-		var btn = wrap.querySelector( '.pgt-account__btn' );
-		var menu = wrap.querySelector( '.pgt-account__menu' );
-		if ( ! btn || ! menu ) {
-			return;
-		}
-
-		function open() {
-			btn.setAttribute( 'aria-expanded', 'true' );
-			menu.removeAttribute( 'hidden' );
-			var first = menu.querySelector( 'a' );
-			if ( first ) {
-				first.focus();
-			}
-			document.addEventListener( 'keydown', onKeydown, true );
-			document.addEventListener( 'click', onOutside, true );
-		}
-
-		function close( restoreFocus ) {
-			btn.setAttribute( 'aria-expanded', 'false' );
-			menu.setAttribute( 'hidden', '' );
-			document.removeEventListener( 'keydown', onKeydown, true );
-			document.removeEventListener( 'click', onOutside, true );
-			if ( restoreFocus !== false ) {
-				btn.focus();
-			}
-		}
-
-		function onKeydown( e ) {
-			if ( e.key === 'Escape' ) {
-				e.preventDefault();
-				close();
-			}
-		}
-
-		function onOutside( e ) {
-			if ( ! wrap.contains( e.target ) ) {
-				close( false );
-			}
-		}
-
-		btn.addEventListener( 'click', function () {
-			if ( btn.getAttribute( 'aria-expanded' ) === 'true' ) {
-				close();
-			} else {
-				open();
-			}
-		} );
-	}
 
 	/* ---------- Navigation analytics ----------
 	 * Pushes intent events to a tag manager IF one is present; a hard no-op
@@ -377,9 +569,9 @@
 	}
 
 	function init() {
-		initHeaderCompaction();
+		initHeaderDisclosures();
 		initDrawer();
-		initAccountMenu();
+		initDrawerAccordions();
 		initNavAnalytics();
 		initReveals();
 		initCounters();

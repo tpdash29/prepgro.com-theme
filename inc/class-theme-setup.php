@@ -55,7 +55,9 @@ final class Theme_Setup {
 	public function register_menus() {
 		register_nav_menus(
 			array(
-				'pgt-header'         => __( 'Header — primary navigation', 'prepgro-theme' ),
+				// Retained so an existing assignment is not orphaned, but the
+				// header bar no longer reads it — see Chrome::nav_links().
+				'pgt-header'         => __( 'Header — primary navigation (unused since the 2026-08 redesign)', 'prepgro-theme' ),
 				'pgt-footer-explore' => __( 'Footer — Explore column', 'prepgro-theme' ),
 				'pgt-footer-support' => __( 'Footer — Support column', 'prepgro-theme' ),
 				'pgt-footer-legal'   => __( 'Footer — Legal column', 'prepgro-theme' ),
