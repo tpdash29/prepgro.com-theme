@@ -191,7 +191,7 @@ a:hover { text-decoration: underline; }
 .pgt-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .pgt-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-/* Country chip — hairline pill, flag + label */
+/* Country chip — right-aligned utility badge */
 .pgt-region-chip {
 	display: inline-flex; align-items: center; gap: .45rem;
 	font-size: .72rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
@@ -203,8 +203,16 @@ a:hover { text-decoration: underline; }
 	white-space: nowrap;
 	cursor: default;
 }
-.pgt-region-chip svg { border-radius: 3px; display: block; }
-@media (max-width: 560px) { .pgt-region-chip span { display: none; } .pgt-region-chip { padding: .3rem .35rem; } }
+.pgt-region-chip svg { border-radius: 3px; display: block; width: 18px; height: auto; }
+
+/* Push chip right on mobile when .pgt-auth is hidden */
+@media (max-width: 860px) {
+	.pgt-header__inner > .pgt-region-chip { margin-left: auto; }
+}
+@media (max-width: 560px) { 
+	.pgt-region-chip span { display: none; } 
+	.pgt-region-chip { padding: .3rem .35rem; gap: 0; } 
+}
 
 /* ---------- Account (avatar) disclosure menu ---------- */
 .pgt-account { position: relative; display: flex; }
@@ -1585,3 +1593,63 @@ body.tb-portal-competitive .pgt2-duo__panel--dark h3 {
 	.pgt-reveal { opacity: 1 !important; transform: none !important; }
 	.pgt-ticker__track, .pgt-mock__chip, .pgt-mock__bar-fill, .pgt-skeleton::after { animation: none !important; }
 }
+
+/* ---------- Dark theme (Acorn Next) — header + drawer only ----------
+   Same toggle/attribute as the React dashboard, the plugin's admin surfaces,
+   and the app-shell journey bar (html[data-pge-admin-theme="dark"],
+   localStorage pge_admin_theme). The engine's App_Shell::theme_boot() only
+   ever stamps this attribute on app-context pages (dashboard/portals), so
+   marketing pages never see it — these rules are component-scoped (never
+   redefine the shared --pge-color-* tokens at :root) so a dark header can
+   never leak onto a light marketing body even if that assumption changes. */
+html[data-pge-admin-theme="dark"] .pgt-header {
+	background: rgba(15, 19, 28, .88);
+	border-bottom-color: #2a3345;
+}
+html[data-pge-admin-theme="dark"] .pgt-header.is-scrolled {
+	background: rgba(15, 19, 28, .96);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px -12px rgba(0, 0, 0, .5);
+}
+html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__prep { color: #eef2f9; }
+html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__gro { color: #7CB0FF; }
+html[data-pge-admin-theme="dark"] .pgt-nav__link,
+html[data-pge-admin-theme="dark"] .pgt-burger span,
+html[data-pge-admin-theme="dark"] .pgt-account__id strong,
+html[data-pge-admin-theme="dark"] .pgt-account__item,
+html[data-pge-admin-theme="dark"] .pgt-drawer__link,
+html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__prep {
+	color: #eef2f9;
+}
+html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__gro { color: #7CB0FF; }
+html[data-pge-admin-theme="dark"] .pgt-nav__link:hover { color: #fff; }
+/* v3.2 "Stage" floating pill nav (theme.css line ~1235) has its OWN
+   background separate from .pgt-header — must be themed too or the pill
+   nav stays a light island inside the dark bar. */
+html[data-pge-admin-theme="dark"] .pgt-nav { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-nav__link:hover { background: #2a3345; color: #fff; }
+html[data-pge-admin-theme="dark"] .pgt-nav__link[aria-current="page"],
+html[data-pge-admin-theme="dark"] .pgt-nav__link.is-active { background: #eef2f9; color: #0f131c; }
+html[data-pge-admin-theme="dark"] .pgt-account__id span,
+html[data-pge-admin-theme="dark"] .pgt-account__btn,
+html[data-pge-admin-theme="dark"] .pgt-region-chip,
+html[data-pge-admin-theme="dark"] .pgt-drawer__help,
+html[data-pge-admin-theme="dark"] .pgt-drawer__auth .pgt-drawer__link {
+	color: #93a0b5;
+}
+html[data-pge-admin-theme="dark"] .pgt-btn--ghost { color: #eef2f9; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-btn--ghost:hover { border-color: #eef2f9; color: #fff; }
+html[data-pge-admin-theme="dark"] .pgt-account__menu {
+	background: #1c2230;
+	border-color: #2a3345;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, .35), 0 24px 48px -16px rgba(0, 0, 0, .55);
+}
+html[data-pge-admin-theme="dark"] .pgt-account__id { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-account__item:hover { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"] .pgt-account__sep { background: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-account__item--signout:hover { background: #331717; color: #f87171; }
+html[data-pge-admin-theme="dark"] .pgt-region-chip { background: #232c3d; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-burger { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-drawer { background: #0f131c; }
+html[data-pge-admin-theme="dark"] .pgt-drawer__head { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-drawer__link { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pgt-drawer__close { background: #1c2230; border-color: #2a3345; color: #eef2f9; }

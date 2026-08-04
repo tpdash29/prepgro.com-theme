@@ -42,10 +42,11 @@
 	--pge-amber-600: #D97706;
 	--pge-amber-50:  #FCF3E3;
 
-	/* Radii — refined (chip is 20%-radius; scale echoes it, never balloons) */
+	/* Radii — Acorn-inspired shape pass (2026-08-04): rounder cards, pill
+	   controls (buttons/inputs/badges lean fully rounded across the app). */
 	--pge-radius-sm: 8px;
 	--pge-radius-md: 12px;
-	--pge-radius-lg: 16px;
+	--pge-radius-lg: 20px;
 	--pge-radius-pill: 999px;
 
 	/* Elevation — layered, blue-tinted, restrained */

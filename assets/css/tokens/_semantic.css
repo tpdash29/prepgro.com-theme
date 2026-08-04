@@ -47,7 +47,8 @@
 	--pge-card-radius:  var(--pge-radius-lg);
 	--pge-card-shadow:  var(--pge-shadow-sm);
 
-	/* Control roles */
-	--pge-btn-radius:   10px;
+	/* Control roles — pill buttons (Acorn-language shape pass, 2026-08-04;
+	   supersedes the old "never balloon" restrained-radius rule below). */
+	--pge-btn-radius:   var(--pge-radius-pill);
 	--pge-focus-ring:   0 0 0 3px rgba(37, 99, 235, 0.30);
 }
