@@ -161,6 +161,20 @@ final class Theme_Options {
 				'label'       => __( 'Band — side photo', 'prepgro-theme' ),
 				'description' => __( 'Art direction: a tutor mid-explanation on a video call.', 'prepgro-theme' ),
 			),
+			// Module proof bands. A featured image on the module page itself
+			// wins over these; they are the site-wide fallback.
+			'pgt_module_photo_evaluate' => array(
+				'label'       => __( 'Evaluate — proof band photo', 'prepgro-theme' ),
+				'description' => __( 'Art direction: a student taking the diagnostic on a laptop.', 'prepgro-theme' ),
+			),
+			'pgt_module_photo_elevate' => array(
+				'label'       => __( 'Elevate — proof band photo', 'prepgro-theme' ),
+				'description' => __( 'Art direction: a tutor and student on a video call.', 'prepgro-theme' ),
+			),
+			'pgt_module_photo_excel' => array(
+				'label'       => __( 'Excel — proof band photo', 'prepgro-theme' ),
+				'description' => __( 'Art direction: a student mid practice test, timer visible.', 'prepgro-theme' ),
+			),
 		);
 
 		foreach ( $slots as $key => $slot ) {
