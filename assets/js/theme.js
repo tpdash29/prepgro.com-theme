@@ -438,6 +438,38 @@
 		} );
 	}
 
+	/* ---------- Exam index filters ----------
+	 * Every card is already in the DOM; the chips just hide the ones that do
+	 * not match. Progressive: with JS off all exams show, which is the honest
+	 * default for an index. */
+	function initExamFilters() {
+		var chips = document.querySelectorAll( '[data-pgt-filter]' );
+		if ( ! chips.length ) {
+			return;
+		}
+		var cards = document.querySelectorAll( '[data-pgt-family]' );
+
+		Array.prototype.forEach.call( chips, function ( chip ) {
+			chip.addEventListener( 'click', function () {
+				var want = chip.getAttribute( 'data-pgt-filter' );
+
+				Array.prototype.forEach.call( chips, function ( c ) {
+					var on = c === chip;
+					c.classList.toggle( 'is-on', on );
+					c.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+				} );
+
+				Array.prototype.forEach.call( cards, function ( card ) {
+					if ( want === 'all' || card.getAttribute( 'data-pgt-family' ) === want ) {
+						card.removeAttribute( 'hidden' );
+					} else {
+						card.setAttribute( 'hidden', '' );
+					}
+				} );
+			} );
+		} );
+	}
+
 	/* ---------- Navigation analytics ----------
 	 * Pushes intent events to a tag manager IF one is present; a hard no-op
 	 * otherwise. Consent handling stays the tag manager's job; no PII —
@@ -638,6 +670,7 @@
 		initDrawer();
 		initDrawerAccordions();
 		initPricingLevels();
+		initExamFilters();
 		initNavAnalytics();
 		initReveals();
 		initCounters();

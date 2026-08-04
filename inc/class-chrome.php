@@ -195,7 +195,7 @@ final class Chrome {
 					'title'   => __( '8 live 1:1 classes a month', 'prepgro-theme' ),
 					'body'    => __( 'Your tutor already knows which skills are weak. No hour spent rediscovering them.', 'prepgro-theme' ),
 					'cta'     => __( 'Find a tutor', 'prepgro-theme' ),
-					'url'     => home_url( '/pricing/' ),
+					'url'     => Pricing_Levels::url(),
 				),
 				'groups' => array(
 					array(
@@ -211,7 +211,7 @@ final class Chrome {
 						'eyebrow' => __( 'Tutor on demand', 'prepgro-theme' ),
 						'note'    => __( '8 / month', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
+							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
 							array( 'icon' => 'file-text', 'title' => __( 'Session recaps', 'prepgro-theme' ), 'sub' => __( 'What was covered, next step', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
 						),
@@ -220,8 +220,8 @@ final class Chrome {
 						'eyebrow' => __( 'Plans', 'prepgro-theme' ),
 						'note'    => __( 'by level', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'dollar-sign', 'title' => __( 'Live tutor plans', 'prepgro-theme' ), 'sub' => __( 'From $129/month', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
-							array( 'icon' => 'circle-plus', 'title' => __( 'Add a second subject', 'prepgro-theme' ), 'sub' => __( 'One subject per plan', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
+							array( 'icon' => 'dollar-sign', 'title' => __( 'Live tutor plans', 'prepgro-theme' ), 'sub' => __( 'From $129/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
+							array( 'icon' => 'circle-plus', 'title' => __( 'Add a second subject', 'prepgro-theme' ), 'sub' => __( 'One subject per plan', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 							array( 'icon' => 'users', 'title' => __( 'Teach with prepGro', 'prepgro-theme' ), 'sub' => __( 'Tutor applications', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
 						),
 					),
@@ -234,7 +234,7 @@ final class Chrome {
 					'title'   => __( 'Practise until it holds', 'prepgro-theme' ),
 					'body'    => __( 'Unlimited attempts for one subject, with explanations and a trend by skill.', 'prepgro-theme' ),
 					'cta'     => __( 'See test packs', 'prepgro-theme' ),
-					'url'     => home_url( '/pricing/' ),
+					'url'     => Pricing_Levels::url(),
 				),
 				'groups' => array(
 					array(
@@ -259,7 +259,7 @@ final class Chrome {
 						'eyebrow' => __( 'Test packs', 'prepgro-theme' ),
 						'note'    => __( 'by level', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
+							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
 							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
 						),
@@ -395,7 +395,7 @@ final class Chrome {
 				'links' => array(
 					array( 'id' => 'how', 'label' => __( 'How it works', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
 					array( 'id' => 'exams', 'label' => __( 'Exams', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
-					array( 'id' => 'pricing', 'label' => __( 'Pricing', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
+					array( 'id' => 'pricing', 'label' => __( 'Pricing', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 					array( 'id' => 'journal', 'label' => __( 'Journal', 'prepgro-theme' ), 'url' => $this->blog_url() ),
 				),
 			),
@@ -495,12 +495,31 @@ final class Chrome {
 			$links[] = array(
 				'id'    => 'menu-' . (int) $item->ID,
 				'label' => $label,
-				'url'   => $url,
+				'url'   => $this->level_aware( $url ),
 				'owns'  => $match ? array( $match ) : array(),
 			);
 		}
 
 		return $links ? $links : null;
+	}
+
+
+	/**
+	 * Route a CMS menu URL through the pricing level when it points at the
+	 * pricing page without one.
+	 *
+	 * Footer columns stay owner-editable via Appearance → Menus, so a menu
+	 * item aimed at /pricing/ would otherwise be the one link on an exam page
+	 * that still shows every SKU — the exact case §6 rules out.
+	 *
+	 * @param string $url Menu URL.
+	 * @return string
+	 */
+	private function level_aware( $url ) {
+		if ( false === strpos( $url, '/pricing/' ) || false !== strpos( $url, 'level=' ) ) {
+			return $url;
+		}
+		return Pricing_Levels::url();
 	}
 
 	/**

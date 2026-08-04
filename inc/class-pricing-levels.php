@@ -244,7 +244,16 @@ final class Pricing_Levels {
 	public static function current() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display preference.
 		$raw = isset( $_GET['level'] ) ? sanitize_key( wp_unslash( $_GET['level'] ) ) : '';
-		return self::is_level( $raw ) ? $raw : self::DEFAULT_LEVEL;
+		if ( self::is_level( $raw ) ) {
+			return $raw;
+		}
+		// On an exam page with no explicit level, the exam decides. This is
+		// what makes every Pricing link on that page — chrome, footer and
+		// content alike — land on that exam's level rather than all SKUs.
+		if ( is_singular( 'exam' ) ) {
+			return self::for_exam();
+		}
+		return self::DEFAULT_LEVEL;
 	}
 
 	/**

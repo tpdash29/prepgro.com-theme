@@ -292,6 +292,13 @@
 			"postTypes": [
 				"page"
 			]
+		},
+		{
+			"name": "page-exams",
+			"title": "Exams index",
+			"postTypes": [
+				"page"
+			]
 		}
 	],
 	"templateParts": [
