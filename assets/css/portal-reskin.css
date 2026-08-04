@@ -484,3 +484,274 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 		transition: none !important;
 	}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Portal shell — 2026-08 redesign (README §11/§12).
+
+   This block REPLACES the 274-line inline <style> that StudentDashboard.jsx
+   used to ship. The component no longer emits a style string; these rules
+   live here so they cascade with the rest of the theme and can be edited
+   without a JS rebuild.
+
+   Two deliberate departures from what that block did:
+     - The neumorphic / glassmorphic treatment is gone. §11 says flat card,
+       1px border, cool layered shadow only, and the design system does not
+       use transparency or backdrop-filter anywhere.
+     - The shell is flex-wrap, not a fixed two-column grid, so the sidebar
+       drops above the content on narrow screens with no media query.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Portal ground. One quiet surface — the old animated multi-radial azure
+   wash is retired along with the neumorphism. */
+body.tb-portal-competitive,
+body.tb-portal-testprep {
+	background: var(--pge-gray-50);
+	color: var(--pge-color-ink);
+}
+
+.tb-dash {
+	max-width: 1200px;
+	margin: clamp(18px, 3vw, 28px) auto clamp(40px, 5vw, 56px);
+	padding: 0 clamp(14px, 3vw, 28px);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 22px;
+	align-items: flex-start;
+	font-family: var(--pge-font-sans);
+}
+/* 240px on desktop, full width when it wraps — no media query needed. */
+.tb-dash-sidebar {
+	flex: 1 1 240px;
+	max-width: 280px;
+	width: auto;
+	background: var(--pge-white);
+	border: 1px solid var(--pge-color-line);
+	border-radius: 20px;
+	padding: 16px;
+	position: sticky;
+	top: 16px;
+	align-self: flex-start;
+	box-shadow: none;
+}
+.tb-dash-content { flex: 999 1 560px; min-width: 0; }
+
+.tb-dash-sidebar-header {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 6px 8px 16px;
+	border-bottom: 1px solid var(--pge-gray-100);
+	margin-bottom: 10px;
+}
+.tb-dash-sidebar-brandchip {
+	width: 40px; height: 40px; flex-shrink: 0;
+	border-radius: 50%;
+	background: var(--pge-gradient);
+	display: flex; align-items: center; justify-content: center;
+	box-shadow: none;
+}
+.tb-dash-sidebar-header h2 {
+	margin: 0;
+	font-size: 14.5px;
+	font-weight: 600;
+	font-family: var(--pge-font-heading);
+	color: var(--pge-color-ink);
+	letter-spacing: -0.01em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.tb-dash-sidebar-header p { margin: 2px 0 0; font-size: 12px; color: var(--pge-ink-400); font-weight: 400; }
+
+/* Nav rows: 44px targets, pill-adjacent 12px radius, tint when active. The
+   sliding left rail and the translateX hover are gone — 120–150ms, no
+   bounces, no motion that moves a hit target under the cursor. */
+.tb-dash-nav-item {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	width: 100%;
+	margin: 2px 0;
+	min-height: 44px;
+	padding: 0 12px;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--pge-color-body);
+	text-align: left;
+	border-radius: 12px;
+	font-family: inherit;
+	transition: background-color 140ms ease, color 140ms ease;
+}
+.tb-dash-nav-item::before { content: none; }
+.tb-dash-nav-item:hover { background: var(--pge-gray-50); color: var(--pge-color-ink); transform: none; }
+.tb-dash-nav-item.active {
+	background: var(--pge-blue-50);
+	color: var(--pge-color-primary);
+	font-weight: 600;
+	box-shadow: none;
+	outline: none;
+	border: none;
+}
+.tb-dash-nav-icon { width: 17px; height: 17px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.tb-dash-nav-divider { height: 1px; background: var(--pge-gray-100); margin: 10px 0; }
+.tb-dash-nav-item--quiet { font-size: 13px; font-weight: 500; color: var(--pge-ink-400); }
+
+/* Flat cards. Explicitly overrides the neumorphic stat treatment (§11:
+   "This replaces .tb-neu-stat. Drop the neumorphic treatment entirely"). */
+body.tb-portal-competitive .tb-card,
+body.tb-portal-competitive .tb-neu-stat,
+body.tb-portal-competitive .tb-neu-card,
+body.tb-portal-competitive .tb-empty-state,
+body.tb-portal-testprep .tb-card,
+body.tb-portal-testprep .tb-neu-stat,
+body.tb-portal-testprep .tb-neu-card,
+body.tb-portal-testprep .tb-empty-state {
+	background: var(--pge-white);
+	border: 1px solid var(--pge-color-line);
+	border-radius: 20px;
+	box-shadow: var(--pge-shadow-sm);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+	transition: box-shadow 140ms ease, transform 140ms ease;
+}
+body.tb-portal-competitive .tb-card:hover,
+body.tb-portal-testprep .tb-card:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--pge-shadow-md);
+}
+body.tb-portal-competitive .tb-card-header,
+body.tb-portal-testprep .tb-card-header {
+	border-bottom: 1px solid var(--pge-gray-100);
+}
+body.tb-portal-competitive .tb-neu-stat-value,
+body.tb-portal-testprep .tb-neu-stat-value {
+	font-family: var(--pge-font-mono);
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: var(--pge-color-ink);
+	-webkit-text-fill-color: currentColor;
+	background: none;
+}
+body.tb-portal-competitive .tb-neu-stat-label,
+body.tb-portal-testprep .tb-neu-stat-label {
+	font-size: 11.5px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var(--pge-ink-400);
+}
+body.tb-portal-competitive .tb-neu-stat-icon,
+body.tb-portal-testprep .tb-neu-stat-icon {
+	width: 30px; height: 30px;
+	border-radius: 10px;
+	background: var(--pge-blue-50);
+	color: var(--pge-color-primary);
+	box-shadow: none;
+	display: inline-flex; align-items: center; justify-content: center;
+}
+body.tb-portal-competitive .tb-neu-stat:hover .tb-neu-stat-icon,
+body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; }
+
+/* Score bands (§11) — replaces tb-badge-green / -warning / -red. */
+.tb-band { display: inline-flex; align-items: center; font-family: var(--pge-font-mono); font-size: 12.5px; font-weight: 700; border-radius: var(--pge-radius-pill); padding: 5px 11px; }
+.tb-band--high { color: #15803d; background: #f0fdf4; }
+.tb-band--mid  { color: #b45309; background: #fffbeb; }
+.tb-band--low  { color: #b91c1c; background: #fef2f2; }
+
+/* "Retired" badge — the standard level-badge spec, not the old square chip. */
+.tb-retired-badge {
+	display: inline-flex;
+	align-items: center;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	font-style: normal;
+	color: var(--pge-ink-500);
+	background: var(--pge-gray-100);
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	padding: 2px 8px;
+}
+
+/* Mobile nav bar */
+.tb-dash-mobile-bar {
+	background: var(--pge-white);
+	border: 1px solid var(--pge-color-line);
+	border-radius: 16px;
+}
+.tb-dash-mobile-dropdown {
+	background: var(--pge-white);
+	border: 1px solid var(--pge-color-line);
+	border-radius: 16px;
+	box-shadow: var(--pge-shadow-md);
+}
+.tb-dash-mobile-item { min-height: 44px; border-radius: 12px; color: var(--pge-color-body); }
+.tb-dash-mobile-item:hover { background: var(--pge-gray-50); }
+.tb-dash-mobile-item.active { background: var(--pge-blue-50); color: var(--pge-color-primary); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+	.tb-dash-nav-item,
+	body.tb-portal-competitive .tb-card,
+	body.tb-portal-testprep .tb-card { transition: none; }
+}
+
+/* Dark theme (Acorn Next) — same attribute as the rest of the app. */
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep { background: #0f131c; color: #eef2f9; }
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-dash-sidebar,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-dash-sidebar,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-card,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-card,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-empty-state,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-empty-state {
+	background: #1c2230;
+	border-color: #2a3345;
+}
+html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header h2,
+html[data-pge-admin-theme="dark"] .tb-dash-nav-item,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat-value,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat-value { color: #eef2f9; }
+html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header p,
+html[data-pge-admin-theme="dark"] .tb-dash-nav-item--quiet,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat-label,
+html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat-label { color: #93a0b5; }
+html[data-pge-admin-theme="dark"] .tb-dash-nav-item:hover { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"] .tb-dash-nav-item.active { background: #232c3d; color: #6ba4ff; }
+html[data-pge-admin-theme="dark"] .tb-dash-nav-divider,
+html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header,
+html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-card-header { border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .tb-dash-mobile-bar,
+html[data-pge-admin-theme="dark"] .tb-dash-mobile-dropdown { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .tb-dash-mobile-item { color: #eef2f9; }
+html[data-pge-admin-theme="dark"] .tb-dash-mobile-item:hover,
+html[data-pge-admin-theme="dark"] .tb-dash-mobile-item.active { background: #232c3d; }
+
+/* Score bands (README §11) — the badge classes every portal surface already
+   uses are restyled in place, so RecentActivityList, ResultsHistoryTable and
+   the rest pick up the new bands without touching their markup. */
+body.tb-portal-competitive .tb-badge,
+body.tb-portal-testprep .tb-badge {
+	display: inline-flex;
+	align-items: center;
+	font-family: var(--pge-font-mono);
+	font-size: 12.5px;
+	font-weight: 700;
+	border-radius: var(--pge-radius-pill);
+	padding: 5px 11px;
+	border: 0;
+}
+body.tb-portal-competitive .tb-badge-green,
+body.tb-portal-testprep .tb-badge-green   { color: #15803d; background: #f0fdf4; }
+body.tb-portal-competitive .tb-badge-warning,
+body.tb-portal-competitive .tb-badge-yellow,
+body.tb-portal-testprep .tb-badge-warning,
+body.tb-portal-testprep .tb-badge-yellow  { color: #b45309; background: #fffbeb; }
+body.tb-portal-competitive .tb-badge-red,
+body.tb-portal-testprep .tb-badge-red     { color: #b91c1c; background: #fef2f2; }

@@ -622,12 +622,59 @@ final class Chrome {
 	   Header.
 	   ──────────────────────────────────────────────────────────────────── */
 
+
+	/**
+	 * Whether this request is a FOCUS SURFACE — a live test or its review
+	 * (README §13). The runner renders with the marketing chrome suppressed:
+	 * no mega menu, no footer. Colored state chips and a mega menu are
+	 * distraction during a timed adaptive test.
+	 *
+	 * Scoped to a running attempt rather than to the whole exam post type on
+	 * purpose. An exam's landing page — no attempt open — is a marketing page
+	 * and keeps its chrome, which is also where the §6 exam→pricing routing
+	 * has to work.
+	 *
+	 * @return bool
+	 */
+	private function is_focus_surface() {
+		$types = array( 'exam' );
+		if ( class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' ) ) {
+			$diag = \PrepGro\Engine\Storage\Storage_Map::post_type( 'diagnostic' );
+			if ( $diag ) {
+				$types[] = $diag;
+			}
+		}
+
+		$running = false;
+		foreach ( array( 'attempt_id', 'tb_result', 'pge_start', 'tb_start' ) as $param ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only surface switch.
+			if ( isset( $_GET[ $param ] ) ) {
+				$running = true;
+				break;
+			}
+		}
+
+		$focus = is_singular( $types ) && $running;
+
+		/**
+		 * Filter whether the current request is a focus surface.
+		 *
+		 * @param bool $focus Whether to suppress the marketing chrome.
+		 */
+		return (bool) apply_filters( 'pgt_is_focus_surface', $focus );
+	}
+
 	/**
 	 * Render the header: bar + mega panels + search band + mobile drawer.
 	 *
 	 * @return string
 	 */
 	public function render_header() {
+		// A live test is a focus surface — no chrome at all.
+		if ( $this->is_focus_surface() ) {
+			return '';
+		}
+
 		$home      = home_url( '/' );
 		$links     = $this->nav_links();
 		$panels    = $this->mega_panels();
@@ -1006,6 +1053,9 @@ final class Chrome {
 	 * @return string
 	 */
 	public function render_footer() {
+		if ( $this->is_focus_surface() ) {
+			return '';
+		}
 		return $this->minify( $this->is_app_context() ? $this->app_footer() : $this->public_footer() );
 	}
 
