@@ -98,12 +98,18 @@ final class Pricing_Levels {
 			$tier = $level['tier'];
 			if ( isset( $live[ $tier ] ) ) {
 				foreach ( array( 'monthly', 'quarterly', 'annual' ) as $term ) {
-					if ( isset( $live[ $tier ][ $term ] ) && $live[ $tier ][ $term ] > 0 ) {
-						$level['pack'][ $term ] = (float) $live[ $tier ][ $term ];
+					if ( isset( $live[ $tier ][ $term ]['price'] ) && $live[ $tier ][ $term ]['price'] > 0 ) {
+						$level['pack'][ $term ] = (float) $live[ $tier ][ $term ]['price'];
+						if ( ! empty( $live[ $tier ][ $term ]['product'] ) ) {
+							$level['buy'][ $term ] = (int) $live[ $tier ][ $term ]['product'];
+						}
 					}
 				}
 			}
 			$level['key'] = $key;
+			if ( ! isset( $level['buy'] ) ) {
+				$level['buy'] = array();
+			}
 		}
 		unset( $level );
 
@@ -148,7 +154,7 @@ final class Pricing_Levels {
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from Storage_Map.
-		$rows = $wpdb->get_results( "SELECT name, price, duration_months FROM {$table} WHERE is_active = 1" );
+		$rows = $wpdb->get_results( "SELECT name, price, duration_months, wc_product_id FROM {$table} WHERE is_active = 1" );
 		if ( ! $rows ) {
 			set_transient( 'pgt_pricing_levels_v1', $out, HOUR_IN_SECONDS );
 			return $out;
@@ -171,8 +177,11 @@ final class Pricing_Levels {
 			}
 			foreach ( $tiers as $tier ) {
 				if ( 0 === stripos( (string) $row->name, $tier ) ) {
-					if ( ! isset( $out[ $tier ][ $term ] ) || $price < $out[ $tier ][ $term ] ) {
-						$out[ $tier ][ $term ] = $price;
+					if ( ! isset( $out[ $tier ][ $term ] ) || $price < $out[ $tier ][ $term ]['price'] ) {
+						$out[ $tier ][ $term ] = array(
+							'price'   => $price,
+							'product' => (int) $row->wc_product_id,
+						);
 					}
 					break;
 				}
@@ -181,6 +190,35 @@ final class Pricing_Levels {
 
 		set_transient( 'pgt_pricing_levels_v1', $out, HOUR_IN_SECONDS );
 		return $out;
+	}
+
+
+	/**
+	 * Checkout URL for a level's plan term, using the engine's own
+	 * add-to-cart route so the redesigned cards buy the real product.
+	 * Falls back to the engine pricing page when no SKU is mapped.
+	 *
+	 * @param string $level Level key.
+	 * @param string $term  monthly | quarterly | annual.
+	 * @return string
+	 */
+	public static function buy_url( $level, $term = 'monthly' ) {
+		$levels = self::levels();
+		if ( isset( $levels[ $level ]['buy'][ $term ] ) && function_exists( 'wc_get_checkout_url' ) && function_exists( 'wc_get_product' ) ) {
+			$pid  = (int) $levels[ $level ]['buy'][ $term ];
+			$prod = $pid ? wc_get_product( $pid ) : null;
+			if ( $prod && $prod->is_purchasable() && $prod->is_in_stock() ) {
+				return add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() );
+			}
+		}
+		/**
+		 * Filter the fallback URL used when a level has no purchasable SKU.
+		 *
+		 * @param string $url   Fallback URL.
+		 * @param string $level Level key.
+		 * @param string $term  Plan term.
+		 */
+		return apply_filters( 'pgt_pricing_fallback_url', home_url( '/get-started/' ), $level, $term );
 	}
 
 	/** @return void */

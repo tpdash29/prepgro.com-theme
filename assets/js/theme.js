@@ -373,6 +373,71 @@
 	}
 
 
+	/* ---------- Pricing level tabs ----------
+	 * All four levels are already in the DOM, so switching is a visibility
+	 * swap plus a history update — no request, and the chart re-renders with
+	 * the cards because both read the same server-rendered markup. Tabs are
+	 * real links to ?level=…, so this only enhances: with JS off the click
+	 * still navigates and the server picks the level. */
+	function initPricingLevels() {
+		var root = document.querySelector( '[data-pgt-pricing]' );
+		if ( ! root ) {
+			return;
+		}
+		var tabs = Array.prototype.slice.call( root.querySelectorAll( '[data-pgt-level]' ) );
+		if ( ! tabs.length ) {
+			return;
+		}
+
+		function show( level ) {
+			root.setAttribute( 'data-level', level );
+
+			tabs.forEach( function ( t ) {
+				var on = t.getAttribute( 'data-pgt-level' ) === level;
+				t.classList.toggle( 'is-on', on );
+				t.setAttribute( 'aria-selected', on ? 'true' : 'false' );
+			} );
+
+			// Price sets (both cards) and the "Showing prices for…" name.
+			[ 'data-pgt-price', 'data-pgt-levelname' ].forEach( function ( attr ) {
+				Array.prototype.forEach.call( root.querySelectorAll( '[' + attr + ']' ), function ( el ) {
+					if ( el.getAttribute( attr ) === level ) {
+						el.removeAttribute( 'hidden' );
+					} else {
+						el.setAttribute( 'hidden', '' );
+					}
+				} );
+			} );
+
+			// The chart highlights the selected level's row.
+			Array.prototype.forEach.call( root.querySelectorAll( '[data-pgt-chartrow]' ), function ( el ) {
+				el.classList.toggle( 'is-on', el.getAttribute( 'data-pgt-chartrow' ) === level );
+			} );
+		}
+
+		tabs.forEach( function ( t ) {
+			t.addEventListener( 'click', function ( e ) {
+				if ( e.metaKey || e.ctrlKey || e.shiftKey || e.button ) {
+					return; // let the browser open it however the user asked
+				}
+				e.preventDefault();
+				var level = t.getAttribute( 'data-pgt-level' );
+				show( level );
+				if ( window.history && window.history.pushState ) {
+					window.history.pushState( { pgtLevel: level }, '', t.getAttribute( 'href' ) );
+				}
+			} );
+		} );
+
+		window.addEventListener( 'popstate', function () {
+			var m = /[?&]level=([a-z]+)/.exec( window.location.search );
+			var level = m ? m[ 1 ] : 'high';
+			if ( root.querySelector( '[data-pgt-level="' + level + '"]' ) ) {
+				show( level );
+			}
+		} );
+	}
+
 	/* ---------- Navigation analytics ----------
 	 * Pushes intent events to a tag manager IF one is present; a hard no-op
 	 * otherwise. Consent handling stays the tag manager's job; no PII —
@@ -572,6 +637,7 @@
 		initHeaderDisclosures();
 		initDrawer();
 		initDrawerAccordions();
+		initPricingLevels();
 		initNavAnalytics();
 		initReveals();
 		initCounters();

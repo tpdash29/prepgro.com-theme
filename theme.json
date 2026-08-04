@@ -285,6 +285,13 @@
 			"postTypes": [
 				"page"
 			]
+		},
+		{
+			"name": "page-pricing",
+			"title": "Pricing (level-scoped)",
+			"postTypes": [
+				"page"
+			]
 		}
 	],
 	"templateParts": [

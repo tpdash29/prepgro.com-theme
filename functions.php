@@ -23,6 +23,7 @@ require_once PGT_DIR . '/inc/class-icons.php';
 require_once PGT_DIR . '/inc/class-media.php';
 require_once PGT_DIR . '/inc/class-pricing-levels.php';
 require_once PGT_DIR . '/inc/class-module-pages.php';
+require_once PGT_DIR . '/inc/class-pricing-page.php';
 require_once PGT_DIR . '/inc/class-theme-options.php';
 require_once PGT_DIR . '/inc/class-chrome.php';
 require_once PGT_DIR . '/inc/class-homepage-sections.php';
@@ -33,6 +34,7 @@ require_once PGT_DIR . '/inc/class-homepage-sections.php';
 \PrepGro\Theme\Chrome::instance()->init();
 \PrepGro\Theme\Homepage_Sections::instance()->init();
 \PrepGro\Theme\Module_Pages::instance()->init();
+\PrepGro\Theme\Pricing_Page::instance()->init();
 
 /**
  * Site icon (favicon) from the bundled brand-kit mark — no Media Library
