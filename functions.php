@@ -191,13 +191,50 @@ add_action(
 			PGT_VERSION
 		);
 
-		// Readiness-first homepage sections (2026-07 redesign).
-		if ( is_front_page() ) {
+		// Page-scoped stylesheets (2026-08 redesign). Each screen's CSS lives in
+		// its own file and is loaded only where it is used, so no page pays for
+		// another page's rules. Keep this table in step with the classes in
+		// inc/ that render those screens — a missing row here renders the page
+		// as unstyled markup, which is silent and easy to miss.
+		$pgt_screens = array(
+			'pgt-home'    => array(
+				'file' => 'pg-home.css',
+				'on'   => is_front_page(),
+			),
+			'pgt-module'  => array(
+				'file' => 'pg-module.css',
+				'on'   => is_page() && '' !== \PrepGro\Theme\Module_Pages::instance()->current_module(),
+			),
+			'pgt-pricing' => array(
+				'file' => 'pg-pricing.css',
+				'on'   => is_page() && \PrepGro\Theme\Pricing_Page::instance()->is_pricing_page(),
+			),
+			// Exam single pages get it too: the level stamp, the coverage tiles
+			// and the sample badges are styled here.
+			'pgt-exams'   => array(
+				'file' => 'pg-exams.css',
+				'on'   => ( is_page() && \PrepGro\Theme\Exams_Page::instance()->is_exams_page() )
+					|| is_singular( 'exam' )
+					|| is_post_type_archive( 'exam' )
+					|| is_tax( 'pricing_level' ),
+			),
+			'pgt-blog'    => array(
+				'file' => 'pg-blog.css',
+				'on'   => is_home() || is_singular( 'post' ) || is_category() || is_tag()
+					|| is_author() || is_date() || is_search(),
+			),
+		);
+
+		foreach ( $pgt_screens as $pgt_handle => $pgt_screen ) {
+			if ( ! $pgt_screen['on'] ) {
+				continue;
+			}
+			$pgt_path = get_template_directory() . '/assets/css/' . $pgt_screen['file'];
 			wp_enqueue_style(
-				'pgt-home',
-				PGT_URI . '/assets/css/pg-home.css',
+				$pgt_handle,
+				PGT_URI . '/assets/css/' . $pgt_screen['file'],
 				array( 'pgt-theme' ),
-				(string) filemtime( get_template_directory() . '/assets/css/pg-home.css' )
+				file_exists( $pgt_path ) ? (string) filemtime( $pgt_path ) : PGT_VERSION
 			);
 		}
 
