@@ -1806,3 +1806,59 @@ html[data-pge-admin-theme="dark"] .pgt-drawer__head { border-bottom-color: #2a33
 html[data-pge-admin-theme="dark"] .pgt-drawer__link,
 html[data-pge-admin-theme="dark"] .pgt-drawer__grouphead { border-bottom-color: #2a3345; }
 html[data-pge-admin-theme="dark"] .pgt-drawer__close { background: #1c2230; border-color: #2a3345; color: #eef2f9; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Shared marketing primitives (2026-08 redesign)
+   Used by the homepage, the three module pages, the blog and the article.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ---------- Image slot — the production `<image-slot>` ----------
+   Addendum A5: every image box carries an EXPLICIT height plus object-fit:
+   cover. A min-height alone leaves a white gap under the photo. */
+.pgt-imgslot {
+	display: block;
+	position: relative;
+	height: var(--pgt-img-h, 280px);
+	border-radius: var(--pgt-img-r, var(--pge-radius-lg));
+	border: 1px solid var(--pge-color-line);
+	overflow: hidden;
+	background: var(--pge-gray-50);
+}
+.pgt-imgslot--flush { border: 0; }
+.pgt-imgslot__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+/* No image chosen yet: the brand tint wash holds the box open. */
+.pgt-imgslot__wash {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(140deg, var(--blue-100), var(--pge-gray-50));
+}
+
+/* ---------- Sample badge ----------
+   Every illustrative figure on a public marketing page carries one. Real
+   student data never appears on a marketing page. */
+.pgt-sample {
+	display: inline-flex;
+	align-items: center;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var(--pge-ink-500);
+	background: var(--pge-gray-100);
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	padding: 4px 10px;
+	white-space: nowrap;
+}
+.pgt-sample--on-dark {
+	color: var(--pge-color-on-dark);
+	background: rgba(255,255,255,.07);
+	border-color: rgba(107,164,255,.24);
+}

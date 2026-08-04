@@ -70,7 +70,7 @@ final class Theme_Options {
 			$vars[] = '--pge-color-primary:' . $primary . ';';
 		}
 
-		$h      = (int) get_theme_mod( 'pgt_logo_height', 34 );
+		$h      = (int) get_theme_mod( 'pgt_logo_height', 30 );
 		$h      = max( 24, min( 64, $h ) );
 		$vars[] = '--pgt-logo-h:' . $h . 'px;';
 
@@ -118,7 +118,7 @@ final class Theme_Options {
 		$wp_customize->add_setting(
 			'pgt_logo_height',
 			array(
-				'default'           => 34,
+				'default'           => 30,
 				'sanitize_callback' => function ( $value ) {
 					return max( 24, min( 64, (int) $value ) );
 				},
@@ -130,7 +130,7 @@ final class Theme_Options {
 			'pgt_logo_height',
 			array(
 				'label'       => __( 'Logo size (px)', 'prepgro-theme' ),
-				'description' => __( 'Height of the header logo. 34px is the brand-kit default.', 'prepgro-theme' ),
+				'description' => __( 'Height of the header logo. 30px is the redesign default.', 'prepgro-theme' ),
 				'section'     => 'pge_branding',
 				'type'        => 'range',
 				'input_attrs' => array(
@@ -140,5 +140,50 @@ final class Theme_Options {
 				),
 			)
 		);
+
+		// Homepage photo band (README addendum A5). Both slots fall back to the
+		// bundled theme photos, so the band never renders empty.
+		$wp_customize->add_section(
+			'pgt_home_media',
+			array(
+				'title'       => __( 'PrepGro Homepage Images', 'prepgro-theme' ),
+				'description' => __( 'Photographs for the homepage band. Leave empty to use the bundled defaults.', 'prepgro-theme' ),
+				'priority'    => 31,
+			)
+		);
+
+		$slots = array(
+			'pgt_home_band_main' => array(
+				'label'       => __( 'Band — main photo', 'prepgro-theme' ),
+				'description' => __( 'Art direction: a student working through a practice set on a laptop.', 'prepgro-theme' ),
+			),
+			'pgt_home_band_side' => array(
+				'label'       => __( 'Band — side photo', 'prepgro-theme' ),
+				'description' => __( 'Art direction: a tutor mid-explanation on a video call.', 'prepgro-theme' ),
+			),
+		);
+
+		foreach ( $slots as $key => $slot ) {
+			$wp_customize->add_setting(
+				$key,
+				array(
+					'default'           => 0,
+					'sanitize_callback' => 'absint',
+					'transport'         => 'refresh',
+				)
+			);
+			$wp_customize->add_control(
+				new \WP_Customize_Media_Control(
+					$wp_customize,
+					$key,
+					array(
+						'label'       => $slot['label'],
+						'description' => $slot['description'],
+						'section'     => 'pgt_home_media',
+						'mime_type'   => 'image',
+					)
+				)
+			);
+		}
 	}
 }
