@@ -375,11 +375,7 @@ final class Chrome {
 		<div class="pgt-header" data-pgt-header>
 			<div class="pgt-header__inner">
 				<?php
-				// Not passed through wp_kses_post: kses strips the brand-kit
-				// SVG chip (svg/defs/linearGradient aren't in its allowlist).
-				// Both possible values are trusted markup we generate.
 				echo $logo_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->country_chip(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 				<nav class="pgt-nav" aria-label="<?php esc_attr_e( 'Primary', 'prepgro-theme' ); ?>">
 					<?php echo $this->nav_anchor_list( $links, 'pgt-nav__link', 'primary' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -387,6 +383,7 @@ final class Chrome {
 				<div class="pgt-auth">
 					<?php echo $this->auth_cluster( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
+				<?php echo $this->country_chip(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<button class="pgt-burger" type="button" aria-label="<?php esc_attr_e( 'Open menu', 'prepgro-theme' ); ?>" aria-expanded="false" aria-controls="pgt-drawer">
 					<span></span><span></span><span></span>
 				</button>
