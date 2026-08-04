@@ -124,7 +124,25 @@
   </section>
   <!-- /wp:html -->
 
-  <!-- 4. Report showcase -->
+  <!-- 4. Device stage — the Knowt-style phone showcase. Markup and base CSS
+       come from the engine ([pge_device_stage]); assets/css/pg-devicestage.css
+       reskins it from the retired neumorphic system to the A1 flat one.
+       flow="modules" labels the floating cards with the Evaluate → Elevate →
+       Excel journey introduced by the section above. -->
+  <!-- wp:html -->
+  <section class="pgh-section pgh-devices" id="pg-devices">
+    <div class="pgh-container">
+      <div class="pgh-center pgh-center--head">
+        <span class="pgh-chip">One account, every device</span>
+        <h2 class="pgh-h2">The whole loop fits in a pocket.</h2>
+        <p class="pgh-lead">Practise between classes on a phone. Sit the full mock at a desk. One running score either way.</p>
+      </div>
+      [pge_device_stage part="stage" flow="modules"]
+    </div>
+  </section>
+  <!-- /wp:html -->
+
+  <!-- 5. Report showcase -->
   <!-- wp:html -->
   <section class="pgh-section pgh-section--flush" id="pg-report">
     <div class="pgh-reportpanel">
@@ -168,7 +186,7 @@
   </section>
   <!-- /wp:html -->
 
-  <!-- 5. Tutor band (ink) -->
+  <!-- 6. Tutor band (ink) -->
   <!-- wp:html -->
   <section class="pgh-tutorband" id="pg-experts">
     <div class="pgh-tutorband__inner">
@@ -187,10 +205,21 @@
   </section>
   <!-- /wp:html -->
 
-  <!-- 6. Photo band + stat plate (addendum A5) -->
-  <!-- wp:shortcode -->[pgt_photo_band]<!-- /wp:shortcode -->
+  <!-- 7. Continue-on-desktop band — the second half of the device story.
+       No flow="modules" here on purpose: the deskband's step strip would
+       otherwise repeat section 3 verbatim. Left on its default flow it tells
+       the device-continuity story instead, which is new information.
+       This replaces the A5 photo band, which was the weakest section on the
+       page and is still available anywhere as [pgt_photo_band]. -->
+  <!-- wp:html -->
+  <section class="pgh-section pgh-devices pgh-devices--desk" id="pg-desktop">
+    <div class="pgh-container">
+      [pge_device_stage part="deskband"]
+    </div>
+  </section>
+  <!-- /wp:html -->
 
-  <!-- 7. FAQ -->
+  <!-- 8. FAQ -->
   <!-- wp:html -->
   <section class="pgh-section pgh-section--tight" id="pg-faq">
     <div class="pgh-container pgh-container--narrow">

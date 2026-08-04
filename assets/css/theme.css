@@ -14,6 +14,22 @@
  */
 
 /* ---------- Base ---------- */
+
+/* The theme had no box-sizing reset, so every `max-width` + `padding` pair
+ * measured content-box and overflowed its own max-width by the padding. The
+ * report showcase panel, for one, rendered 1266px wide inside a 1160px grid
+ * and visibly jutted past every other section on the front page.
+ *
+ * The engine opts each of its own subtrees in (`.tb-hp *`, `.pgw-page *`,
+ * `.pgr-page *`), so this reset is additive there and corrective everywhere
+ * the theme draws — including the engine's device stage, which is authored
+ * for border-box but rendered outside `.tb-hp` when the theme embeds it. */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 :root {
 	--pgt-header-h: 68px;
 	--pgt-max: 1200px;
@@ -647,6 +663,40 @@ body.tb-portal-competitive .pgt-hero .pgt-hero__title {
 	-webkit-text-fill-color: #fff !important;
 	position: relative;
 }
+/* Same fight, 2026-08 redesign surfaces.
+ *
+ * The engine's rule is `body.tb-portal-*:not(:has(.tb-gje-v5)) h1..h4
+ * { color: var(--tb-neu-ink) !important }`. Its opt-out was the `.tb-gje-v5`
+ * class the old front-page hero carried; the redesign dropped that class, so
+ * the rule now fires on every page and paints ink-on-ink over every heading
+ * that sits on a dark ground.
+ *
+ * Re-adding `.tb-gje-v5` somewhere would switch the whole engine block off in
+ * one line, but it would also switch it off for engine-rendered content inside
+ * theme pages, which is not ours to change. So the headings are reclaimed by
+ * container instead: only the four dark surfaces the redesign actually draws.
+ * Scoped by container and covering h1-h4, so new headings inside them are
+ * covered without another edit here.
+ *
+ * `body[class]` is the specificity lever — the engine's selector is (0,2,2),
+ * this is (0,3,2) and still wins if the engine ever drops its !important. */
+body[class] .pgm-hero :is(h1, h2, h3, h4),
+body[class] .pgm-plan :is(h1, h2, h3, h4),
+body[class] .pgh-tutorband :is(h1, h2, h3, h4),
+body[class] .pgp-card--featured :is(h1, h2, h3, h4) {
+	color: #fff !important;
+	-webkit-text-fill-color: #fff !important;
+}
+
+/* The engine also forces font-family/weight/letter-spacing on those headings.
+ * The redesign's display sizes are tuned for 600, not the engine's 700. */
+body[class] .pgm-hero :is(h1, h2, h3, h4),
+body[class] .pgh-tutorband :is(h1, h2, h3, h4),
+body[class] .pgp-card--featured :is(h1, h2, h3, h4) {
+	font-weight: 600 !important;
+	letter-spacing: -.03em !important;
+}
+
 /* Soft gradient aura behind the headline — depth without decoration */
 .pgt-hero__copy { position: relative; }
 .pgt-hero__copy::before {

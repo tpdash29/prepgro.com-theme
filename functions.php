@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PGT_VERSION', '3.3.0' );
+define( 'PGT_VERSION', '3.4.0' );
 define( 'PGT_DIR', get_template_directory() );
 define( 'PGT_URI', get_template_directory_uri() );
 
@@ -183,12 +183,21 @@ add_action(
 			null
 		);
 
+		// Stylesheet version = the file's own mtime, so editing a stylesheet
+		// always busts the browser cache. Versioning by PGT_VERSION meant a CSS
+		// change shipped without a constant bump was invisible until a hard
+		// reload — a silent failure worth designing out.
+		$pgt_ver = static function ( $file ) {
+			$path = get_template_directory() . '/assets/css/' . $file;
+			return file_exists( $path ) ? (string) filemtime( $path ) : PGT_VERSION;
+		};
+
 		// Main theme stylesheet — loaded after the token bundle (pge-tokens).
 		wp_enqueue_style(
 			'pgt-theme',
 			PGT_URI . '/assets/css/theme.css',
 			array( 'pge-tokens' ),
-			PGT_VERSION
+			$pgt_ver( 'theme.css' )
 		);
 
 		// Page-scoped stylesheets (2026-08 redesign). Each screen's CSS lives in
@@ -199,6 +208,13 @@ add_action(
 		$pgt_screens = array(
 			'pgt-home'    => array(
 				'file' => 'pg-home.css',
+				'on'   => is_front_page(),
+			),
+			// Re-skins the engine's [pge_device_stage] from the retired
+			// neumorphic system to the A1 flat one. Front page only, because
+			// that is the only screen that embeds the stage.
+			'pgt-devices' => array(
+				'file' => 'pg-devicestage.css',
 				'on'   => is_front_page(),
 			),
 			'pgt-module'  => array(
@@ -229,12 +245,11 @@ add_action(
 			if ( ! $pgt_screen['on'] ) {
 				continue;
 			}
-			$pgt_path = get_template_directory() . '/assets/css/' . $pgt_screen['file'];
 			wp_enqueue_style(
 				$pgt_handle,
 				PGT_URI . '/assets/css/' . $pgt_screen['file'],
 				array( 'pgt-theme' ),
-				file_exists( $pgt_path ) ? (string) filemtime( $pgt_path ) : PGT_VERSION
+				$pgt_ver( $pgt_screen['file'] )
 			);
 		}
 
@@ -245,7 +260,7 @@ add_action(
 			'pgt-portal-reskin',
 			PGT_URI . '/assets/css/portal-reskin.css',
 			array( 'pgt-theme' ),
-			PGT_VERSION
+			$pgt_ver( 'portal-reskin.css' )
 		);
 
 		wp_enqueue_script(

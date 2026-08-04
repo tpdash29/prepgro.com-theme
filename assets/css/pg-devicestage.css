@@ -1,0 +1,256 @@
+/*
+ * PrepGro Theme — device stage reskin (2026-08 redesign).
+ *
+ * The Knowt-style phone showcase and continue-on-desktop band are rendered by
+ * the engine's [pge_device_stage] shortcode, whose CSS ships with the plugin
+ * and is shared with the [pge_homepage] education portal. That CSS is built on
+ * the neumorphic system the redesign retired: puffy dual light/dark shadows,
+ * no borders, and a coral / mint / saffron accent set.
+ *
+ * This file re-skins it WITHOUT touching the plugin, so the portal keeps its
+ * own look and an engine update cannot silently undo the work.
+ *
+ * Everything is scoped to `.pgh-devices` — the section wrapper in
+ * templates/front-page.html. That is deliberate:
+ *   1. It out-specifies the engine's single-class rules (0,2,0 vs 0,1,0), so
+ *      the reskin wins regardless of stylesheet order.
+ *   2. It confines the reskin to the theme's own usage.
+ *
+ * The bulk of the work is the variable block below. The engine's stage CSS
+ * reads almost every colour, font, radius and shadow from a custom property,
+ * so re-pointing those properties retunes the whole composition at once. Only
+ * the values the engine hardcoded need a real override, and they are grouped
+ * under "literals" further down.
+ */
+
+/* ── The retune ────────────────────────────────────────────────────────
+   Re-point the engine's private tokens at the theme's token layer. */
+.pgh-devices {
+	/* Palette. The A1 revision retired teal, coral and saffron as accents;
+	   coral collapses into the brand blue, mint becomes the semantic green
+	   (it only ever marks a correct answer) and saffron becomes amber. */
+	--pg-primary: var(--pge-color-primary);
+	--pg-canvas: var(--pge-white, #fff);
+	--pg-ink: var(--pge-color-ink);
+	--pg-ink-soft: var(--pge-ink-500);
+	--pg-coral: var(--pge-color-primary);
+	--pg-mint: var(--pge-green-600);
+	--pg-saffron: var(--amber-600);
+
+	/* Type. One family (Outfit) plus the mono face for numerals. */
+	--pg-display: var(--pge-font-heading);
+	--pg-mono: var(--pge-font-mono);
+	--tb-neu-font: var(--pge-font-sans);
+
+	--tb-radius-2xl: 28px;
+	--tb-radius-xl: 18px;
+
+	/* Neumorphism retired. Every raised surface becomes flat + hairline, lit
+	   by one cool shadow; every recessed surface becomes a tinted ground
+	   (the border does the work the inset shadow used to). */
+	--tb-neu-out: 0 1px 2px rgba(3, 5, 15, .04), 0 18px 44px -20px rgba(3, 5, 15, .16);
+	--tb-neu-out-sm: 0 1px 2px rgba(3, 5, 15, .04);
+	--tb-neu-out-xs: 0 1px 1px rgba(3, 5, 15, .04);
+	--tb-neu-in: none;
+	--tb-neu-accent-out: 0 8px 18px -8px rgba(27, 59, 235, .45);
+}
+
+/* ── Shells ───────────────────────────────────────────────────────────
+   The host section owns the page rhythm, so the stage drops its margins. */
+.pgh-devices .pg-stage,
+.pgh-devices .pg-deskband {
+	margin: 0;
+	border: 1px solid var(--pge-color-line);
+	background: var(--pge-gray-50);
+}
+.pgh-devices .pg-stage {
+	/* Keep the brand wash, but over the neutral ground rather than white. */
+	background:
+		radial-gradient(120% 80% at 50% -10%, var(--pge-blue-50), transparent 62%),
+		var(--pge-gray-50);
+	padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 32px) clamp(24px, 3vw, 36px);
+}
+.pgh-devices .pg-deskband { padding: clamp(28px, 4vw, 44px) clamp(16px, 3vw, 32px); }
+
+/* ── Literals ─────────────────────────────────────────────────────────
+   Values the engine hardcoded, so no variable can reach them. */
+
+/* Devices read as devices: an ink bezel, not a pale neumorphic slab. */
+.pgh-devices .pg-phone,
+.pgh-devices .pg-desktop {
+	background: linear-gradient(160deg, #232c3f, var(--pge-color-ink));
+	box-shadow: 0 2px 6px rgba(3, 5, 15, .10), 0 34px 70px -28px rgba(3, 5, 15, .48);
+}
+.pgh-devices .pg-phone__screen,
+.pgh-devices .pg-desktop__screen {
+	background: #fff;
+	box-shadow: none;
+}
+.pgh-devices .pg-desktop__bar i { background: rgba(255, 255, 255, .22); }
+.pgh-devices .pg-desktop__bar i:nth-child(1),
+.pgh-devices .pg-desktop__bar i:nth-child(2),
+.pgh-devices .pg-desktop__bar i:nth-child(3) { background: rgba(255, 255, 255, .22); }
+
+/* Floating workflow cards — flat, hairline, one cool shadow. */
+.pgh-devices .pg-float {
+	background: #fff;
+	border: 1px solid var(--pge-gray-100);
+	box-shadow: 0 14px 30px -12px rgba(3, 5, 15, .18), 0 2px 5px rgba(3, 5, 15, .05);
+}
+.pgh-devices .pg-float__ic {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-gray-100);
+}
+/* The three cards with no module of their own take the neutral accent. */
+.pgh-devices .pg-float--c .pg-float__ic,
+.pgh-devices .pg-float--e .pg-float__ic { color: var(--pge-color-primary); }
+.pgh-devices .pg-float--d .pg-float__ic { color: var(--amber-600); }
+
+/* Connectors: brand blue, and quieter than the cards they link. */
+.pgh-devices .pg-connectors path {
+	stroke: var(--pge-blue-300);
+	opacity: .75;
+}
+
+/* Phone app screen. Mirrors the readiness-runner styling in the engine (§10):
+   flat rows, a 1.5px border, and a mono key tile. */
+.pgh-devices .pg-appscreen__fig {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-gray-100);
+	padding: 4px 10px;
+}
+.pgh-devices .pg-appscreen__ring::after { box-shadow: none; }
+/* The phone is a fixed 248x508 box, so the hairlines this reskin adds have to
+ * be paid for out of the app screen's own rhythm — otherwise the four answer
+ * rows push the "Check answer" CTA past the bottom bezel and it clips. The
+ * trims below reclaim 28px against the 19px the borders cost. */
+.pgh-devices .pg-appscreen { gap: 10px; }
+.pgh-devices .pg-appscreen__opts { gap: 7px; }
+.pgh-devices .pg-opt {
+	background: #fff;
+	border: 1.5px solid var(--pge-color-line);
+	box-shadow: none;
+	padding: 10px 12px;
+}
+.pgh-devices .pg-opt__key {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-gray-100);
+	box-shadow: none;
+	font-family: var(--pge-font-mono);
+}
+.pgh-devices .pg-opt--sel {
+	background: var(--pge-color-primary);
+	border-color: var(--pge-color-primary);
+	box-shadow: none;
+	color: #fff;
+}
+.pgh-devices .pg-opt--sel .pg-opt__key {
+	background: rgba(255, 255, 255, .22);
+	border-color: transparent;
+	color: #fff;
+}
+.pgh-devices .pg-opt--right {
+	background: var(--pge-green-50);
+	border-color: var(--pge-green-600);
+	box-shadow: none;
+	color: var(--pge-green-600);
+}
+.pgh-devices .pg-opt--right .pg-opt__key {
+	background: var(--pge-green-600);
+	border-color: transparent;
+	color: #fff;
+}
+/* Was a coral gradient; the redesign has no decorative gradients. */
+.pgh-devices .pg-appscreen__cta {
+	background: var(--pge-color-primary);
+	box-shadow: none;
+}
+
+/* Desktop dashboard mirror — recessed tiles become tinted grounds. */
+.pgh-devices .pg-web__nav,
+.pgh-devices .pg-web__stat,
+.pgh-devices .pg-web__card,
+.pgh-devices .pg-web__ic,
+.pgh-devices .pg-web__nav i,
+.pgh-devices .pg-web__streak,
+.pgh-devices .pg-web__xpbar {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-gray-100);
+	box-shadow: none;
+}
+/* The nav rail sits on the same tint as its own items, which left the items
+ * invisible. Drop the rail to white so they read. */
+.pgh-devices .pg-web__nav { background: #fff; }
+.pgh-devices .pg-web__nav i {
+	background: var(--pge-gray-100);
+	border-color: var(--pge-gray-200);
+}
+.pgh-devices .pg-web__nav i.is-on,
+.pgh-devices .pg-web__lvl {
+	background: var(--pge-color-primary);
+	border-color: transparent;
+	box-shadow: none;
+}
+.pgh-devices .pg-web__xpbar i {
+	background: var(--pge-color-primary);
+	border: 0;
+}
+.pgh-devices .pg-web__streak { color: var(--amber-700); }
+
+/* Workflow step strip. */
+.pgh-devices .pg-flow__step {
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	box-shadow: 0 1px 2px rgba(3, 5, 15, .04);
+}
+.pgh-devices .pg-flow__num {
+	background: var(--pge-blue-50);
+	border: 1px solid var(--pge-blue-100);
+	box-shadow: none;
+	color: var(--pge-color-primary);
+}
+/* The arrow separators must stay transparent — the rule above would otherwise
+   give them the step card's border. */
+.pgh-devices .pg-flow__arrow {
+	background: none;
+	border: 0;
+	box-shadow: none;
+}
+
+/* Download / continue pills. */
+.pgh-devices .pg-dl__btn--store {
+	background: var(--pge-color-ink);
+	box-shadow: 0 8px 18px -8px rgba(3, 5, 15, .45);
+}
+.pgh-devices .pg-dl__btn--store:hover { box-shadow: 0 12px 24px -10px rgba(3, 5, 15, .55); }
+.pgh-devices .pg-dl__btn--web {
+	background: var(--pge-color-primary);
+	box-shadow: var(--tb-neu-accent-out);
+}
+.pgh-devices .pg-dl__btn:focus-visible { outline: var(--pge-focus-ring, 2px solid var(--pge-color-primary)); outline-offset: 3px; }
+
+/* Eyebrow above the deskband copy — matches .pgh-chip on the rest of the page. */
+.pgh-devices .pg-eyebrow {
+	background: var(--pge-gray-100);
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	color: var(--pge-ink-500);
+}
+.pgh-devices .pg-eyebrow .pg-eyebrow__dot {
+	background: var(--pge-color-primary);
+	box-shadow: 0 0 0 4px var(--pge-blue-50);
+}
+
+/* Headings inherit the page's tracking rather than the portal's. */
+.pgh-devices .pg-deskband__title {
+	font-weight: 600;
+	letter-spacing: -.03em;
+}
+
+/* The stage head is the theme's (.pgh-center--head), so pull the scene up
+   under it rather than leaving the engine's stacked margins. */
+.pgh-devices .pg-stage__scene { margin-top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+	.pgh-devices .pg-float { animation: none; }
+}

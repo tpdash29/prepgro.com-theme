@@ -2,7 +2,15 @@
 
 <!-- wp:group {"tagName":"main","anchor":"pgt-main","layout":{"type":"default"}} -->
 <main id="pgt-main" class="wp-block-group">
-  <!-- wp:shortcode -->[pgt_module_page]<!-- /wp:shortcode -->
+  <!-- The shortcode sits inside a Custom HTML block, not a wp:shortcode block,
+       on purpose. wpautop runs on wp:shortcode output and injects <p>/<br> into
+       the returned markup; in a CSS grid every stray <p> becomes a visible empty
+       cell (it broke the exams grid), and in a flex row it shifts the layout.
+       do_shortcode runs over the whole rendered template, so the shortcode still
+       executes here — just without wpautop touching what it returns. -->
+  <!-- wp:html -->
+  [pgt_module_page]
+  <!-- /wp:html -->
 </main>
 <!-- /wp:group -->
 
