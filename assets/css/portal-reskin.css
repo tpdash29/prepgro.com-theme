@@ -678,21 +678,95 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
 	padding: 2px 8px;
 }
 
-/* Mobile nav bar */
+/* ── Mobile nav bar ──────────────────────────────────────────────────
+ * These rules used to live in StudentDashboard.jsx's inline <style> block.
+ * When that block moved here, only its cosmetic half came with it — the
+ * structural half (the `display` rules and the whole max-width:768px layer)
+ * was left behind, which meant:
+ *   - the mobile bar had no `display:none`, so it rendered on desktop;
+ *   - its dropdown had no `display:none`, so it was permanently expanded;
+ *   - the two <button>s had no base reset, so they drew the browser's
+ *     default 2px outset border;
+ *   - and on an actual phone the sidebar never hid, the columns never
+ *     stacked, and the tables never shrank.
+ * The structure is restored below; the styling is the A1 system, not the
+ * hardcoded hexes the original used. */
 .tb-dash-mobile-bar {
+	display: none; /* shown by the max-width:768px block at the end of this file */
 	background: var(--pge-white);
 	border: 1px solid var(--pge-color-line);
 	border-radius: 16px;
+	padding: 10px 16px;
+	margin-bottom: 16px;
+	box-shadow: var(--pge-shadow-sm);
 }
+/* Both controls are <button>s: reset the UA chrome or they render as
+ * grey 2px-outset system buttons. */
+.tb-dash-mobile-toggle,
+.tb-dash-mobile-item {
+	border: none;
+	background: none;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	-webkit-appearance: none;
+	appearance: none;
+}
+.tb-dash-mobile-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+}
+.tb-dash-mobile-toggle svg { transition: transform .2s var(--pgt-ease, ease); }
+.tb-dash-mobile-toggle.open svg { transform: rotate(180deg); }
 .tb-dash-mobile-dropdown {
-	background: var(--pge-white);
-	border: 1px solid var(--pge-color-line);
-	border-radius: 16px;
-	box-shadow: var(--pge-shadow-md);
+	display: none;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid var(--pge-color-line);
 }
-.tb-dash-mobile-item { min-height: 44px; border-radius: 12px; color: var(--pge-color-body); }
+.tb-dash-mobile-dropdown.open { display: block; }
+.tb-dash-mobile-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 44px;
+	padding: 10px 8px;
+	border-radius: 12px;
+	font-size: 14px;
+	color: var(--pge-color-body);
+}
 .tb-dash-mobile-item:hover { background: var(--pge-gray-50); }
 .tb-dash-mobile-item.active { background: var(--pge-blue-50); color: var(--pge-color-primary); font-weight: 600; }
+
+/* ── Portal responsive layer (was the inline block's max-width:768px) ── */
+@media (max-width: 768px) {
+	.tb-dash {
+		flex-direction: column;
+		gap: 0;
+		margin: 16px auto !important;
+		padding: 0 12px !important;
+		max-width: 100% !important;
+	}
+	.tb-dash-sidebar { display: none; }
+	.tb-dash-mobile-bar { display: block; }
+	.tb-dash-content { min-width: 0; width: 100%; overflow-x: hidden; }
+	.tb-dash-content .tb-card { overflow: hidden; word-break: break-word; border-radius: 8px; }
+	.tb-dash-content table { font-size: 13px !important; }
+	/* Two-column grids collapse to one. */
+	.tb-perf-charts,
+	.tb-profile-row { grid-template-columns: 1fr !important; }
+	/* Results toolbar: search and filter stack instead of squeezing. */
+	.tb-results-toolbar { flex-direction: column; }
+	.tb-results-toolbar > div:first-child { max-width: 100% !important; flex: 1 1 100% !important; }
+	.tb-results-toolbar .tb-select { width: 100% !important; }
+}
 
 @media (prefers-reduced-motion: reduce) {
 	.tb-dash-nav-item,
