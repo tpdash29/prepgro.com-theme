@@ -1167,8 +1167,14 @@ body.tb-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	align-items: start;
 }
 .pgt-footer__brand { display: block; }
-.pgt-footer__brand .pgt-brandlogo__chip { width: 26px; height: 26px; }
-.pgt-footer__brand .pgt-brandlogo__word { font-size: 1.05rem; }
+/* Sized to pair with the statement below, not with the header's own mark.
+ * At 26px/16.8px (the header's own footer-only shrink) the lockup read as a
+ * caption sitting above a bold display headline — two very different type
+ * weights with nothing tying them together. 34px/1.375rem brings the chip
+ * to the header's own size and the wordmark close to the statement's own
+ * 21-28px range, so the two rows read as one brand block. */
+.pgt-footer__brand .pgt-brandlogo__chip { width: 34px; height: 34px; }
+.pgt-footer__brand .pgt-brandlogo__word { font-size: 1.375rem; }
 /* Three module names, one per line. Sized to the footer's own rhythm: the
    top row is ~136px and the brand lockup above this costs ~48px, so three
    lines have ~88px to live in — 28px at a 1.04 leading lands at ~87px and

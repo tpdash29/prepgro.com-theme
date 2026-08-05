@@ -332,8 +332,17 @@
 .pgh-callout p { margin: 0; font-size: 13.5px; font-weight: 600; line-height: 1.5; color: var(--pge-color-ink); }
 
 /* ── 5. Tutor band (ink) ───────────────────────────────────────────── */
+/* This is an inset "floating card", not a full-width .pgh-section, so its
+ * own margin is the ONLY thing separating it from its neighbours — unlike
+ * every other section on the page, it contributes no padding of its own for
+ * that job. A stray margin-top:0 here overrode WordPress's block-gap on the
+ * section above (adjacent margins collapse to the larger value, and 0 always
+ * loses), so the white report panel butted straight into this dark band with
+ * no gap at all, while the gap below it ran to 80px — a hard seam on one
+ * side and an oversized one on the other, right next to each other. Equal
+ * top/bottom margins put a real, matching gap on both sides. */
 .pgh-tutorband {
-	margin: 0 clamp(18px, 4vw, 32px) clamp(48px, 7vw, 80px);
+	margin: clamp(32px, 4vw, 48px) clamp(18px, 4vw, 32px);
 	background: var(--neutral-950);
 	border-radius: 26px;
 	padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 52px);
