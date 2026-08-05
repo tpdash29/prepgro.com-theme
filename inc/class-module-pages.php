@@ -57,6 +57,25 @@ final class Module_Pages {
 	public function init() {
 		add_shortcode( 'pgt_module_page', array( $this, 'render' ) );
 		add_filter( 'page_template_hierarchy', array( $this, 'route_template' ), 5 );
+		add_filter( 'body_class', array( $this, 'body_class' ) );
+	}
+
+	/**
+	 * Tag the body with the module so pg-module.css can scope the --pgm-*
+	 * accent variables per pillar (README "each pillar should feel like its
+	 * own place, not three copies of the same page"). These pages are
+	 * routed by page-template, not a shortcode the engine's App_Shell can
+	 * see, so they carry no pg-module-* class today without this.
+	 *
+	 * @param string[] $classes Body classes.
+	 * @return string[]
+	 */
+	public function body_class( $classes ) {
+		$module = $this->current_module();
+		if ( $module ) {
+			$classes[] = 'pg-module-' . $module;
+		}
+		return $classes;
 	}
 
 	/**
@@ -719,7 +738,11 @@ final class Module_Pages {
 				continue;
 			}
 			$l     = $links[ $other ];
-			$rest .= '<a class="pgm-next" href="' . esc_url( $l['url'] ) . '">'
+			// pgm-next--{module}: this card links TO $other, so its icon
+			// takes $other's colour (not the current page's) — a preview of
+			// what you're headed to, and one more place the three pillars
+			// read as distinct rather than one repeated blue.
+			$rest .= '<a class="pgm-next pgm-next--' . esc_attr( $other ) . '" href="' . esc_url( $l['url'] ) . '">'
 				. '<span class="pgm-next__icon">' . Icons::svg( $l['icon'], array( 'size' => 17, 'stroke' => 1.9 ) ) . '</span>'
 				. '<span class="pgm-next__copy"><span class="pgm-next__label">' . esc_html( $l['label'] ) . '</span>'
 				. '<span class="pgm-next__sub">' . esc_html( $l['sub'] ) . '</span></span>'

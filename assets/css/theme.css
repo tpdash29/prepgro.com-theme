@@ -365,7 +365,11 @@ a:hover { text-decoration: underline; }
    section background, a card border or a button fill (README "Accent
    discipline"). */
 .pgt-mega--evaluate { --pgt-tone-fg: var(--pge-color-primary); --pgt-tone-bg: var(--pge-blue-50); }
-.pgt-mega--elevate  { --pgt-tone-fg: var(--pge-blue-500); --pgt-tone-bg: #edf6ff; }
+/* Was --pge-blue-500 — one ramp step off Evaluate's --pge-color-primary
+   (--blue-600), so both dropdowns showed the same blue icons/text. Elevate
+   gets its own hue (see --teal-* in _core.css) so the two are actually
+   distinguishable, which is the whole point of a per-module tone. */
+.pgt-mega--elevate  { --pgt-tone-fg: var(--teal-700); --pgt-tone-bg: var(--teal-50); }
 .pgt-mega--excel    { --pgt-tone-fg: var(--amber-700); --pgt-tone-bg: var(--amber-50); }
 .pgt-mega--neutral  { --pgt-tone-fg: var(--pge-ink-500); --pgt-tone-bg: var(--pge-gray-100); }
 

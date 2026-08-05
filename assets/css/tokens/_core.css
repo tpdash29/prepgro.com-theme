@@ -68,6 +68,17 @@
 	--amber-600: #d97706;
 	--amber-700: #b45309;
 
+	/* Elevate's module identity (see pg-module.css / theme.css --pgm-*).
+	   No teal ramp existed before this — Elevate previously borrowed
+	   --blue-500, one step off Evaluate's --blue-600, which read as the
+	   same colour. teal-700 is the AA-safe ink for links/text (5.47:1 on
+	   white); teal-600 is the vivid, non-text fill. */
+	--teal-50:  #f0fdfa;
+	--teal-100: #ccfbf1;
+	--teal-500: #14b8a6;
+	--teal-600: #0d9488;
+	--teal-700: #0f766e;
+
 	/* Accent on dark. A1 breaks this away from --blue-300, so it is its own
 	   value rather than a ramp alias. */
 	--color-accent-on-dark: #6ba4ff;

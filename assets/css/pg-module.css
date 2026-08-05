@@ -6,7 +6,38 @@
  * The dark hero uses the SAME --neutral-950 surface and the SAME two radial
  * washes as the homepage dark band. One accent, no new colours, and no
  * gradients beyond those washes.
+ *
+ * 2026-08: the three pages read identically at a glance — same hero, same
+ * blue everywhere — with no way to tell which pillar you're on except the
+ * copy. Per the owner's call, the hero band and the illustrative figure
+ * inside it stay exactly as above (shared surface, shared wash); it's the
+ * CONTROLS below and beside it — the primary button, the step-number
+ * chips, the plan CTA panel — that pick up a per-pillar --pgm-accent, same
+ * hue as that pillar's icon in the header mega-menu (theme.css
+ * .pgt-mega--*). Body_class() in class-module-pages.php stamps
+ * pg-module-{evaluate,elevate,excel}. Every consumer below falls back to
+ * the original literal --blue-* value, so a page rendered without that
+ * class (e.g. the bare [pgt_module_page] shortcode) looks exactly as it
+ * did before this variable existed.
  */
+body.pg-module-evaluate {
+	--pgm-accent:      var(--blue-600);
+	--pgm-accent-ink:  var(--pge-color-primary);
+	--pgm-accent-soft: var(--blue-50);
+}
+body.pg-module-elevate {
+	--pgm-accent:      var(--teal-700);
+	--pgm-accent-ink:  var(--teal-700);
+	--pgm-accent-soft: var(--teal-50);
+}
+body.pg-module-excel {
+	/* amber-600, not -500: white button text on -500 is 2.15:1 (fails even
+	   the 3:1 UI-component bar); -600 clears it at 3.19:1. -700 stays the
+	   ink shade for text-on-white, matching the mega-menu tone above. */
+	--pgm-accent:      var(--amber-600);
+	--pgm-accent-ink:  var(--amber-700);
+	--pgm-accent-soft: var(--amber-50);
+}
 
 /* ── Shared ────────────────────────────────────────────────────────── */
 .pgm-inner { max-width: 1160px; margin-inline: auto; }
@@ -96,7 +127,11 @@
 	transition: filter 140ms var(--pgt-ease);
 }
 .pgm-btn:hover { text-decoration: none; filter: brightness(.92); }
-.pgm-btn--primary { color: #fff; background: var(--blue-600); box-shadow: 0 12px 28px -12px rgba(27,59,235,.75); }
+.pgm-btn--primary {
+	color: #fff;
+	background: var(--pgm-accent, var(--blue-600));
+	box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--pgm-accent, var(--blue-600)) 75%, transparent);
+}
 .pgm-btn--primary:hover { color: #fff; }
 .pgm-btn--quiet { color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); padding: 14px 22px; }
 .pgm-btn--quiet:hover { color: #fff; filter: brightness(1.4); }
@@ -192,8 +227,8 @@
 .pgm-pillar__icon {
 	width: 38px; height: 38px;
 	border-radius: var(--pge-radius-md);
-	background: var(--blue-50);
-	color: var(--blue-600);
+	background: var(--pgm-accent-soft, var(--blue-50));
+	color: var(--pgm-accent-ink, var(--blue-600));
 	display: inline-flex; align-items: center; justify-content: center;
 }
 .pgm-pillar h3 { font-size: 19px; font-weight: 600; letter-spacing: -.02em; color: var(--pge-color-ink); margin: 16px 0 8px; }
@@ -204,7 +239,7 @@
 	padding-top: 16px;
 	border-top: 1px solid var(--pge-gray-100);
 }
-.pgm-check { display: flex; align-items: flex-start; gap: 9px; color: var(--blue-600); }
+.pgm-check { display: flex; align-items: flex-start; gap: 9px; color: var(--pgm-accent-ink, var(--blue-600)); }
 .pgm-check svg { flex: none; margin-top: 4px; }
 .pgm-check span { font-size: 13.5px; line-height: 1.5; color: var(--pge-color-body); }
 
@@ -257,9 +292,9 @@
 	display: inline-flex; align-items: center; justify-content: center;
 	width: 26px; height: 26px;
 	border-radius: var(--pge-radius-pill);
-	background: var(--blue-50);
+	background: var(--pgm-accent-soft, var(--blue-50));
 	font-size: 12px;
-	color: var(--blue-600);
+	color: var(--pgm-accent-ink, var(--blue-600));
 }
 .pgm-step__t { margin: 12px 0 6px; font-size: 16.5px; font-weight: 600; letter-spacing: -.015em; color: var(--pge-color-ink); }
 .pgm-step__b { margin: 0; font-size: 14px; line-height: 1.55; color: var(--pge-ink-500); }
@@ -271,11 +306,11 @@
 	gap: 18px;
 }
 .pgm-plan {
-	background: var(--blue-600);
+	background: var(--pgm-accent, var(--blue-600));
 	border-radius: 24px;
 	padding: clamp(24px, 3vw, 32px);
 	color: #fff;
-	box-shadow: 0 14px 36px -16px rgba(27,59,235,.55);
+	box-shadow: 0 14px 36px -16px color-mix(in srgb, var(--pgm-accent, var(--blue-600)) 55%, transparent);
 }
 .pgm-plan__tag {
 	display: inline-block;
@@ -291,13 +326,13 @@
 .pgm-plan__cta {
 	display: inline-flex; align-items: center;
 	font-size: 15px; font-weight: 600;
-	color: var(--blue-700);
+	color: var(--pgm-accent-ink, var(--blue-700));
 	background: #fff;
 	padding: 13px 24px;
 	border-radius: var(--pge-radius-pill);
 	text-decoration: none;
 }
-.pgm-plan__cta:hover { color: var(--blue-700); text-decoration: none; filter: brightness(.94); }
+.pgm-plan__cta:hover { color: var(--pgm-accent-ink, var(--blue-700)); text-decoration: none; filter: brightness(.94); }
 .pgm-nextcol { display: grid; gap: 12px; align-content: start; }
 .pgm-next {
 	display: flex; align-items: center; gap: 14px;
@@ -317,6 +352,12 @@
 	color: var(--blue-600);
 	display: inline-flex; align-items: center; justify-content: center;
 }
+/* Each "rest of the loop" card previews the module it links TO, so its icon
+   uses that module's colour — deliberately independent of --pgm-accent,
+   which is the CURRENT page's colour. See class-module-pages.php::plan(). */
+.pgm-next--evaluate .pgm-next__icon { background: var(--blue-50); color: var(--pge-color-primary); }
+.pgm-next--elevate  .pgm-next__icon { background: var(--teal-50); color: var(--teal-700); }
+.pgm-next--excel    .pgm-next__icon { background: var(--amber-50); color: var(--amber-700); }
 .pgm-next__copy { min-width: 0; }
 .pgm-next__label { display: block; font-size: 15.5px; font-weight: 600; color: var(--pge-color-ink); }
 .pgm-next__sub { display: block; font-size: 13.5px; color: var(--pge-ink-500); margin-top: 2px; }
