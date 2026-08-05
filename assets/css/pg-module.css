@@ -42,8 +42,8 @@
  * reading of the data into decoration. They stay literal on purpose.
  */
 body.pg-module-evaluate {
-	--pgm-accent:      var(--blue-600);
-	--pgm-accent-ink:  var(--pge-color-primary);
+	--pgm-accent:      var(--pgt-pillar-evaluate);
+	--pgm-accent-ink:  var(--pgt-pillar-evaluate);
 	--pgm-accent-soft: var(--blue-50);
 	--pgm-on-dark: var(--pge-color-on-dark);
 	--pgm-wash-1: rgba(27,59,235,.6);  --pgm-wash-2: rgba(10,132,255,.34);
@@ -52,8 +52,8 @@ body.pg-module-evaluate {
 	--pgm-l1: var(--blue-600);  --pgm-l2: var(--blue-500);  --pgm-l3: var(--blue-400);
 }
 body.pg-module-elevate {
-	--pgm-accent:      var(--teal-700);
-	--pgm-accent-ink:  var(--teal-700);
+	--pgm-accent:      var(--pgt-pillar-elevate);
+	--pgm-accent-ink:  var(--pgt-pillar-elevate);
 	--pgm-accent-soft: var(--teal-50);
 	--pgm-on-dark: #5eead4;
 	--pgm-wash-1: rgba(13,148,136,.55);  --pgm-wash-2: rgba(45,212,191,.26);
@@ -73,8 +73,8 @@ body.pg-module-excel {
 	   -600 was chosen when this was read as a UI component; measuring the
 	   actual type sizes says otherwise, so -600 is retired for fills. Blue and
 	   teal already clear 4.5:1 (7.31 and 5.47), so only Excel moves. */
-	--pgm-accent:      var(--amber-700);
-	--pgm-accent-ink:  var(--amber-700);
+	--pgm-accent:      var(--pgt-pillar-excel);
+	--pgm-accent-ink:  var(--pgt-pillar-excel);
 	--pgm-accent-soft: var(--amber-50);
 	--pgm-on-dark: #fcd34d;
 	--pgm-wash-1: rgba(180,83,9,.6);  --pgm-wash-2: rgba(245,158,11,.26);

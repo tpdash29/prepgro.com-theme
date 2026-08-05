@@ -35,6 +35,17 @@
 	--pgt-max: 1200px;
 	--pgt-logo-h: 34px; /* overridden by the Customizer "Logo size" setting */
 	--pgt-ease: cubic-bezier(.22, .61, .36, 1);
+
+	/* The three pillar hues, declared globally because the menu carries them
+	   on EVERY page, not only inside a module. pg-module.css derives its
+	   --pgm-accent from these rather than restating the values, so the
+	   Customizer's pillar colour pickers (which override these at :root) move
+	   the nav and the module page together instead of drifting apart.
+	   All three clear 4.5:1 on white, which nav links at 14.5px require:
+	   blue 7.31, teal 5.47, amber 5.02. */
+	--pgt-pillar-evaluate: var(--blue-600);
+	--pgt-pillar-elevate:  var(--teal-700);
+	--pgt-pillar-excel:    var(--amber-700);
 }
 
 body {
@@ -193,6 +204,29 @@ a:hover { text-decoration: underline; }
 	text-decoration: none;
 }
 .pgt-nav__link.is-current { color: var(--pge-color-ink); font-weight: 600; background: var(--pge-gray-100); }
+
+/* The three module items wear their own hue on every page, so the menu is
+   itself the colour key: you learn Evaluate=blue, Elevate=teal, Excel=amber
+   before ever opening one. Targeted through data-pgt-panel, which the nav
+   already emits for the mega-menu — no extra class needed.
+   Home and Help stay neutral: they are not pillars, and colouring everything
+   would leave nothing signalled. */
+.pgt-nav__link[data-pgt-panel="evaluate"] { color: var(--pgt-pillar-evaluate); }
+.pgt-nav__link[data-pgt-panel="elevate"]  { color: var(--pgt-pillar-elevate); }
+.pgt-nav__link[data-pgt-panel="excel"]    { color: var(--pgt-pillar-excel); }
+
+/* Hover and open states tint the pill in the same hue rather than the shared
+   grey, and the current page keeps the strongest treatment. */
+.pgt-nav__link[data-pgt-panel="evaluate"]:hover,
+.pgt-nav__link[data-pgt-panel="evaluate"][aria-expanded="true"] { color: var(--pgt-pillar-evaluate); background: var(--blue-50); }
+.pgt-nav__link[data-pgt-panel="elevate"]:hover,
+.pgt-nav__link[data-pgt-panel="elevate"][aria-expanded="true"]  { color: var(--pgt-pillar-elevate);  background: var(--teal-50); }
+.pgt-nav__link[data-pgt-panel="excel"]:hover,
+.pgt-nav__link[data-pgt-panel="excel"][aria-expanded="true"]    { color: var(--pgt-pillar-excel);    background: var(--amber-50); }
+
+.pgt-nav__link[data-pgt-panel="evaluate"].is-current { color: var(--pgt-pillar-evaluate); background: var(--blue-50); }
+.pgt-nav__link[data-pgt-panel="elevate"].is-current  { color: var(--pgt-pillar-elevate);  background: var(--teal-50); }
+.pgt-nav__link[data-pgt-panel="excel"].is-current    { color: var(--pgt-pillar-excel);    background: var(--amber-50); }
 .pgt-nav__chev { display: inline-flex; transition: transform 140ms ease; }
 .pgt-nav__link[aria-expanded="true"] .pgt-nav__chev { transform: rotate(180deg); }
 

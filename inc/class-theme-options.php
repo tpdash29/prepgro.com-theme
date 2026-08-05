@@ -100,22 +100,20 @@ final class Theme_Options {
 			$vars[] = '--pgt-nav-font:' . $stack . ';';
 		}
 
-		// Per-pillar accents. Each maps to the --pgm-* trio pg-module.css
-		// declares per body class; emitting them at :root would lose to those
-		// body-scoped rules, so they are scoped the same way here.
-		$pillars = '';
+		// Per-pillar accents go at :root as --pgt-pillar-*, the single source
+		// both consumers read: the nav links (theme.css, every page) and the
+		// module pages' --pgm-accent (pg-module.css derives from these rather
+		// than restating them). Overriding one variable therefore moves the
+		// menu and the module page together instead of letting them drift.
 		foreach ( self::pillar_defaults() as $key => $fallback ) {
 			$hex = sanitize_hex_color( (string) get_theme_mod( 'pgt_accent_' . $key, '' ) );
 			if ( ! $hex ) {
 				continue;
 			}
-			$pillars .= 'body.pg-module-' . $key . '{'
-				. '--pgm-accent:' . $hex . ';'
-				. '--pgm-accent-ink:' . $hex . ';'
-				. '}';
+			$vars[] = '--pgt-pillar-' . $key . ':' . $hex . ';';
 		}
 
-		wp_add_inline_style( 'pgt-theme', ':root{' . implode( '', $vars ) . '}' . $pillars );
+		wp_add_inline_style( 'pgt-theme', ':root{' . implode( '', $vars ) . '}' );
 	}
 
 	/**
@@ -381,7 +379,7 @@ final class Theme_Options {
 			'pgt_pillar_colours',
 			array(
 				'title'       => __( 'PrepGro Pillar Colours', 'prepgro-theme' ),
-				'description' => __( 'One hue per pillar. It drives that module page\'s buttons, links, icon chips, the name under the logo and the rule under the menu. Pick colours dark enough to carry white button text — aim for a 4.5:1 contrast ratio.', 'prepgro-theme' ),
+				'description' => __( 'One hue per pillar, used site-wide: that pillar\'s item in the main menu on every page, plus its module page\'s buttons, links, icon chips, graphs, the name under the logo and the rule under the menu. Pick colours dark enough to carry white button text and to read as a menu link — aim for a 4.5:1 contrast ratio on white.', 'prepgro-theme' ),
 				'priority'    => 32,
 			)
 		);
