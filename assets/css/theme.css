@@ -46,6 +46,11 @@
 	--pgt-pillar-evaluate: var(--blue-600);
 	--pgt-pillar-elevate:  var(--teal-700);
 	--pgt-pillar-excel:    var(--amber-700);
+	/* The non-pillar tone, shared by Home and Help in the nav and by the Help
+	   dropdown. 5.39:1 on white. Home and Help are utilities, not stages of
+	   the product, so they sit deliberately quieter than the three hues — that
+	   gap is what makes the coloured items read AS the pillars. */
+	--pgt-pillar-neutral:  var(--pge-ink-500);
 }
 
 body {
@@ -214,6 +219,20 @@ a:hover { text-decoration: underline; }
 .pgt-nav__link[data-pgt-panel="evaluate"] { color: var(--pgt-pillar-evaluate); }
 .pgt-nav__link[data-pgt-panel="elevate"]  { color: var(--pgt-pillar-elevate); }
 .pgt-nav__link[data-pgt-panel="excel"]    { color: var(--pgt-pillar-excel); }
+
+/* Home takes Help's scheme. Both are utilities rather than stages of the
+   product, so they share the neutral tone and read as a pair against the
+   three coloured pillars. Home is matched on data-nav because, unlike Help,
+   it has no dropdown and therefore no data-pgt-panel to hang off. */
+.pgt-nav__link[data-nav="primary:home"],
+.pgt-nav__link[data-pgt-panel="help"] { color: var(--pgt-pillar-neutral); }
+.pgt-nav__link[data-nav="primary:home"]:hover,
+.pgt-nav__link[data-nav="primary:home"].is-current,
+.pgt-nav__link[data-pgt-panel="help"]:hover,
+.pgt-nav__link[data-pgt-panel="help"][aria-expanded="true"] {
+	color: var(--pgt-pillar-neutral);
+	background: var(--pge-gray-100);
+}
 
 /* Hover and open states tint the pill in the same hue rather than the shared
    grey, and the current page keeps the strongest treatment. */
@@ -413,7 +432,7 @@ a:hover { text-decoration: underline; }
    distinguishable, which is the whole point of a per-module tone. */
 .pgt-mega--elevate  { --pgt-tone-fg: var(--pgt-pillar-elevate); --pgt-tone-bg: var(--teal-50); }
 .pgt-mega--excel    { --pgt-tone-fg: var(--pgt-pillar-excel); --pgt-tone-bg: var(--amber-50); }
-.pgt-mega--neutral  { --pgt-tone-fg: var(--pge-ink-500); --pgt-tone-bg: var(--pge-gray-100); }
+.pgt-mega--neutral  { --pgt-tone-fg: var(--pgt-pillar-neutral); --pgt-tone-bg: var(--pge-gray-100); }
 
 /* ---------- Hidden search band ---------- */
 .pgt-search {
