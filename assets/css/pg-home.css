@@ -311,7 +311,10 @@
 .pgh-tile__value--accent { color: var(--pge-color-primary); }
 .pgh-reportskills { display: grid; gap: 13px; }
 .pgh-reportskill { display: grid; grid-template-columns: minmax(0, 1fr) 110px 44px; align-items: center; gap: 12px; }
-.pgh-reportskill > span:first-child { font-size: 13.5px; color: var(--pge-color-body); }
+/* break-word is the guarantee: the label column is the only flexible one, so
+   without it a single long skill name ("Proportional reasoning") overflows
+   rather than wrapping, whatever the breakpoints do. */
+.pgh-reportskill > span:first-child { font-size: 13.5px; color: var(--pge-color-body); overflow-wrap: break-word; }
 .pgh-reportskill .pgh-track { height: 7px; }
 .pgh-reportskill .pgh-mono { font-size: 12.5px; font-weight: 600; color: var(--pge-ink-500); text-align: right; }
 .pgh-callout {
@@ -429,3 +432,18 @@
 	background: currentColor;
 }
 .pgh-faq__item > p { margin: 12px 0 0; font-size: 15px; line-height: 1.65; color: var(--pge-ink-500); }
+
+/* ── Small screens ───────────────────────────────────────────────────
+ * The front page is fluid by construction — every multi-column grid is
+ * `repeat(auto-fit, minmax(min(100%, Npx), 1fr))`, so it reflows without
+ * breakpoints. The one exception is the report card's skill rows, whose
+ * track and percentage columns are fixed; below ~560px they leave the
+ * label about 57px, which is narrower than the longest skill name. */
+@media (max-width: 560px) {
+	.pgh-reportskill {
+		grid-template-columns: minmax(0, 1fr) 76px 36px;
+		gap: 9px;
+	}
+	.pgh-reportskill > span:first-child { font-size: 12.5px; }
+	.pgh-reportskill .pgh-mono { font-size: 11.5px; }
+}

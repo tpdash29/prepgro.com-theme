@@ -41,6 +41,47 @@ require_once PGT_DIR . '/inc/class-homepage-sections.php';
 \PrepGro\Theme\Blog::instance()->init();
 
 /**
+ * Carry the brand palette into the PWA.
+ *
+ * The engine builds the web-app manifest and the <meta name="theme-color">
+ * from get_option( 'primary_color' ), whose hardcoded fallback is the old
+ * #2563eb. That option is unset here, so the installed app's splash screen
+ * and Android's browser chrome still render in the pre-A1 blue while every
+ * pixel of the site renders in #1b3beb.
+ *
+ * Fixed theme-side rather than by writing the option, for the same reason
+ * the --brand-* bridge below exists: the theme owns the brand, the plugin
+ * consumes it, and nothing has to be re-set after a plugin update.
+ */
+if ( ! defined( 'PGT_BRAND_PRIMARY' ) ) {
+	define( 'PGT_BRAND_PRIMARY', '#1b3beb' ); // --blue-600, the A1 accent.
+	define( 'PGT_BRAND_GROUND', '#f6f7fc' );  // --neutral-50, the page ground.
+}
+
+add_filter(
+	'pge_pwa_manifest',
+	function ( $manifest ) {
+		$manifest['theme_color']      = PGT_BRAND_PRIMARY;
+		$manifest['background_color'] = PGT_BRAND_GROUND;
+		return $manifest;
+	}
+);
+
+/**
+ * The theme-color <meta> is echoed by the engine at wp_head priority 2 with
+ * no filter of its own. Per the HTML spec a UA takes the FIRST theme-color
+ * meta whose media matches, so emitting the correct one at priority 1 wins
+ * without removing the plugin's other head tags.
+ */
+add_action(
+	'wp_head',
+	function () {
+		echo '<meta name="theme-color" content="' . esc_attr( PGT_BRAND_PRIMARY ) . '">' . "\n";
+	},
+	1
+);
+
+/**
  * Site icon (favicon) from the bundled brand-kit mark — no Media Library
  * upload required. Only applies when the admin hasn't set a Site Icon of
  * their own (Settings > General), so this never fights a real choice.
