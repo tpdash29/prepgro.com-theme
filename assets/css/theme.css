@@ -1923,6 +1923,44 @@ html[data-pge-admin-theme="dark"] .pgt-drawer__close { background: #1c2230; bord
 	background: linear-gradient(140deg, var(--blue-100), var(--pge-gray-50));
 }
 
+/* Authoring label over an empty slot — which position this is, and the size it
+   wants. Rendered ONLY for users who can edit theme options (see
+   Media::placeholder_label): a visitor reads "1600 × 960 px, add images in the
+   Customizer" as a broken page, so they get the wash alone. Absolute over the
+   wash, which is why .pgt-imgslot is position:relative. */
+.pgt-imgslot__ph {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	padding: 12px;
+	text-align: center;
+	background: rgba(255, 255, 255, .55);
+	border: 1px dashed var(--blue-300);
+	border-radius: inherit;
+}
+.pgt-imgslot__ph-icon { display: inline-flex; color: var(--pge-color-primary); opacity: .75; }
+.pgt-imgslot__ph-label {
+	margin-top: 2px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+	max-width: 100%;
+}
+.pgt-imgslot__ph-size {
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: var(--pge-ink-500);
+}
+.pgt-imgslot__ph-hint {
+	font-size: 11px;
+	letter-spacing: .02em;
+	color: var(--pge-ink-400);
+}
+
 /* ---------- Sample badge ----------
    Every illustrative figure on a public marketing page carries one. Real
    student data never appears on a marketing page. */

@@ -20,6 +20,7 @@ define( 'PGT_URI', get_template_directory_uri() );
 require_once PGT_DIR . '/inc/class-theme-setup.php';
 require_once PGT_DIR . '/inc/class-token-loader.php';
 require_once PGT_DIR . '/inc/class-icons.php';
+require_once PGT_DIR . '/inc/class-image-slots.php';
 require_once PGT_DIR . '/inc/class-media.php';
 require_once PGT_DIR . '/inc/class-pricing-levels.php';
 require_once PGT_DIR . '/inc/class-module-pages.php';

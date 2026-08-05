@@ -63,20 +63,15 @@ final class Homepage_Sections {
 	 * @return string
 	 */
 	public function render_photo_band() {
-		$main = Media::setting_image( 'pgt_home_band_main', 'photo-student-desk.jpg' );
-		$side = Media::setting_image( 'pgt_home_band_side', 'photo-family-study.jpg' );
-
 		$html  = '<section class="pgh-section pgh-photoband" id="pg-band"><div class="pgh-container pgh-photoband__row">';
 
 		$html .= '<div class="pgh-photoband__main">'
-			. Media::image(
+			. Media::slot(
+				'pgt_home_band_main',
 				array(
-					'attachment' => $main['attachment'],
-					'url'        => $main['url'],
-					'alt'        => __( 'A student working through a practice set on a laptop.', 'prepgro-theme' ),
-					'height'     => 'clamp(240px, 34vw, 360px)',
-					'radius'     => '20px',
-					'sizes'      => '(max-width: 900px) 100vw, 62vw',
+					'height' => 'clamp(240px, 34vw, 360px)',
+					'radius' => '20px',
+					'sizes'  => '(max-width: 900px) 100vw, 62vw',
 				)
 			)
 			. '</div>';
@@ -88,14 +83,12 @@ final class Homepage_Sections {
 			. Media::sample_badge( '', 'pgt-sample--on-dark' )
 			. '</div>'
 			. '<div class="pgh-photoband__sidephoto">'
-			. Media::image(
+			. Media::slot(
+				'pgt_home_band_side',
 				array(
-					'attachment' => $side['attachment'],
-					'url'        => $side['url'],
-					'alt'        => __( 'A tutor mid-explanation on a video call.', 'prepgro-theme' ),
-					'height'     => '100%',
-					'radius'     => '20px',
-					'sizes'      => '(max-width: 900px) 100vw, 32vw',
+					'height' => '100%',
+					'radius' => '20px',
+					'sizes'  => '(max-width: 900px) 100vw, 32vw',
 				)
 			)
 			. '</div>'

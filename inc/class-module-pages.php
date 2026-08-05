@@ -660,15 +660,9 @@ final class Module_Pages {
 	 * @return string
 	 */
 	private function proof_band( $m ) {
-		$img = Media::setting_image( $m['photo']['mod'], $m['photo']['file'] );
-		// A featured image on the page itself wins, per A5.
-		$thumb = get_post_thumbnail_id();
-		if ( $thumb ) {
-			$img = array(
-				'attachment' => (int) $thumb,
-				'url'        => '',
-			);
-		}
+		// A featured image on the page itself wins, per A5; otherwise the slot
+		// rotates between whatever the owner uploaded in the Customizer.
+		$thumb = (int) get_post_thumbnail_id();
 
 		$bars = '';
 		foreach ( $m['proof']['bars'] as $b ) {
@@ -681,10 +675,10 @@ final class Module_Pages {
 
 		return '<section class="pgm-band"><div class="pgm-band__row">'
 			. '<div class="pgm-band__photo">'
-			. Media::image(
+			. Media::slot(
+				$m['photo']['mod'],
 				array(
-					'attachment' => $img['attachment'],
-					'url'        => $img['url'],
+					'attachment' => $thumb,
 					'alt'        => $m['photo']['alt'],
 					'height'     => '340px',
 					'radius'     => '20px',
