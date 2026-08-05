@@ -407,9 +407,9 @@ body.pg-module-excel {
 /* Each "rest of the loop" card previews the module it links TO, so its icon
    uses that module's colour — deliberately independent of --pgm-accent,
    which is the CURRENT page's colour. See class-module-pages.php::plan(). */
-.pgm-next--evaluate .pgm-next__icon { background: var(--blue-50); color: var(--pge-color-primary); }
-.pgm-next--elevate  .pgm-next__icon { background: var(--teal-50); color: var(--teal-700); }
-.pgm-next--excel    .pgm-next__icon { background: var(--amber-50); color: var(--amber-700); }
+.pgm-next--evaluate .pgm-next__icon { background: var(--blue-50); color: var(--pgt-pillar-evaluate); }
+.pgm-next--elevate  .pgm-next__icon { background: var(--teal-50); color: var(--pgt-pillar-elevate); }
+.pgm-next--excel    .pgm-next__icon { background: var(--amber-50); color: var(--pgt-pillar-excel); }
 .pgm-next__copy { min-width: 0; }
 .pgm-next__label { display: block; font-size: 15.5px; font-weight: 600; color: var(--pge-color-ink); }
 .pgm-next__sub { display: block; font-size: 13.5px; color: var(--pge-ink-500); margin-top: 2px; }

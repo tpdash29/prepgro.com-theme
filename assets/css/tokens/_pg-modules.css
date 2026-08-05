@@ -42,16 +42,22 @@
 	--pg-evaluate-ground-subtle: var(--blue-50, #edf1ff);
 	--pg-evaluate-surface:       #ffffff;
 	--pg-evaluate-border:        var(--blue-200, #b8c6ff);
-	--pg-evaluate-accent:        var(--blue-600, #1b3beb);
+	--pg-evaluate-accent:        var(--pgt-pillar-evaluate, #1b3beb);
 
-	/* ── Elevate — azure ground ────────────────────────────────────────
-	   A1 retires the old teal (#0e8a9c / #0fb2c9). Elevate now reads in
-	   azure, one ramp step off Evaluate's royal blue. */
-	--pg-elevate-ground:         #d3e9ff;
-	--pg-elevate-ground-subtle:  #edf6ff;
+	/* ── Elevate — teal ground ─────────────────────────────────────────
+	   A1 had retired teal and put Elevate in azure, "one ramp step off
+	   Evaluate's royal blue". That is exactly why the two pillars were
+	   indistinguishable everywhere they appeared together, and it is
+	   reversed as of 2026-08-05: Elevate is teal again, on the owner's call.
+	   This file is the app-wide source — the student portal, the app shell
+	   (pg-shell.css) and the dashboard accents all read --pg-elevate-*, so
+	   this one block is what keeps the marketing site and the logged-in app
+	   telling the same story. */
+	--pg-elevate-ground:         var(--teal-100, #ccfbf1);
+	--pg-elevate-ground-subtle:  var(--teal-50, #f0fdfa);
 	--pg-elevate-surface:        #ffffff;
-	--pg-elevate-border:         #aed4ff;
-	--pg-elevate-accent:         var(--blue-500, #0a84ff);
+	--pg-elevate-border:         #99f6e4;
+	--pg-elevate-accent:         var(--pgt-pillar-elevate, #0f766e);
 
 	/* ── Excel — warm amber ground ─────────────────────────────────────
 	   Amber survives A1 as a phase label only, never as a fill or accent
@@ -61,5 +67,5 @@
 	--pg-excel-surface:          #ffffff;
 	--pg-excel-border:           #e8d4a6;
 	--pg-excel-accent:           #f59e0b; /* non-text use only */
-	--pg-excel-accent-ink:       #b45309; /* AA-safe text/icon amber */
+	--pg-excel-accent-ink:       var(--pgt-pillar-excel, #b45309); /* AA-safe text/icon amber */
 }

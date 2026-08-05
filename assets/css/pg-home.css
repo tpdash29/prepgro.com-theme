@@ -69,9 +69,25 @@
 	letter-spacing: .08em;
 	text-transform: uppercase;
 }
-.pgh-phase--evaluate { background: var(--blue-50); color: var(--blue-600); }
-.pgh-phase--elevate  { background: #edf6ff; color: var(--blue-500); }
-.pgh-phase--excel    { background: var(--amber-50); color: var(--amber-700); }
+/* Elevate was #edf6ff / --blue-500 — a blue tint one ramp step off Evaluate's,
+   so the two badges read as one colour and the row said "two blue things and
+   an amber one" instead of naming three pillars. All three now resolve from
+   the --pgt-pillar-* globals in theme.css, the same source the nav, the
+   dropdowns and the module pages read. */
+.pgh-phase--evaluate { background: var(--blue-50); color: var(--pgt-pillar-evaluate); }
+.pgh-phase--elevate  { background: var(--teal-50); color: var(--pgt-pillar-elevate); }
+.pgh-phase--excel    { background: var(--amber-50); color: var(--pgt-pillar-excel); }
+
+/* Anything else inside a pillar card takes that pillar's hue — the footer
+   link most visibly, which was brand blue on all three.
+   Scoped with :has() off the badge the card already carries, rather than
+   adding a modifier class: front-page.html is hand-authored block markup that
+   another workstream owns, and this keeps the styling entirely in CSS. If a
+   browser without :has() ever matters again, the links simply stay blue. */
+.pgh-loopcard:has(.pgh-phase--evaluate) { --pgh-pillar: var(--pgt-pillar-evaluate); }
+.pgh-loopcard:has(.pgh-phase--elevate)  { --pgh-pillar: var(--pgt-pillar-elevate); }
+.pgh-loopcard:has(.pgh-phase--excel)    { --pgh-pillar: var(--pgt-pillar-excel); }
+.pgh-loopcard a { color: var(--pgh-pillar, var(--pge-color-primary)); }
 
 /* Progress tracks — one shape, colour passed in as --c. */
 .pgh-track {
