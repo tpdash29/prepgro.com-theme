@@ -440,12 +440,34 @@ body.pg-module .pgm-hero a:not(.pgm-btn) { color: var(--pge-color-on-dark, #6ba4
    Rendered by Chrome::brand_kit_logo(), so the header and the mobile drawer
    both get it. These rules live here rather than theme.css because the
    element only ever exists on a module page — same scope as this file. */
+/* Sized and aligned to sit under "Gro" alone, not the whole wordmark.
+   Measured rather than guessed: "Gro" is 39px at the default 30px logo
+   height, and the longest label ("Evaluate") is 86px uppercase at .13em
+   tracking — it would need 6.25px type to fit, which is not readable. Mixed
+   case at 10px/500 with no tracking measures 39px, exactly the target. So the
+   uppercase treatment is what had to go, not the size.
+   flex-end on the column right-aligns the label to the wordmark's right edge;
+   since the two widths match, it lands precisely under "Gro". */
+/* Taken OUT OF FLOW on purpose. As a normal flex child it added its own
+   height to the copy column, and since .pgt-brandlogo centres its items, the
+   wordmark got pushed up to make room — the logo visibly moved between a
+   module page and everywhere else. Absolute means the column's height stays
+   exactly the wordmark's, so "prepGro" sits on the same baseline on every
+   page and the label hangs beneath it.
+   right:0 pins it to the wordmark's right edge, which is the end of "Gro". */
+body.pg-module .pgt-brandlogo__copy { position: relative; }
 .pgt-brandlogo__module {
-	font-size: 10.5px;
-	font-weight: 700;
-	letter-spacing: .13em;
-	text-transform: uppercase;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 1px;
+	/* Sized off the logo height rather than a fixed px so it tracks the
+	   Customizer's logo-size slider instead of drifting out of proportion. */
+	font-size: calc(var(--pgt-logo-h, 38px) * .26);
+	font-weight: 500;
+	letter-spacing: 0;
 	line-height: 1;
+	white-space: nowrap;
 	color: var(--pgm-accent-ink, var(--pge-color-primary));
 }
 

@@ -741,6 +741,7 @@ final class Chrome {
 					endif;
 					?>
 						<?php echo $this->account_cluster( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo $this->country_chip(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
 						<button class="pgt-burger" type="button" aria-label="<?php esc_attr_e( 'Open menu', 'prepgro-theme' ); ?>" aria-expanded="false" aria-controls="pgt-drawer">
 							<span></span><span></span><span></span>
@@ -1204,9 +1205,70 @@ final class Chrome {
 	   ──────────────────────────────────────────────────────────────────── */
 
 	/**
-	 * Locale indicator — text only, footer bottom row. The redesign drops the
-	 * header's inline flag SVG entirely (README §14, "Assets"); the country
-	 * logic itself is unchanged, only its output location and form.
+	 * Country chip for the header — the flag, restored.
+	 *
+	 * The 2026-08 front-end rebuild (c09fa1d) dropped the header flag SVG and
+	 * left only the text locale line in the footer, so on a wide screen there
+	 * was nothing above the fold saying which country's site this is. This
+	 * puts the mark back, after the auth cluster.
+	 *
+	 * Flags are inline SVG rather than emoji: emoji flags do not render at all
+	 * on most Windows builds, which is the majority of this audience.
+	 *
+	 * Indicator, not a switcher — PGE_COUNTRY is a deploy-time constant and
+	 * one install serves one country, so there is nothing to pick. Hence a
+	 * span with a title, not a link.
+	 *
+	 * @return string
+	 */
+	private function country_chip() {
+		$code = $this->country_code();
+
+		$flags = array(
+			'us' => '<rect width="60" height="42" fill="#B22234"/><g fill="#F5F1E8"><rect y="6" width="60" height="6"/><rect y="18" width="60" height="6"/><rect y="30" width="60" height="6"/></g><rect width="27" height="24" fill="#3C3B6E"/><g fill="#F5F1E8"><circle cx="5.5" cy="5" r="1.7"/><circle cx="13.5" cy="5" r="1.7"/><circle cx="21.5" cy="5" r="1.7"/><circle cx="9.5" cy="11.5" r="1.7"/><circle cx="17.5" cy="11.5" r="1.7"/><circle cx="5.5" cy="18" r="1.7"/><circle cx="13.5" cy="18" r="1.7"/><circle cx="21.5" cy="18" r="1.7"/></g>',
+			'ca' => '<rect width="60" height="42" fill="#F5F1E8"/><rect width="15" height="42" fill="#D52B1E"/><rect x="45" width="15" height="42" fill="#D52B1E"/><path d="M30 9.5l2.1 4.4 4.5-1.1-1.5 4.3 3.6 2.3-3.6 2.3 1.1 3.4-4.2-.7-.4 4.6h-3.2l-.4-4.6-4.2.7 1.1-3.4-3.6-2.3 3.6-2.3-1.5-4.3 4.5 1.1z" fill="#D52B1E"/>',
+			'in' => '<rect width="60" height="14" fill="#FF9933"/><rect y="14" width="60" height="14" fill="#F5F1E8"/><rect y="28" width="60" height="14" fill="#138808"/><circle cx="30" cy="21" r="5.2" fill="none" stroke="#000080" stroke-width="1.3"/><circle cx="30" cy="21" r="1.3" fill="#000080"/>',
+		);
+
+		$labels = array(
+			'us' => __( 'United States', 'prepgro-theme' ),
+			'ca' => __( 'Canada', 'prepgro-theme' ),
+			'in' => __( 'India', 'prepgro-theme' ),
+		);
+
+		if ( ! isset( $flags[ $code ] ) ) {
+			return '';
+		}
+
+		return '<span class="pgt-countrychip" title="' . esc_attr( $labels[ $code ] ) . '">'
+			. '<svg class="pgt-countrychip__flag" viewBox="0 0 60 42" width="21" height="15" aria-hidden="true">'
+			. $flags[ $code ]
+			. '</svg>'
+			. '<span class="pgt-countrychip__code">' . esc_html( strtoupper( $code ) ) . '</span>'
+			. '<span class="pgt-visually-hidden">' . esc_html( $labels[ $code ] ) . '</span>'
+			. '</span>';
+	}
+
+	/**
+	 * The site's country code, filtered. Shared by the header chip and the
+	 * footer locale line so the two can never disagree.
+	 *
+	 * @return string Lowercase two-letter code, or ''.
+	 */
+	private function country_code() {
+		$code = defined( 'PGE_COUNTRY' ) ? strtolower( (string) PGE_COUNTRY ) : '';
+
+		/**
+		 * Filter the country code used for the locale line.
+		 *
+		 * @param string $code Two-letter country code.
+		 */
+		return (string) apply_filters( 'pgt_header_country_code', $code );
+	}
+
+	/**
+	 * Locale indicator — text, footer bottom row. Complements the header's
+	 * country chip: the chip is the glance, this is the full statement.
 	 *
 	 * @return string
 	 */

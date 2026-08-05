@@ -45,14 +45,28 @@ final class Theme_Options {
 	public function init() {
 		add_action( 'customize_register', array( $this, 'register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'controls_assets' ) );
-		// Emit the branding overrides as inline CSS attached to the MAIN theme
-		// stylesheet (pgt-theme) at priority 20 — after functions.php enqueues
-		// pgt-theme at 10. This is load-bearing: theme.css hard-declares
-		// :root{--pgt-logo-h:34px} and _semantic.css declares
-		// --pge-color-primary, so an override printed BEFORE theme.css (e.g. via
-		// wp_head or on the earlier pge-tokens handle) loses the cascade. Printing
-		// AFTER theme.css guarantees the Customizer values win.
-		add_action( 'wp_enqueue_scripts', array( $this, 'output_branding_overrides' ), 20 );
+		/*
+		 * Priority 30, and the number is load-bearing.
+		 *
+		 * wp_add_inline_style() returns false and does nothing if its handle is
+		 * not registered YET — it does not queue for later. functions.php
+		 * enqueues pgt-theme on this same hook at priority 20, and this class's
+		 * init() runs earlier in functions.php than that add_action() call, so
+		 * at an equal priority WordPress runs THIS callback first (same
+		 * priority = registration order) and the inline style vanishes with no
+		 * warning.
+		 *
+		 * That is exactly what was happening. This sat at 20 behind a comment
+		 * claiming the stylesheet enqueued at 10 — true once, but functions.php
+		 * later moved it to 20 — so "Logo size" and "Primary colour" silently
+		 * did nothing on the front end. If that enqueue moves again, this
+		 * number has to stay above it.
+		 *
+		 * It must also come AFTER, not before: theme.css hard-declares
+		 * :root{--pgt-logo-h:34px} and _semantic.css declares
+		 * --pge-color-primary, so an override printed earlier loses the cascade.
+		 */
+		add_action( 'wp_enqueue_scripts', array( $this, 'output_branding_overrides' ), 30 );
 	}
 
 	/**
@@ -73,11 +87,81 @@ final class Theme_Options {
 			$vars[] = '--pge-color-primary:' . $primary . ';';
 		}
 
-		$h      = (int) get_theme_mod( 'pgt_logo_height', 30 );
-		$h      = max( 24, min( 64, $h ) );
+		$h      = (int) get_theme_mod( 'pgt_logo_height', self::LOGO_DEFAULT );
+		$h      = max( 24, min( 72, $h ) );
 		$vars[] = '--pgt-logo-h:' . $h . 'px;';
 
-		wp_add_inline_style( 'pgt-theme', ':root{' . implode( '', $vars ) . '}' );
+		$nav = (int) get_theme_mod( 'pgt_nav_font_size', 145 );
+		$nav = max( 120, min( 180, $nav ) );
+		$vars[] = '--pgt-nav-size:' . ( $nav / 10 ) . 'px;';
+
+		$stack = self::font_stack( (string) get_theme_mod( 'pgt_nav_font', 'heading' ) );
+		if ( '' !== $stack ) {
+			$vars[] = '--pgt-nav-font:' . $stack . ';';
+		}
+
+		// Per-pillar accents. Each maps to the --pgm-* trio pg-module.css
+		// declares per body class; emitting them at :root would lose to those
+		// body-scoped rules, so they are scoped the same way here.
+		$pillars = '';
+		foreach ( self::pillar_defaults() as $key => $fallback ) {
+			$hex = sanitize_hex_color( (string) get_theme_mod( 'pgt_accent_' . $key, '' ) );
+			if ( ! $hex ) {
+				continue;
+			}
+			$pillars .= 'body.pg-module-' . $key . '{'
+				. '--pgm-accent:' . $hex . ';'
+				. '--pgm-accent-ink:' . $hex . ';'
+				. '}';
+		}
+
+		wp_add_inline_style( 'pgt-theme', ':root{' . implode( '', $vars ) . '}' . $pillars );
+	}
+
+	/**
+	 * Default header logo height in px.
+	 *
+	 * Raised from 30 to 38 on 2026-08-05 — at 30 the lockup read small
+	 * against a 40px CTA pill. Everything in the lockup scales off
+	 * --pgt-logo-h (chip, wordmark, and the module label's fit under "Gro"),
+	 * so this one number moves the whole thing proportionally.
+	 */
+	const LOGO_DEFAULT = 38;
+
+	/**
+	 * The pillar accent keys and the values pg-module.css ships as defaults —
+	 * used as the colour picker's starting point so the control opens showing
+	 * what is actually on screen.
+	 *
+	 * @return array
+	 */
+	private static function pillar_defaults() {
+		return array(
+			'evaluate' => '#1b3beb',
+			'elevate'  => '#0f766e',
+			'excel'    => '#b45309',
+		);
+	}
+
+	/**
+	 * Resolve a nav font choice to a CSS stack.
+	 *
+	 * Deliberately a short list of what the theme already loads rather than a
+	 * free-text field or a web-font picker: an arbitrary family would either
+	 * not be loaded (silently falling back) or would need a new network
+	 * request on every page.
+	 *
+	 * @param string $choice Setting value.
+	 * @return string CSS font-family value, or '' to leave the default alone.
+	 */
+	private static function font_stack( $choice ) {
+		$stacks = array(
+			'heading' => '',
+			'body'    => 'var(--pge-font-body)',
+			'system'  => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+			'mono'    => 'var(--pge-font-mono)',
+		);
+		return isset( $stacks[ $choice ] ) ? $stacks[ $choice ] : '';
 	}
 
 	/**
@@ -138,6 +222,11 @@ final class Theme_Options {
 	 * @return void
 	 */
 	public function register( $wp_customize ) {
+		// Loaded here, not at file scope: WP_Customize_Control only exists
+		// once the Customizer has booted, and both custom controls below
+		// extend it.
+		require_once PGT_DIR . '/inc/class-customize-image-prompt-control.php';
+
 		$wp_customize->add_section(
 			'pge_branding',
 			array(
@@ -167,14 +256,15 @@ final class Theme_Options {
 			)
 		);
 
-		// Header logo size — scales the brand-kit chip + wordmark (or an
-		// uploaded custom logo) proportionally. Default 34px chip height.
+		// Header logo size — scales the brand-kit chip, the wordmark, an
+		// uploaded custom logo AND the module label's fit under "Gro", since
+		// all four derive from --pgt-logo-h.
 		$wp_customize->add_setting(
 			'pgt_logo_height',
 			array(
-				'default'           => 30,
+				'default'           => self::LOGO_DEFAULT,
 				'sanitize_callback' => function ( $value ) {
-					return max( 24, min( 64, (int) $value ) );
+					return max( 24, min( 72, (int) $value ) );
 				},
 				'transport'         => 'refresh',
 			)
@@ -184,18 +274,147 @@ final class Theme_Options {
 			'pgt_logo_height',
 			array(
 				'label'       => __( 'Logo size (px)', 'prepgro-theme' ),
-				'description' => __( 'Height of the header logo. 30px is the redesign default.', 'prepgro-theme' ),
+				'description' => __( 'Height of the header logo. Everything in the lockup scales with it. 38px is the default.', 'prepgro-theme' ),
 				'section'     => 'pge_branding',
 				'type'        => 'range',
 				'input_attrs' => array(
 					'min'  => 24,
-					'max'  => 64,
+					'max'  => 72,
 					'step' => 1,
 				),
 			)
 		);
 
+		// Point at core's own logo upload rather than adding a second one —
+		// two controls writing different settings is how a site ends up with
+		// a logo set that nothing renders.
+		$wp_customize->add_control(
+			new Customize_Note_Control(
+				$wp_customize,
+				'pgt_logo_note',
+				array(
+					'section'  => 'pge_branding',
+					'settings' => array(),
+					'priority' => 5,
+					'note'     => __( 'To replace the logo image itself, use Site Identity → Logo. Leave it empty to keep the built-in prepGro lockup.', 'prepgro-theme' ),
+				)
+			)
+		);
+
+		$this->register_menu_type( $wp_customize );
+		$this->register_pillar_colours( $wp_customize );
 		$this->register_image_slots( $wp_customize );
+	}
+
+	/**
+	 * Menu typography — family and size.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @return void
+	 */
+	private function register_menu_type( $wp_customize ) {
+		$wp_customize->add_setting(
+			'pgt_nav_font',
+			array(
+				'default'           => 'heading',
+				'sanitize_callback' => function ( $value ) {
+					return in_array( $value, array( 'heading', 'body', 'system', 'mono' ), true ) ? $value : 'heading';
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			'pgt_nav_font',
+			array(
+				'label'       => __( 'Menu font', 'prepgro-theme' ),
+				'description' => __( 'Limited to families the theme already loads — anything else would need a new web-font request on every page.', 'prepgro-theme' ),
+				'section'     => 'pge_branding',
+				'type'        => 'select',
+				'choices'     => array(
+					'heading' => __( 'Outfit (theme default)', 'prepgro-theme' ),
+					'body'    => __( 'Body font', 'prepgro-theme' ),
+					'system'  => __( 'System UI font', 'prepgro-theme' ),
+					'mono'    => __( 'Monospace', 'prepgro-theme' ),
+				),
+			)
+		);
+
+		// Stored x10 so the range control can step in 0.5px increments while
+		// remaining an integer setting.
+		$wp_customize->add_setting(
+			'pgt_nav_font_size',
+			array(
+				'default'           => 145,
+				'sanitize_callback' => function ( $value ) {
+					return max( 120, min( 180, (int) $value ) );
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			'pgt_nav_font_size',
+			array(
+				'label'       => __( 'Menu font size (×10 px)', 'prepgro-theme' ),
+				'description' => __( '145 = 14.5px, the default. Range 12–18px.', 'prepgro-theme' ),
+				'section'     => 'pge_branding',
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 120,
+					'max'  => 180,
+					'step' => 5,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Per-pillar accent colours — the hues that drive buttons, links, icon
+	 * chips and the rule under the menu on each module page.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @return void
+	 */
+	private function register_pillar_colours( $wp_customize ) {
+		$wp_customize->add_section(
+			'pgt_pillar_colours',
+			array(
+				'title'       => __( 'PrepGro Pillar Colours', 'prepgro-theme' ),
+				'description' => __( 'One hue per pillar. It drives that module page\'s buttons, links, icon chips, the name under the logo and the rule under the menu. Pick colours dark enough to carry white button text — aim for a 4.5:1 contrast ratio.', 'prepgro-theme' ),
+				'priority'    => 32,
+			)
+		);
+
+		$labels = array(
+			'evaluate' => __( 'Evaluate', 'prepgro-theme' ),
+			'elevate'  => __( 'Elevate', 'prepgro-theme' ),
+			'excel'    => __( 'Excel', 'prepgro-theme' ),
+		);
+
+		foreach ( self::pillar_defaults() as $key => $default ) {
+			$wp_customize->add_setting(
+				'pgt_accent_' . $key,
+				array(
+					'default'           => '',
+					'sanitize_callback' => 'sanitize_hex_color',
+					'transport'         => 'refresh',
+				)
+			);
+
+			$wp_customize->add_control(
+				new \WP_Customize_Color_Control(
+					$wp_customize,
+					'pgt_accent_' . $key,
+					array(
+						'label'       => $labels[ $key ],
+						/* translators: %s: the default hex colour for this pillar */
+						'description' => sprintf( __( 'Leave empty for the default, %s.', 'prepgro-theme' ), $default ),
+						'section'     => 'pgt_pillar_colours',
+					)
+				)
+			);
+		}
 	}
 
 	/**
@@ -214,8 +433,6 @@ final class Theme_Options {
 		if ( ! $slots ) {
 			return;
 		}
-
-		require_once PGT_DIR . '/inc/class-customize-image-prompt-control.php';
 
 		$wp_customize->add_panel(
 			'pgt_images',

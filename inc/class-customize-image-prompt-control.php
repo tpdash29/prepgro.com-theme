@@ -27,6 +27,39 @@ if ( ! class_exists( '\WP_Customize_Control' ) ) {
 }
 
 /**
+ * A read-only line of guidance inside a section. Saves nothing; exists so a
+ * control can point at a setting that lives elsewhere in the Customizer.
+ */
+class Customize_Note_Control extends \WP_Customize_Control {
+
+	/**
+	 * Control type.
+	 *
+	 * @var string
+	 */
+	public $type = 'pgt_note';
+
+	/**
+	 * The text to show.
+	 *
+	 * @var string
+	 */
+	public $note = '';
+
+	/**
+	 * Render.
+	 *
+	 * @return void
+	 */
+	public function render_content() {
+		if ( '' === $this->note ) {
+			return;
+		}
+		echo '<p class="description pgt-note">' . esc_html( $this->note ) . '</p>';
+	}
+}
+
+/**
  * Renders the art direction, recommended size and copyable prompt.
  */
 class Customize_Image_Prompt_Control extends \WP_Customize_Control {

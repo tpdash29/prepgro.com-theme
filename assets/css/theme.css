@@ -171,8 +171,10 @@ a:hover { text-decoration: underline; }
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	font-family: inherit;
-	font-size: 14.5px;
+	/* Both overridable from the Customizer (Branding → Menu font / size);
+	   the fallbacks here are the shipped defaults. */
+	font-family: var(--pgt-nav-font, inherit);
+	font-size: var(--pgt-nav-size, 14.5px);
 	font-weight: 500;
 	color: var(--pge-color-body);
 	background: transparent;
@@ -1278,6 +1280,48 @@ body.tb-portal-competitive .pgt-hero .pgt-hero__title .accent {
 /* Kit rule: the header uses the PRIMARY lockup — no tagline at navbar scale.
    The footer states the tagline as its display headline instead. */
 .pgt-header .pgt-brandlogo__tagline { display: none; }
+
+/* ---------- Country chip ----------
+   Restores the header flag the 2026-08 rebuild dropped in favour of a
+   footer-only text locale line. Inline SVG, not an emoji flag: emoji flags
+   do not render on most Windows builds. */
+.pgt-countrychip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: none;
+	padding: 5px 10px 5px 6px;
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	background: var(--pge-white);
+}
+.pgt-countrychip__flag {
+	display: block;
+	border-radius: 2.5px;
+	/* The US canton is near-white at its edge; without this the flag bleeds
+	   into a white header. */
+	box-shadow: 0 0 0 1px rgba(3, 5, 15, .08);
+}
+.pgt-countrychip__code {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: .04em;
+	color: var(--pge-color-body);
+}
+/* Below the nav breakpoint the burger takes over and space is tight — keep
+   the flag, drop the code. */
+@media (max-width: 1040px) {
+	.pgt-countrychip__code { display: none; }
+	.pgt-countrychip { padding: 5px 6px; }
+}
+@media (max-width: 640px) {
+	.pgt-countrychip { display: none; }
+}
+html[data-pge-admin-theme="dark"] .pgt-countrychip {
+	background: transparent;
+	border-color: #2a3345;
+}
+html[data-pge-admin-theme="dark"] .pgt-countrychip__code { color: #c8d2e4; }
 
 /* ---------- Archive / search / content pages ---------- */
 .pgt-archive, .pgt-page { margin-top: 2.75rem; margin-bottom: 4rem; }
