@@ -1095,7 +1095,38 @@ final class Chrome {
 				<div class="pgt-footer__top">
 					<div class="pgt-footer__about">
 						<div class="pgt-footer__brand"><?php echo $this->brand_kit_logo( 'pgtFooterChipGrad', false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-						<h2 class="pgt-footer__statement"><?php esc_html_e( 'Evaluate. Elevate.', 'prepgro-theme' ); ?><br><?php esc_html_e( 'Excel.', 'prepgro-theme' ); ?></h2>
+						<?php
+						/*
+						 * One module per line. The break used to be a hardcoded
+						 * <br> after "Elevate.", which set the three module names
+						 * as 2 + 1 and read like a wrap accident.
+						 *
+						 * Each line links to its module page: these three words
+						 * ARE the primary IA, and they were the largest text in
+						 * the footer while being the only part of it that did
+						 * nothing. At rest they look exactly like the statement
+						 * they replace.
+						 */
+						$pgt_statement = array(
+							array(
+								'label' => __( 'Evaluate.', 'prepgro-theme' ),
+								'url'   => home_url( '/evaluate/' ),
+							),
+							array(
+								'label' => __( 'Elevate.', 'prepgro-theme' ),
+								'url'   => home_url( '/elevate/' ),
+							),
+							array(
+								'label' => __( 'Excel.', 'prepgro-theme' ),
+								'url'   => home_url( '/excel/' ),
+							),
+						);
+						?>
+						<h2 class="pgt-footer__statement">
+							<?php foreach ( $pgt_statement as $pgt_line ) : ?>
+								<a class="pgt-footer__statement-line" href="<?php echo esc_url( $pgt_line['url'] ); ?>"><?php echo esc_html( $pgt_line['label'] ); ?></a>
+							<?php endforeach; ?>
+						</h2>
 					</div>
 					<div class="pgt-footer__cols">
 						<?php foreach ( $this->footer_columns() as $key => $col ) : ?>
