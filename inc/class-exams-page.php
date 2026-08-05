@@ -404,8 +404,27 @@ final class Exams_Page {
 		);
 
 		$bars = '';
+		$soon = '';
 		foreach ( $meta as $key => $m ) {
 			if ( empty( $bank[ $key ] ) ) {
+				/*
+				 * Rendered, not dropped. This card is only as tall as its
+				 * bars column has content for, and with just 2 of 5 families
+				 * live in the demo data that column stopped at half the
+				 * height of the 4-tile column beside it — a strip of dead
+				 * white space under "State tests". A "Coming soon" row is
+				 * real information (an honest roadmap, not a placeholder
+				 * image in a numbers card) and costs nothing to keep
+				 * accurate: the day exam_questions has rows for this family,
+				 * bank_counts() stops returning 0 and this same loop
+				 * promotes it to a real bar above with no further edit.
+				 */
+				$soon .= '<div class="pgx-bar pgx-bar--soon">'
+					. '<div class="pgx-bar__head"><span>' . esc_html( $m['label'] ) . '</span>'
+					. '<span class="pgx-bar__v pgx-bar__v--soon">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span></div>'
+					. '<div class="pgx-bar__track"><span style="width:100%"></span></div>'
+					. '<p class="pgx-bar__note">' . esc_html( $m['note'] ) . '</p>'
+					. '</div>';
 				continue;
 			}
 			$count = (int) $bank[ $key ];
@@ -429,6 +448,10 @@ final class Exams_Page {
 		if ( '' === $bars ) {
 			return '';
 		}
+
+		// Live families first, "coming soon" families after — the roadmap
+		// reads as an extension of the real numbers, not a mix.
+		$bars .= $soon;
 
 		$tiles = array(
 			array( 'icon' => 'circle-check-big', 'label' => __( 'Blueprint coverage', 'prepgro-theme' ), 'sub' => __( 'Every sub-skill the exam tests', 'prepgro-theme' ), 'value' => '100%' ),
