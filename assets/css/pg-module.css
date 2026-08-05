@@ -430,3 +430,31 @@ body.pg-module .pgm-band a:not(.pgm-btn) {
 /* The hero band is dark; its links stay on-dark rather than taking an accent
    that would fail contrast against near-black. */
 body.pg-module .pgm-hero a:not(.pgm-btn) { color: var(--pge-color-on-dark, #6ba4ff); }
+
+/* ── 7. The logo takes the pillar's colour too ──────────────────────────
+   Owner decision (2026-08-05), overriding the "logo always stays brand"
+   exception above. Applies to every lockup on a module page — header,
+   mobile drawer and footer — because they all render the same
+   .pgt-brandlogo markup from Chrome::brand_kit_logo().
+
+   No PHP change was needed. The chip's gradient stops are hardcoded SVG
+   presentation ATTRIBUTES, and `var()` does not work inside an attribute
+   value — but `stop-color` is also a real CSS property, and a CSS
+   declaration beats a presentation attribute. So the stops are retinted
+   from here and the PHP keeps the brand values as its built-in fallback.
+
+   Each triple keeps the brand gradient's structure — deep shade, vivid
+   mid, light tint, running top-left to bottom-right — so only the hue
+   changes and the mark keeps its shape of light. The white checkmark is
+   decorative (aria-hidden) and sits over the deep-to-mid part of the
+   sweep on all three. */
+body.pg-module-evaluate { --pgm-chip-1: #0c1b9e; --pgm-chip-2: #0a84ff; --pgm-chip-3: #4d93ff; }
+body.pg-module-elevate  { --pgm-chip-1: #0b3d38; --pgm-chip-2: #0d9488; --pgm-chip-3: #2dd4bf; }
+body.pg-module-excel    { --pgm-chip-1: #7c2d12; --pgm-chip-2: #d97706; --pgm-chip-3: #f59e0b; }
+
+body.pg-module .pgt-brandlogo__chip stop:nth-of-type(1) { stop-color: var(--pgm-chip-1); }
+body.pg-module .pgt-brandlogo__chip stop:nth-of-type(2) { stop-color: var(--pgm-chip-2); }
+body.pg-module .pgt-brandlogo__chip stop:nth-of-type(3) { stop-color: var(--pgm-chip-3); }
+
+/* The "Gro" half of the wordmark; "prep" stays ink, as in the brand kit. */
+body.pg-module .pgt-brandlogo__gro { color: var(--pgm-accent-ink, var(--pge-color-primary)); }
