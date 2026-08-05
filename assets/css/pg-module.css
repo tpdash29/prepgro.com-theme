@@ -333,9 +333,14 @@ body.pg-module-excel {
 	text-decoration: none;
 }
 .pgm-plan__cta:hover { color: var(--pgm-accent-ink, var(--blue-700)); text-decoration: none; filter: brightness(.94); }
-.pgm-nextcol { display: grid; gap: 12px; align-content: start; }
+/* flex column, not grid: the two .pgm-next cards get flex:1 below so they
+   split whatever height .pgm-plan (the taller sibling) forces this column
+   to stretch to — otherwise they pack to their own content height and the
+   grid's align-items:stretch just leaves dead air under the last card. */
+.pgm-nextcol { display: flex; flex-direction: column; gap: 12px; }
 .pgm-next {
 	display: flex; align-items: center; gap: 14px;
+	flex: 1;
 	background: #fff;
 	border: 1px solid var(--pge-color-line);
 	border-radius: 16px;
