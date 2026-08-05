@@ -464,6 +464,175 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	background: var(--pge-color-primary, #1b3beb) !important;
 	color: #ffffff !important;
 }
+/* The inactive tab, the field hairlines, the divider and the legal links
+   were the one corner of this page the color-only fix above can't reach —
+   they were never tied to $primary, just hardcoded slate. */
+.tb-lg-tab:not(.is-active):not([aria-selected="true"]) { color: var(--pge-ink-500, #5f6894) !important; }
+.tb-lg-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
+.tb-lg-divider { color: var(--pge-ink-400, #868fb6) !important; }
+.tb-lg-divider::before, .tb-lg-divider::after { background: var(--pge-color-line, #dbe0f1) !important; }
+.tb-lg-legal { color: var(--pge-ink-400, #868fb6) !important; }
+.tb-lg-legal a { color: var(--pge-ink-500, #5f6894) !important; }
+.tb-lg-legal a:hover { color: var(--pge-color-ink, #03050f) !important; }
+.tb-lg-social .nsl-container-buttons a { border-color: var(--pge-color-line, #dbe0f1) !important; }
+
+/* Error / success notices. Both login.php and its forgot-password panel set
+   these via `style="background:#fef2f2;…"` directly on the element — an
+   inline style an external stylesheet can only beat with !important, no
+   matter how specific the selector. Colours map to the kit's semantic red
+   and green rather than the plugin's literal hexes. */
+#tb-lg-error, #tb-fp-error {
+	background: var(--pge-red-50, #fef2f2) !important;
+	border-color: var(--pge-red-600, #dc2626) !important;
+	color: var(--pge-red-600, #dc2626) !important;
+	border-radius: 10px !important;
+	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
+}
+#tb-lg-success, #tb-fp-success {
+	background: var(--pge-green-50, #f0fdf4) !important;
+	border-color: var(--pge-green-600, #16a34a) !important;
+	color: var(--pge-green-600, #16a34a) !important;
+	border-radius: 10px !important;
+	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
+}
+
+/* Signup only: its own trailing <style> block (signup.php), not
+   login-styles.php — same class-based pattern as the notices above, so no
+   !important fight this time, but kept for consistency with the rest of
+   this section. */
+.tb-lg-wrapper .tb-sl-message-error {
+	background: var(--pge-red-50, #fef2f2) !important;
+	border-color: var(--pge-red-600, #dc2626) !important;
+	color: var(--pge-red-600, #dc2626) !important;
+}
+.tb-lg-wrapper .tb-sl-message-success {
+	background: var(--pge-green-50, #f0fdf4) !important;
+	border-color: var(--pge-green-600, #16a34a) !important;
+	color: var(--pge-green-600, #16a34a) !important;
+}
+.tb-lg-wrapper .tb-lg-trust-row { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
+.tb-lg-wrapper .tb-lg-trust-row span { color: var(--pge-ink-400, #868fb6) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PASSWORD RESET — .tb-rp-* (templates/public/password-reset.php).
+   Zero theme coverage before this: the whole page was on the retired
+   system font stack, slate palette and a diagonal-gradient hero. Colour
+   already tracks $primary now that PGT_BRAND_PRIMARY filters the
+   `pge_primary_color` option in functions.php — this section is the
+   typography/shape/shadow half color alone can't fix.
+   ═══════════════════════════════════════════════════════════════ */
+.tb-rp-wrapper { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.tb-rp-hero {
+	/* Same ink + radial-glow treatment as .tb-lg-brand, so a visitor who
+	   just came from /login/ reads this as the same product, not a diagonal
+	   brand-blue gradient with no connection to the page before it. */
+	background:
+		radial-gradient(720px 480px at 82% -10%, rgba(10, 132, 255, .28), transparent 60%),
+		linear-gradient(160deg, var(--pge-color-ink, #03050f), var(--pge-color-ink-2, #151c42)) !important;
+}
+/* .tb-rp-hero-title is an <h1> on a dark gradient, and the engine's global
+   rule (body.tb-portal-*:not(:has(.tb-gje-v5)) h1..h4 { color: ink !important })
+   — the same one that hid the module page hero titles — paints it ink-on-ink
+   here too, since this page keeps its header/footer chrome (unlike
+   login/signup) and so carries the tb-portal-* body class. */
+.tb-rp-hero-title {
+	font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important;
+	font-weight: 600 !important;
+	letter-spacing: -.02em;
+	color: #fff !important;
+	-webkit-text-fill-color: #fff !important;
+}
+.tb-rp-card-inner {
+	border: 1px solid var(--pgp-line, #dbe0f1) !important;
+	border-radius: var(--pge-radius-lg, 20px) !important;
+	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
+}
+.tb-rp-form-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
+.tb-rp-form-sub { color: var(--pge-ink-400, #868fb6) !important; }
+.tb-rp-label { color: var(--pge-color-body, #3d4570) !important; }
+.tb-rp-req { color: var(--pge-red-600, #dc2626) !important; }
+.tb-rp-input { border-color: var(--pge-color-line, #dbe0f1) !important; color: var(--pge-color-ink, #03050f) !important; }
+.tb-rp-strength-bar { background: var(--pge-gray-100, #eceff9) !important; }
+/* Flat, not the plugin's diagonal gradient — the redesign's buttons are
+   solid fills; the brand-color hover comes from a darker token step, not
+   opacity, matching every other primary button on the site. */
+.tb-rp-btn {
+	background: var(--pge-color-primary, #1b3beb) !important;
+	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
+}
+.tb-rp-btn:hover { background: var(--pge-color-primary-strong, #0c1b9e) !important; opacity: 1 !important; }
+.tb-rp-trust { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
+.tb-rp-trust span { color: var(--pge-ink-400, #868fb6) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   EMAIL VERIFICATION — .tb-verify-* / .tb-otp-*
+   (templates/public/email-verification.php). Same story as password
+   reset: zero coverage, system fonts, slate palette. The verify/resend/
+   update buttons set `style="background:$primary"` inline per-element —
+   fixed automatically by the option filter, no override needed here.
+   ═══════════════════════════════════════════════════════════════ */
+.tb-verify-wrap { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.tb-verify-card {
+	border: 1px solid var(--pgp-line, #dbe0f1) !important;
+	border-radius: var(--pge-radius-lg, 20px) !important;
+	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
+}
+.tb-verify-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
+.tb-verify-desc { color: var(--pge-ink-400, #868fb6) !important; }
+.tb-verify-desc strong { color: var(--pge-color-body, #3d4570) !important; }
+/* Numeral entry — mono face, same as every other numeric field in the
+   redesign (scores, prices, question counts). */
+.tb-otp-input {
+	border-color: var(--pge-color-line, #dbe0f1) !important;
+	color: var(--pge-color-ink, #03050f) !important;
+	background: var(--pge-gray-50, #f6f7fc) !important;
+	font-family: var(--pge-font-mono, monospace) !important;
+}
+.tb-otp-input:focus { background: var(--pge-white, #fff) !important; }
+.tb-verify-status { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.tb-status-error {
+	background: var(--pge-red-50, #fef2f2) !important;
+	color: var(--pge-red-600, #dc2626) !important;
+	border-color: var(--pge-red-600, #dc2626) !important;
+}
+.tb-status-success {
+	background: var(--pge-green-50, #f0fdf4) !important;
+	color: var(--pge-green-600, #16a34a) !important;
+	border-color: var(--pge-green-600, #16a34a) !important;
+}
+.tb-verify-resend { color: var(--pge-ink-400, #868fb6) !important; }
+.tb-email-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LOGGED-OUT GATE — .pge-login-required (templates/public/login-required.php).
+   Shown on student-only surfaces (e.g. the Excel portal) to a logged-out
+   visitor. Its CTA carries classes `tb-btn tb-btn-primary`, which are only
+   ever DEFINED in the React bundle's compiled CSS — on a marketing page
+   that never loads that bundle, the button was bare underlined link text.
+   Styled directly here instead of chasing that class into existing.
+   ═══════════════════════════════════════════════════════════════ */
+.pge-login-required {
+	background: var(--pgp-surface, #fff) !important;
+	border: 1px solid var(--pgp-line, #dbe0f1) !important;
+	border-radius: var(--pge-radius-lg, 20px) !important;
+	box-shadow: var(--pge-shadow-md, 0 8px 24px -12px rgba(18,38,200,.18)) !important;
+}
+.pge-login-required__message {
+	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
+	color: var(--pgp-body, #3d4570) !important;
+}
+.pge-login-required__cta {
+	background: var(--pge-color-primary, #1b3beb) !important;
+	color: #fff !important;
+	border-radius: var(--pge-radius-pill, 999px) !important;
+	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 1px 2px rgba(3,5,15,.1) !important;
+	transition: background 140ms var(--pgt-ease, ease), transform 140ms var(--pgt-ease, ease);
+}
+.pge-login-required__cta:hover {
+	background: var(--pge-color-primary-strong, #0c1b9e) !important;
+	transform: translateY(-1px);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    ALL-EXAMS / exam search — .tb-es__*

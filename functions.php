@@ -82,6 +82,28 @@ add_action(
 );
 
 /**
+ * Same problem, wider blast radius: the login, signup, password-reset and
+ * email-verification screens all call
+ *   get_option( Storage_Map::option('primary_color'), '#2563eb' )
+ * directly and bake the result into inline gradients/buttons/focus rings —
+ * there is no CSS layer between that PHP value and the rendered page, so no
+ * stylesheet can repaint it. Six call sites, one option, same unset-option
+ * problem as the PWA manifest above; filtering the option once fixes the
+ * brand color on every one of them without editing the plugin.
+ *
+ * `Storage_Map::OPTION_PREFIX` is `pge_`, so the stored option name is
+ * `pge_primary_color` — confirmed against includes/Storage/class-storage-map.php
+ * rather than assumed, since a wrong option name here fails silently (the
+ * filter just never fires).
+ */
+add_filter(
+	'option_pge_primary_color',
+	function () {
+		return PGT_BRAND_PRIMARY;
+	}
+);
+
+/**
  * Site icon (favicon) from the bundled brand-kit mark — no Media Library
  * upload required. Only applies when the admin hasn't set a Site Icon of
  * their own (Settings > General), so this never fights a real choice.
