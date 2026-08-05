@@ -430,3 +430,29 @@ body.pg-module .pgm-band a:not(.pgm-btn) {
 /* The hero band is dark; its links stay on-dark rather than taking an accent
    that would fail contrast against near-black. */
 body.pg-module .pgm-hero a:not(.pgm-btn) { color: var(--pge-color-on-dark, #6ba4ff); }
+
+/* ── 7. Product lockup + the rule under the menu ────────────────────────
+   Two signals that leave the LOGO ITSELF alone, after recolouring the mark
+   and a three-segment rule under it were both rejected for the same reason:
+   they made the lockup a variable. The mark is now byte-identical on every
+   page; the pillar is named beside it and carried across the header edge.
+
+   Rendered by Chrome::brand_kit_logo(), so the header and the mobile drawer
+   both get it. These rules live here rather than theme.css because the
+   element only ever exists on a module page — same scope as this file. */
+.pgt-brandlogo__module {
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: .13em;
+	text-transform: uppercase;
+	line-height: 1;
+	color: var(--pgm-accent-ink, var(--pge-color-primary));
+}
+
+/* The full-width rule under the menu. Sticky header, so the pillar's colour
+   stays on screen the whole way down the page. 3px replaces the 1px hairline
+   rather than adding to it — the 2px of extra header height is imperceptible
+   and costs no layout maths. */
+body.pg-module .pgt-header {
+	border-bottom: 3px solid var(--pgm-accent, var(--pge-color-primary));
+}

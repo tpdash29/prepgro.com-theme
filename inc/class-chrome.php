@@ -1234,6 +1234,20 @@ final class Chrome {
 	}
 
 	/**
+	 * Which pillar the current request is inside, or '' when it is not a
+	 * module page. Guarded because Chrome must still render if the module
+	 * pages are ever disabled via the `pgt_module_page_slugs` filter.
+	 *
+	 * @return string 'evaluate' | 'elevate' | 'excel' | ''
+	 */
+	private function current_module_key() {
+		if ( ! class_exists( __NAMESPACE__ . '\Module_Pages' ) ) {
+			return '';
+		}
+		return (string) Module_Pages::instance()->current_module();
+	}
+
+	/**
 	 * Brand-kit chip mark + wordmark lockup. Chip gradient
 	 * #0c1b9e→#0a84ff→#4d93ff at rx=18 on the 92-unit viewBox; wordmark
 	 * "prep" 500 ink / "Gro" 700 brand blue, in Outfit. Real text in the DOM
@@ -1246,7 +1260,33 @@ final class Chrome {
 	 */
 	private function brand_kit_logo( $grad_id = 'pgtLogoChipGrad', $with_tagline = true ) {
 		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">Gro</span></span>';
-		if ( $with_tagline ) {
+
+		/*
+		 * Product lockup. Inside a pillar, its NAME sits under the wordmark in
+		 * that pillar's colour; everywhere else the primary lockup renders
+		 * exactly as before.
+		 *
+		 * The mark itself is never touched. That is the point — an element
+		 * ADDED beneath the logo is how a brand signals a sub-brand without
+		 * the logo ceasing to be the logo, which is where recolouring the chip
+		 * and the three-segment rule both went wrong: both made the lockup
+		 * itself a variable.
+		 *
+		 * It replaces the tagline rather than stacking with it: both occupy
+		 * the same line under the wordmark, and the tagline is display:none in
+		 * the header anyway (the kit's "primary lockup at navbar scale" rule).
+		 */
+		$module = $this->current_module_key();
+		if ( '' !== $module ) {
+			$names = array(
+				'evaluate' => __( 'Evaluate', 'prepgro-theme' ),
+				'elevate'  => __( 'Elevate', 'prepgro-theme' ),
+				'excel'    => __( 'Excel', 'prepgro-theme' ),
+			);
+			if ( isset( $names[ $module ] ) ) {
+				$copy .= '<span class="pgt-brandlogo__module">' . esc_html( $names[ $module ] ) . '</span>';
+			}
+		} elseif ( $with_tagline ) {
 			$copy .= '<span class="pgt-brandlogo__tagline">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
 		return '<span class="pgt-brandlogo">'
