@@ -31,10 +31,18 @@ body.pg-module-elevate {
 	--pgm-accent-soft: var(--teal-50);
 }
 body.pg-module-excel {
-	/* amber-600, not -500: white button text on -500 is 2.15:1 (fails even
-	   the 3:1 UI-component bar); -600 clears it at 3.19:1. -700 stays the
-	   ink shade for text-on-white, matching the mega-menu tone above. */
-	--pgm-accent:      var(--amber-600);
+	/* amber-700, and the reason matters. --pgm-accent is a background that
+	   carries WHITE text (.pgm-btn--primary, .pgm-plan, and now the header
+	   CTA). Those are 14.5-15.5px — normal text by WCAG, which starts "large"
+	   at 18.66px bold / 24px regular — so they need 4.5:1, not the 3:1 bar for
+	   large text and UI components.
+	     amber-500 #f59e0b -> 2.15:1  fails outright
+	     amber-600 #d97706 -> 3.19:1  passes 3:1 only; FAILED here as body text
+	     amber-700 #b45309 -> 5.02:1  passes AA
+	   -600 was chosen when this was read as a UI component; measuring the
+	   actual type sizes says otherwise, so -600 is retired for fills. Blue and
+	   teal already clear 4.5:1 (7.31 and 5.47), so only Excel moves. */
+	--pgm-accent:      var(--amber-700);
 	--pgm-accent-ink:  var(--amber-700);
 	--pgm-accent-soft: var(--amber-50);
 }
@@ -371,3 +379,54 @@ body.pg-module-excel {
 @media (prefers-reduced-motion: reduce) {
 	.pgm-btn, .pgm-next { transition: none; }
 }
+
+/* ── 6. Site chrome adopts the module's colour ──────────────────────────
+   On a module page every button and link takes that pillar's accent — the
+   header included — so the whole page reads as one pillar rather than as a
+   blue site with a coloured middle.
+
+   This file is enqueued ONLY on module pages (functions.php, `pgt-module`)
+   and declares `pgt-theme` as a dependency, so it loads after theme.css and
+   these win at equal specificity. Nothing here leaks to other pages.
+
+   `--pgm-accent*` is set on <body>, so the header — a descendant of body —
+   inherits it for free; no extra plumbing needed.
+
+   Two deliberate exceptions:
+   - .pgt-logo keeps the brand blue. It is the logo. Recolouring a logo per
+     page is how a brand stops being recognisable.
+   - The nav links for the OTHER two pillars keep their neutral ink, so the
+     accent marks where you ARE, not merely where you can go. Their own
+     colour still shows in the mega-menu tone when opened. */
+
+/* Primary buttons anywhere on the page, header CTA included. */
+body.pg-module .pgt-btn--primary {
+	background: var(--pgm-accent, var(--pge-color-primary));
+	box-shadow: 0 1px 2px rgba(3,5,15,.06),
+		0 8px 18px -10px color-mix(in srgb, var(--pgm-accent, var(--pge-color-primary)) 55%, transparent);
+}
+/* System rule from theme.css: hover darkens via brightness, never a hue change. */
+body.pg-module .pgt-btn--primary:hover { background: var(--pgm-accent, var(--pge-color-primary)); }
+
+/* The current pillar's own nav item — the clearest "you are here" signal. */
+body.pg-module .pgt-nav__link.is-current {
+	color: var(--pgm-accent-ink, var(--pge-color-ink));
+	background: var(--pgm-accent-soft, var(--pge-gray-100));
+}
+body.pg-module .pgt-nav__link:hover,
+body.pg-module .pgt-nav__link[aria-expanded="true"] {
+	color: var(--pgm-accent-ink, var(--pge-color-ink));
+	background: var(--pgm-accent-soft, var(--pge-gray-100));
+}
+
+/* Prose links inside module content. The pages are mostly buttons and cards
+   today, so this is here to catch anything added later — a link in a section
+   body should not fall back to the site blue on a teal or amber page. */
+body.pg-module .pgm-section a:not(.pgm-btn):not(.pgm-next):not(.pgm-plan__cta),
+body.pg-module .pgm-band a:not(.pgm-btn) {
+	color: var(--pgm-accent-ink, var(--pge-color-primary));
+}
+
+/* The hero band is dark; its links stay on-dark rather than taking an accent
+   that would fail contrast against near-black. */
+body.pg-module .pgm-hero a:not(.pgm-btn) { color: var(--pge-color-on-dark, #6ba4ff); }

@@ -73,6 +73,11 @@ final class Module_Pages {
 	public function body_class( $classes ) {
 		$module = $this->current_module();
 		if ( $module ) {
+			// Both: `pg-module-{key}` carries the per-pillar accent values,
+			// while the bare `pg-module` lets a rule say "any module page"
+			// once instead of repeating a three-way selector for every
+			// chrome element that adopts the accent.
+			$classes[] = 'pg-module';
 			$classes[] = 'pg-module-' . $module;
 		}
 		return $classes;
