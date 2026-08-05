@@ -195,9 +195,9 @@ final class Module_Pages {
 					'title'   => __( 'The average first check surfaces four fixable gaps.', 'prepgro-theme' ),
 					'body'    => __( 'Across 12,400 diagnostics, most lost points cluster in a handful of sub-skills — not across the whole exam.', 'prepgro-theme' ),
 					'bars'    => array(
-						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'value' => __( '38% of gaps', 'prepgro-theme' ), 'w' => 76, 'c' => 'var(--blue-600)' ),
-						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'value' => __( '24% of gaps', 'prepgro-theme' ), 'w' => 48, 'c' => 'var(--blue-500)' ),
-						array( 'label' => __( 'Reading evidence', 'prepgro-theme' ), 'value' => __( '21% of gaps', 'prepgro-theme' ), 'w' => 42, 'c' => 'var(--blue-400)' ),
+						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'value' => __( '38% of gaps', 'prepgro-theme' ), 'w' => 76, 'c' => 'var(--pgm-l1)' ),
+						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'value' => __( '24% of gaps', 'prepgro-theme' ), 'w' => 48, 'c' => 'var(--pgm-l2)' ),
+						array( 'label' => __( 'Reading evidence', 'prepgro-theme' ), 'value' => __( '21% of gaps', 'prepgro-theme' ), 'w' => 42, 'c' => 'var(--pgm-l3)' ),
 						array( 'label' => __( 'Grammar & usage', 'prepgro-theme' ), 'value' => __( '17% of gaps', 'prepgro-theme' ), 'w' => 34, 'c' => 'var(--neutral-300)' ),
 					),
 				),
@@ -260,9 +260,9 @@ final class Module_Pages {
 					'title'   => __( 'Tutoring time spent on the gap, not on finding it.', 'prepgro-theme' ),
 					'body'    => __( 'Because the tutor starts from your report, the first session opens on the weak skill instead of a placement quiz.', 'prepgro-theme' ),
 					'bars'    => array(
-						array( 'label' => __( 'Live 1:1 classes', 'prepgro-theme' ), 'value' => __( '8 / month', 'prepgro-theme' ), 'w' => 70, 'c' => 'var(--blue-600)' ),
-						array( 'label' => __( 'Tutor-set assignments', 'prepgro-theme' ), 'value' => __( '4 / month', 'prepgro-theme' ), 'w' => 40, 'c' => 'var(--blue-500)' ),
-						array( 'label' => __( 'Self-study lessons', 'prepgro-theme' ), 'value' => __( 'unlimited', 'prepgro-theme' ), 'w' => 92, 'c' => 'var(--blue-400)' ),
+						array( 'label' => __( 'Live 1:1 classes', 'prepgro-theme' ), 'value' => __( '8 / month', 'prepgro-theme' ), 'w' => 70, 'c' => 'var(--pgm-l1)' ),
+						array( 'label' => __( 'Tutor-set assignments', 'prepgro-theme' ), 'value' => __( '4 / month', 'prepgro-theme' ), 'w' => 40, 'c' => 'var(--pgm-l2)' ),
+						array( 'label' => __( 'Self-study lessons', 'prepgro-theme' ), 'value' => __( 'unlimited', 'prepgro-theme' ), 'w' => 92, 'c' => 'var(--pgm-l3)' ),
 						array( 'label' => __( 'Time spent on placement', 'prepgro-theme' ), 'value' => __( '0 min', 'prepgro-theme' ), 'w' => 3, 'c' => 'var(--neutral-300)' ),
 					),
 				),
@@ -323,9 +323,9 @@ final class Module_Pages {
 					'title'   => __( 'Twelve tests in, the weak skills look different.', 'prepgro-theme' ),
 					'body'    => __( 'Sample student, SAT math: the two gaps from the first diagnostic are now the two strongest sections.', 'prepgro-theme' ),
 					'bars'    => array(
-						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'value' => '42% → 79%', 'w' => 79, 'c' => 'var(--blue-600)' ),
-						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'value' => '38% → 74%', 'w' => 74, 'c' => 'var(--blue-500)' ),
-						array( 'label' => __( 'Linear equations', 'prepgro-theme' ), 'value' => '84% → 91%', 'w' => 91, 'c' => 'var(--blue-400)' ),
+						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'value' => '42% → 79%', 'w' => 79, 'c' => 'var(--pgm-l1)' ),
+						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'value' => '38% → 74%', 'w' => 74, 'c' => 'var(--pgm-l2)' ),
+						array( 'label' => __( 'Linear equations', 'prepgro-theme' ), 'value' => '84% → 91%', 'w' => 91, 'c' => 'var(--pgm-l3)' ),
 						array( 'label' => __( 'Est. score', 'prepgro-theme' ), 'value' => '1260 → 1340', 'w' => 68, 'c' => 'var(--green-600)' ),
 					),
 				),
@@ -473,8 +473,8 @@ final class Module_Pages {
 				return $this->donut_figure(
 					68,
 					array(
-						array( 'label' => __( 'Linear equations', 'prepgro-theme' ), 'v' => 84, 'c' => 'var(--blue-400)' ),
-						array( 'label' => __( 'Reading evidence', 'prepgro-theme' ), 'v' => 71, 'c' => 'var(--blue-400)' ),
+						array( 'label' => __( 'Linear equations', 'prepgro-theme' ), 'v' => 84, 'c' => 'var(--pgm-g3)' ),
+						array( 'label' => __( 'Reading evidence', 'prepgro-theme' ), 'v' => 71, 'c' => 'var(--pgm-g3)' ),
 						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'v' => 42, 'c' => 'var(--amber-500)' ),
 						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'v' => 38, 'c' => 'var(--red-500)' ),
 					),
@@ -534,7 +534,7 @@ final class Module_Pages {
 			. '<div class="pgm-donut">'
 			. '<svg viewBox="0 0 120 120" aria-hidden="true">'
 			. '<circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="12"></circle>'
-			. '<circle cx="60" cy="60" r="50" fill="none" stroke="var(--blue-500)" stroke-width="12" stroke-linecap="round"'
+			. '<circle cx="60" cy="60" r="50" fill="none" stroke="var(--pgm-g2, var(--blue-500))" stroke-width="12" stroke-linecap="round"'
 			. ' stroke-dasharray="' . esc_attr( $circ ) . '" stroke-dashoffset="' . esc_attr( $offset ) . '"></circle>'
 			. '</svg>'
 			. '<div class="pgm-donut__label">'
@@ -604,7 +604,7 @@ final class Module_Pages {
 
 		$dots = '';
 		foreach ( array( 0, 2, 4 ) as $i ) {
-			$dots .= '<circle cx="' . esc_attr( $xs[ $i ] ) . '" cy="' . esc_attr( (int) $ys[ $i ] ) . '" r="4" fill="var(--blue-500)"></circle>';
+			$dots .= '<circle cx="' . esc_attr( $xs[ $i ] ) . '" cy="' . esc_attr( (int) $ys[ $i ] ) . '" r="4" fill="var(--pgm-g2, var(--blue-500))"></circle>';
 		}
 		$dots .= '<circle cx="' . esc_attr( end( $xs ) ) . '" cy="' . esc_attr( (int) end( $ys ) ) . '" r="5.5" fill="#fff"></circle>';
 
@@ -619,8 +619,8 @@ final class Module_Pages {
 			. '<line x1="0" y1="30" x2="320" y2="30" stroke="rgba(255,255,255,.09)" stroke-width="1"></line>'
 			. '<line x1="0" y1="70" x2="320" y2="70" stroke="rgba(255,255,255,.09)" stroke-width="1"></line>'
 			. '<line x1="0" y1="110" x2="320" y2="110" stroke="rgba(255,255,255,.09)" stroke-width="1"></line>'
-			. '<polygon points="' . esc_attr( $area ) . '" fill="rgba(10,132,255,.16)"></polygon>'
-			. '<polyline points="' . esc_attr( $line ) . '" fill="none" stroke="var(--blue-500)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>'
+			. '<polygon points="' . esc_attr( $area ) . '" fill="var(--pgm-area, rgba(10,132,255,.16))"></polygon>'
+			. '<polyline points="' . esc_attr( $line ) . '" fill="none" stroke="var(--pgm-g2, var(--blue-500))" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>'
 			. $dots
 			. '</svg>'
 			. '<div class="pgm-trend__labels"><span>' . esc_html__( 'Test 1', 'prepgro-theme' ) . '</span><span>' . esc_html__( 'Test 4', 'prepgro-theme' ) . '</span>'

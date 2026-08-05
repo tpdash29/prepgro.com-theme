@@ -20,15 +20,46 @@
  * class (e.g. the bare [pgt_module_page] shortcode) looks exactly as it
  * did before this variable existed.
  */
+/*
+ * Each pillar carries TWO three-step graph ramps, not one, and the split is
+ * forced by measurement rather than taste. The figures live on two different
+ * grounds: the hero infographic sits on --neutral-950, the proof bars sit on
+ * white. A single ramp cannot serve both — teal and amber at their light
+ * steps measure 1.9:1 and 1.7:1 on white (invisible as a bar) while being
+ * ideal on near-black:
+ *
+ *              on #03050f          on white
+ *   teal  400   10.93               1.86
+ *   amber 400   12.18               1.67
+ *
+ * So --pgm-g* is the ON-DARK ramp (hero figures) and --pgm-l* the ON-LIGHT
+ * one (proof bars). Blue happens to work in both, which is why the original
+ * single-ramp design held together until a second hue arrived.
+ *
+ * Status colours are NOT part of either ramp. The Evaluate donut's amber and
+ * red bars encode score bands (42%, 38% — weak skills) and the Excel trend's
+ * green encodes improvement; recolouring those to the module hue would turn a
+ * reading of the data into decoration. They stay literal on purpose.
+ */
 body.pg-module-evaluate {
 	--pgm-accent:      var(--blue-600);
 	--pgm-accent-ink:  var(--pge-color-primary);
 	--pgm-accent-soft: var(--blue-50);
+	--pgm-on-dark: var(--pge-color-on-dark);
+	--pgm-wash-1: rgba(27,59,235,.6);  --pgm-wash-2: rgba(10,132,255,.34);
+	--pgm-area: rgba(10,132,255,.16);
+	--pgm-g1: var(--blue-600);  --pgm-g2: var(--blue-500);  --pgm-g3: var(--blue-400);
+	--pgm-l1: var(--blue-600);  --pgm-l2: var(--blue-500);  --pgm-l3: var(--blue-400);
 }
 body.pg-module-elevate {
 	--pgm-accent:      var(--teal-700);
 	--pgm-accent-ink:  var(--teal-700);
 	--pgm-accent-soft: var(--teal-50);
+	--pgm-on-dark: #5eead4;
+	--pgm-wash-1: rgba(13,148,136,.55);  --pgm-wash-2: rgba(45,212,191,.26);
+	--pgm-area: rgba(20,184,166,.16);
+	--pgm-g1: var(--teal-600);  --pgm-g2: var(--teal-500);  --pgm-g3: var(--teal-400);
+	--pgm-l1: var(--teal-700);  --pgm-l2: var(--teal-600);  --pgm-l3: var(--teal-500);
 }
 body.pg-module-excel {
 	/* amber-700, and the reason matters. --pgm-accent is a background that
@@ -45,6 +76,11 @@ body.pg-module-excel {
 	--pgm-accent:      var(--amber-700);
 	--pgm-accent-ink:  var(--amber-700);
 	--pgm-accent-soft: var(--amber-50);
+	--pgm-on-dark: #fcd34d;
+	--pgm-wash-1: rgba(180,83,9,.6);  --pgm-wash-2: rgba(245,158,11,.26);
+	--pgm-area: rgba(245,158,11,.16);
+	--pgm-g1: var(--amber-600);  --pgm-g2: var(--amber-500);  --pgm-g3: var(--amber-400);
+	--pgm-l1: var(--amber-700);  --pgm-l2: var(--amber-600);  --pgm-l3: var(--amber-500);
 }
 
 /* ── Shared ────────────────────────────────────────────────────────── */
@@ -82,9 +118,12 @@ body.pg-module-excel {
 .pgm-hero__wash {
 	position: absolute;
 	inset: 0;
+	/* Tinted per pillar. Left hardcoded blue, the glow fought the teal and
+	   amber figures sitting on top of it — the one place the shared hero
+	   genuinely could not stay shared once the graphs stopped being blue. */
 	background:
-		radial-gradient(900px 420px at 14% -20%, rgba(27,59,235,.6), transparent 68%),
-		radial-gradient(620px 340px at 94% 118%, rgba(10,132,255,.34), transparent 70%);
+		radial-gradient(900px 420px at 14% -20%, var(--pgm-wash-1, rgba(27,59,235,.6)), transparent 68%),
+		radial-gradient(620px 340px at 94% 118%, var(--pgm-wash-2, rgba(10,132,255,.34)), transparent 70%);
 }
 .pgm-hero__inner {
 	position: relative;
@@ -102,14 +141,14 @@ body.pg-module-excel {
 	border-radius: var(--pge-radius-md);
 	background: rgba(255,255,255,.1);
 	border: 1px solid rgba(255,255,255,.18);
-	color: var(--pge-color-on-dark);
+	color: var(--pgm-on-dark, var(--pge-color-on-dark));
 }
 .pgm-eyebrow {
 	font-size: 11.5px;
 	font-weight: 700;
 	letter-spacing: .12em;
 	text-transform: uppercase;
-	color: var(--pge-color-on-dark);
+	color: var(--pgm-on-dark, var(--pge-color-on-dark));
 }
 .pgm-hero__title {
 	font-size: clamp(30px, 4.4vw, 46px);
@@ -158,7 +197,7 @@ body.pg-module-excel {
 .pgm-fig__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .pgm-fig__title { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--neutral-400); }
 /* The visible "sample" note every figure carries. */
-.pgm-fig__note { font-size: 11.5px; font-weight: 600; color: var(--pge-color-on-dark); }
+.pgm-fig__note { font-size: 11.5px; font-weight: 600; color: var(--pgm-on-dark, var(--pge-color-on-dark)); }
 .pgm-fig__foot {
 	margin: 18px 0 0;
 	padding-top: 16px;
@@ -188,8 +227,8 @@ body.pg-module-excel {
 .pgm-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 132px; }
 .pgm-week__col { display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; height: 100%; }
 .pgm-week__seg { display: block; border-radius: 6px; }
-.pgm-week__seg--class  { background: var(--blue-600); }
-.pgm-week__seg--assign { background: var(--blue-500); }
+.pgm-week__seg--class  { background: var(--pgm-g1, var(--blue-600)); }
+.pgm-week__seg--assign { background: var(--pgm-g2, var(--blue-500)); }
 .pgm-week__seg--self   { background: rgba(255,255,255,.16); }
 .pgm-week__seg--rest   { background: rgba(255,255,255,.08); }
 .pgm-week__labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
@@ -201,8 +240,8 @@ body.pg-module-excel {
 }
 .pgm-legend__item { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--neutral-300); }
 .pgm-legend__sw { width: 9px; height: 9px; border-radius: 3px; }
-.pgm-legend__sw--class  { background: var(--blue-600); }
-.pgm-legend__sw--assign { background: var(--blue-500); }
+.pgm-legend__sw--class  { background: var(--pgm-g1, var(--blue-600)); }
+.pgm-legend__sw--assign { background: var(--pgm-g2, var(--blue-500)); }
 .pgm-legend__sw--self   { background: rgba(255,255,255,.28); }
 
 /* Excel — area + line trend */

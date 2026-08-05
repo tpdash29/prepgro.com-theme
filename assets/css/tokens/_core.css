@@ -64,6 +64,7 @@
 
 	--amber-50:  #fffbeb;
 	--amber-100: #fef3c7;
+	--amber-400: #fbbf24;  /* graph step, on dark only — 1.67:1 on white */
 	--amber-500: #f59e0b;
 	--amber-600: #d97706;
 	--amber-700: #b45309;
@@ -75,6 +76,7 @@
 	   white); teal-600 is the vivid, non-text fill. */
 	--teal-50:  #f0fdfa;
 	--teal-100: #ccfbf1;
+	--teal-400: #2dd4bf;  /* graph step, on dark only — 1.86:1 on white */
 	--teal-500: #14b8a6;
 	--teal-600: #0d9488;
 	--teal-700: #0f766e;
