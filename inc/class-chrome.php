@@ -712,6 +712,34 @@ final class Chrome {
 							<?php echo Icons::svg( 'search', array( 'size' => 17 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							<span class="pgt-visually-hidden"><?php esc_html_e( 'Search', 'prepgro-theme' ); ?></span>
 						</button>
+					<?php
+					/*
+					 * Light/dark switch — APP SURFACES ONLY (dashboard, portals,
+					 * learning player). The engine's App_Shell::theme_boot() owns
+					 * the behaviour everywhere: it stamps data-pge-admin-theme on
+					 * <html> pre-paint and delegates clicks from any
+					 * [data-pg-theme-toggle], so this button only has to exist and
+					 * carry that attribute. Both glyphs ship; CSS shows one per
+					 * mode, so the icon is right on first paint with no JS swap.
+					 *
+					 * Why gated: the marketing stylesheets (pg-home, pg-module,
+					 * pg-pricing, pg-exams, pg-blog, pg-devicestage) are still
+					 * written light-only — ~29 hardcoded white backgrounds plus
+					 * light-tuned text/borders. Flipping the shared tokens there
+					 * inverts the text but not those surfaces, which renders white
+					 * text on white cards. A switch that visibly breaks the page is
+					 * worse than no switch, so it appears only where dark is real.
+					 * Remove this gate once those six files carry dark rules.
+					 */
+					if ( $this->is_app_context() ) :
+						?>
+						<button class="pgt-iconbtn pgt-iconbtn--theme" type="button" data-pg-theme-toggle aria-label="<?php esc_attr_e( 'Switch to dark mode', 'prepgro-theme' ); ?>">
+							<span class="pgt-icon-moon"><?php echo Icons::svg( 'moon', array( 'size' => 17 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<span class="pgt-icon-sun"><?php echo Icons::svg( 'sun', array( 'size' => 17 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						</button>
+						<?php
+					endif;
+					?>
 						<?php echo $this->account_cluster( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
 						<button class="pgt-burger" type="button" aria-label="<?php esc_attr_e( 'Open menu', 'prepgro-theme' ); ?>" aria-expanded="false" aria-controls="pgt-drawer">
