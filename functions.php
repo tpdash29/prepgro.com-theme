@@ -154,11 +154,11 @@ add_action(
 			}
 			/*
 			 * v2 "Playful Bold" reskin of the engine's neumorphic depth system.
-			 * The plugin declares its --tb-* tokens on :root; declaring the same
+			 * The plugin declares its --pge-ui-* tokens on :root; declaring the same
 			 * tokens on body wins for the whole page subtree regardless of
 			 * stylesheet load order, so the dashboard/exam UI restyles without
 			 * touching a single plugin file (survives plugin updates).
-			 * Alias tokens (--tb-neu-shadow*) are re-declared too because var()
+			 * Alias tokens (--pge-ui-neu-shadow*) are re-declared too because var()
 			 * substitution inside custom properties resolves on the declaring
 			 * element — the plugin's :root aliases would otherwise keep the old
 			 * soft-shadow values baked in.
@@ -170,60 +170,60 @@ add_action(
 				 * token, so the portal can never fork the palette — change
 				 * assets/css/tokens/_core.css and this follows.
 				 */
-				--tb-neu-shl: 255,255,255;
-				--tb-neu-shd: 3,5,15;
-				--tb-neu-out:    var(--pge-shadow-lg);
-				--tb-neu-out-sm: var(--pge-shadow-md);
-				--tb-neu-out-xs: var(--pge-shadow-sm);
-				--tb-neu-in:      inset 0 2px 5px rgba(3,5,15,.08);
-				--tb-neu-in-deep: inset 0 3px 7px rgba(3,5,15,.12);
-				--tb-neu-shadow-sm:         var(--pge-shadow-sm);
-				--tb-neu-shadow:            var(--pge-shadow-md);
-				--tb-neu-shadow-lg:         var(--pge-shadow-lg);
-				--tb-neu-shadow-xl:         var(--pge-shadow-lg);
-				--tb-neu-shadow-inset:      inset 0 2px 5px rgba(3,5,15,.08);
-				--tb-neu-shadow-inset-sm:   inset 0 2px 5px rgba(3,5,15,.08);
-				--tb-neu-shadow-inset-deep: inset 0 3px 7px rgba(3,5,15,.12);
-				--tb-neu-accent-out: 0 8px 24px -12px rgba(18,38,200,.35);
-				--tb-neu-coral-out:  0 8px 24px -12px rgba(220,38,38,.30);
-				--tb-neu-halo-primary: var(--pge-focus-ring);
+				--pge-ui-neu-shl: 255,255,255;
+				--pge-ui-neu-shd: 3,5,15;
+				--pge-ui-neu-out:    var(--pge-shadow-lg);
+				--pge-ui-neu-out-sm: var(--pge-shadow-md);
+				--pge-ui-neu-out-xs: var(--pge-shadow-sm);
+				--pge-ui-neu-in:      inset 0 2px 5px rgba(3,5,15,.08);
+				--pge-ui-neu-in-deep: inset 0 3px 7px rgba(3,5,15,.12);
+				--pge-ui-neu-shadow-sm:         var(--pge-shadow-sm);
+				--pge-ui-neu-shadow:            var(--pge-shadow-md);
+				--pge-ui-neu-shadow-lg:         var(--pge-shadow-lg);
+				--pge-ui-neu-shadow-xl:         var(--pge-shadow-lg);
+				--pge-ui-neu-shadow-inset:      inset 0 2px 5px rgba(3,5,15,.08);
+				--pge-ui-neu-shadow-inset-sm:   inset 0 2px 5px rgba(3,5,15,.08);
+				--pge-ui-neu-shadow-inset-deep: inset 0 3px 7px rgba(3,5,15,.12);
+				--pge-ui-neu-accent-out: 0 8px 24px -12px rgba(18,38,200,.35);
+				--pge-ui-neu-coral-out:  0 8px 24px -12px rgba(220,38,38,.30);
+				--pge-ui-neu-halo-primary: var(--pge-focus-ring);
 
 				/* Kit hairlines */
-				--tb-neu-border:        var(--pge-color-line);
-				--tb-neu-border-strong: rgba(3,5,15,.30);
+				--pge-ui-neu-border:        var(--pge-color-line);
+				--pge-ui-neu-border-strong: rgba(3,5,15,.30);
 
 				/* Kit surfaces + ink ramp */
-				--tb-neu-bg-warm:   var(--pge-color-surface);
-				--tb-neu-ink-soft:  var(--pge-color-body);
-				--tb-neu-ink-faint: var(--pge-color-muted);
+				--pge-ui-neu-bg-warm:   var(--pge-color-surface);
+				--pge-ui-neu-ink-soft:  var(--pge-color-body);
+				--pge-ui-neu-ink-faint: var(--pge-color-muted);
 
 				/* Status accents from the kit ramp (no coral/teal) */
-				--tb-neu-coral:      var(--pge-red-600);
-				--tb-neu-coral-deep: var(--red-700);
-				--tb-neu-coral-soft: var(--pge-red-50);
-				--tb-neu-good: var(--pge-color-success);
-				--tb-neu-focus-ring: var(--pge-focus-ring);
+				--pge-ui-neu-coral:      var(--pge-red-600);
+				--pge-ui-neu-coral-deep: var(--red-700);
+				--pge-ui-neu-coral-soft: var(--pge-red-50);
+				--pge-ui-neu-good: var(--pge-color-success);
+				--pge-ui-neu-focus-ring: var(--pge-focus-ring);
 
 				/* Flat (non-neumorphic) component tokens used by newer screens.
 				   The engine's assets/css/elevate/elevate.css derives its own
 				   --pge-primary/--pge-ink from these, so they carry the palette
 				   into the Elevate module too. */
-				--tb-bg: var(--pge-gray-50);
-				--tb-surface: var(--pge-white);
-				--tb-border: var(--pge-color-line);
-				--tb-border-hover: var(--pge-ink-400);
-				--tb-text-main: var(--pge-color-ink);
-				--tb-text-secondary: var(--pge-color-body);
-				--tb-text-muted: var(--pge-color-muted);
-				--tb-primary: var(--pge-color-primary);
-				--tb-font-family: var(--pge-font-sans);
-				--tb-shadow-sm: var(--pge-shadow-sm);
-				--tb-shadow:    var(--pge-shadow-md);
-				--tb-shadow-lg: var(--pge-shadow-lg);
-				--tb-shadow-xl: var(--pge-shadow-lg);
-				--tb-radius: var(--pge-radius-md);
-				--tb-radius-lg: 16px;
-				--tb-radius-xl: var(--pge-radius-lg);
+				--pge-ui-bg: var(--pge-gray-50);
+				--pge-ui-surface: var(--pge-white);
+				--pge-ui-border: var(--pge-color-line);
+				--pge-ui-border-hover: var(--pge-ink-400);
+				--pge-ui-text-main: var(--pge-color-ink);
+				--pge-ui-text-secondary: var(--pge-color-body);
+				--pge-ui-text-muted: var(--pge-color-muted);
+				--pge-ui-primary: var(--pge-color-primary);
+				--pge-ui-font-family: var(--pge-font-sans);
+				--pge-ui-shadow-sm: var(--pge-shadow-sm);
+				--pge-ui-shadow:    var(--pge-shadow-md);
+				--pge-ui-shadow-lg: var(--pge-shadow-lg);
+				--pge-ui-shadow-xl: var(--pge-shadow-lg);
+				--pge-ui-radius: var(--pge-radius-md);
+				--pge-ui-radius-lg: 16px;
+				--pge-ui-radius-xl: var(--pge-radius-lg);
 			}
 		</style>
 		<?php

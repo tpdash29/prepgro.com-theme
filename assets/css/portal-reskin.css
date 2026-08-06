@@ -3,7 +3,7 @@
  *
  * The engine plugin's StudentDashboard injects a runtime <style> block with
  * hardcoded values and !important flags, so neither theme.json nor the
- * --tb-*/--brand-* token bridge can reach it. This file counters those rules
+ * --pge-ui-*/--brand-* token bridge can reach it. This file counters those rules
  * with strictly higher specificity (doubled body class) + !important, keeping
  * the fix at the theme level so plugin updates never wipe it.
  *
@@ -14,29 +14,29 @@
  */
 
 /* ── Token bridge ──
-   The React app reads --tb-* custom properties (set on :root by the plugin
+   The React app reads --pge-ui-* custom properties (set on :root by the plugin
    bundle). Redefining them on the portal body maps the entire app — colors,
    type, borders, status hues — onto the PrepGro kit tokens in one move,
    without touching the compiled bundle. */
-body.tb-portal-testprep,
-body.tb-portal-competitive {
-	--tb-primary: var(--pge-color-primary, #1b3beb);
-	--tb-secondary: var(--pge-ink-500, #5f6894);
-	--tb-secondary-hover: var(--pge-ink-700, #3d4570);
-	--tb-success: var(--pge-green-600, #16a34a);
-	--tb-success-light: var(--pge-green-50, #f0fdf4);
-	--tb-warning: var(--pge-amber-600, #D97706);
-	--tb-warning-light: var(--pge-amber-50, #fffbeb);
-	--tb-danger: var(--pge-red-600, #DC2626);
-	--tb-danger-light: var(--pge-red-50, #fef2f2);
-	--tb-bg: var(--pge-gray-50, #f6f7fc);
-	--tb-surface: var(--pge-white, #ffffff);
-	--tb-border: var(--pge-gray-200, #dbe0f1);
-	--tb-border-hover: var(--pge-ink-400, #868fb6);
-	--tb-text-main: var(--pge-ink-950, #03050f);
-	--tb-text-secondary: var(--pge-ink-700, #3d4570);
-	--tb-text-muted: var(--pge-ink-500, #5f6894);
-	--tb-font-family: var(--pge-font-sans, 'Outfit', sans-serif);
+body.pge-portal-testprep,
+body.pge-portal-competitive {
+	--pge-ui-primary: var(--pge-color-primary, #1b3beb);
+	--pge-ui-secondary: var(--pge-ink-500, #5f6894);
+	--pge-ui-secondary-hover: var(--pge-ink-700, #3d4570);
+	--pge-ui-success: var(--pge-green-600, #16a34a);
+	--pge-ui-success-light: var(--pge-green-50, #f0fdf4);
+	--pge-ui-warning: var(--pge-amber-600, #D97706);
+	--pge-ui-warning-light: var(--pge-amber-50, #fffbeb);
+	--pge-ui-danger: var(--pge-red-600, #DC2626);
+	--pge-ui-danger-light: var(--pge-red-50, #fef2f2);
+	--pge-ui-bg: var(--pge-gray-50, #f6f7fc);
+	--pge-ui-surface: var(--pge-white, #ffffff);
+	--pge-ui-border: var(--pge-gray-200, #dbe0f1);
+	--pge-ui-border-hover: var(--pge-ink-400, #868fb6);
+	--pge-ui-text-main: var(--pge-ink-950, #03050f);
+	--pge-ui-text-secondary: var(--pge-ink-700, #3d4570);
+	--pge-ui-text-muted: var(--pge-ink-500, #5f6894);
+	--pge-ui-font-family: var(--pge-font-sans, 'Outfit', sans-serif);
 }
 
 /* ── Portal surface tokens ──
@@ -51,8 +51,8 @@ body.tb-portal-competitive {
    without !important — could never win, which is why dark mode rendered
    light text on white cards. Flipping the custom properties sidesteps the
    cascade fight entirely. */
-body.tb-portal-testprep,
-body.tb-portal-competitive {
+body.pge-portal-testprep,
+body.pge-portal-competitive {
 	--pgp-canvas: var(--pge-color-surface, #eceff9);
 	--pgp-surface: var(--pge-white, #ffffff);
 	--pgp-surface-2: var(--pge-gray-50, #f6f7fc);
@@ -64,14 +64,14 @@ body.tb-portal-competitive {
 	   dark mode — see the note on --pge-color-primary below. */
 	--pgp-accent-fill: var(--pge-color-primary, #1b3beb);
 }
-/* Scoped to the portal, not to the body class — `tb-portal-testprep` is on
+/* Scoped to the portal, not to the body class — `pge-portal-testprep` is on
  * EVERY page, so flipping these globally would drag the marketing pages into
  * a dark mode they have no design for (dark canvas, light body text, but
  * white section grounds and light cards throughout). Dark mode is a portal
  * feature: its toggle lives in the portal, and `.pge-pro-app` is rendered
  * only there. */
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep:has(.pge-pro-app),
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive:has(.pge-pro-app) {
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep:has(.pge-pro-app),
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive:has(.pge-pro-app) {
 	--pgp-canvas: #0f131c;
 	--pgp-surface: #1c2230;
 	--pgp-surface-2: #232c3d;
@@ -80,16 +80,16 @@ html[data-pge-admin-theme="dark"] body.tb-portal-competitive:has(.pge-pro-app) {
 	--pgp-body: #c6cfdd;
 	--pgp-muted: #93a0b5;
 
-	/* The React bundle reads the --tb-* bridge directly, so those have to
+	/* The React bundle reads the --pge-ui-* bridge directly, so those have to
 	   flip too or the app's own components stay light. */
-	--tb-bg: #0f131c;
-	--tb-surface: #1c2230;
-	--tb-border: #2a3345;
-	--tb-border-hover: #3a465e;
-	--tb-text-main: #eef2f9;
-	--tb-text-secondary: #c6cfdd;
-	--tb-text-muted: #93a0b5;
-	/* --tb-primary is deliberately NOT lightened: the bundle uses it as a
+	--pge-ui-bg: #0f131c;
+	--pge-ui-surface: #1c2230;
+	--pge-ui-border: #2a3345;
+	--pge-ui-border-hover: #3a465e;
+	--pge-ui-text-main: #eef2f9;
+	--pge-ui-text-secondary: #c6cfdd;
+	--pge-ui-text-muted: #93a0b5;
+	/* --pge-ui-primary is deliberately NOT lightened: the bundle uses it as a
 	   button fill with white text, where #1b3beb already gives 8.6:1.
 	   Lightening it to an on-dark blue dropped those buttons to 2.5:1. */
 
@@ -110,37 +110,37 @@ html[data-pge-admin-theme="dark"] body.tb-portal-competitive:has(.pge-pro-app) {
 /* ── Canvas ── */
 /* :not(.pg-app) — app-shell pages paint their own module grounds
    (body.pg-module-*); this flat canvas must not overrule them. */
-body.tb-portal-testprep.tb-portal-testprep:not(.pg-app),
-body.tb-portal-competitive.tb-portal-competitive:not(.pg-app) {
+body.pge-portal-testprep.pge-portal-testprep:not(.pg-app),
+body.pge-portal-competitive.pge-portal-competitive:not(.pg-app) {
 	background: var(--pgp-canvas) !important;
 	animation: none !important;
 	color: var(--pgp-ink) !important;
 }
 
 /* ── Portal typography ── */
-body.tb-portal-testprep.tb-portal-testprep h1,
-body.tb-portal-testprep.tb-portal-testprep h2,
-body.tb-portal-testprep.tb-portal-testprep h3,
-body.tb-portal-testprep.tb-portal-testprep h4,
-body.tb-portal-competitive.tb-portal-competitive h1,
-body.tb-portal-competitive.tb-portal-competitive h2,
-body.tb-portal-competitive.tb-portal-competitive h3,
-body.tb-portal-competitive.tb-portal-competitive h4 {
+body.pge-portal-testprep.pge-portal-testprep h1,
+body.pge-portal-testprep.pge-portal-testprep h2,
+body.pge-portal-testprep.pge-portal-testprep h3,
+body.pge-portal-testprep.pge-portal-testprep h4,
+body.pge-portal-competitive.pge-portal-competitive h1,
+body.pge-portal-competitive.pge-portal-competitive h2,
+body.pge-portal-competitive.pge-portal-competitive h3,
+body.pge-portal-competitive.pge-portal-competitive h4 {
 	font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important;
 	font-weight: 600;
 	letter-spacing: -0.015em;
 }
 
 /* ── App shell typography — the compiled bundle's runtime <style> pins
-   Inter on .tb-dash; keep the whole portal on the kit family. ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash {
+   Inter on .pge-dash; keep the whole portal on the kit family. ── */
+body.pge-portal-testprep.pge-portal-testprep .pge-dash,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash {
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
 
 /* ── Sidebar: quiet white panel, hairline edge ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-sidebar,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-sidebar {
 	background: var(--pgp-surface) !important;
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
@@ -148,32 +148,32 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar {
 	border-radius: 14px !important;
 	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-sidebar-header,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-sidebar-header {
 	border-bottom: 1px solid var(--pgp-line) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header h2,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header h2 {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-sidebar-header h2,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-sidebar-header h2 {
 	color: var(--pgp-ink) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-sidebar-header p,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-sidebar-header p {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-sidebar-header p,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-sidebar-header p {
 	color: var(--pgp-muted) !important;
 }
 
 /* ── Sidebar nav items ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-nav-item,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-nav-item {
 	color: var(--pgp-muted) !important;
 	font-weight: 500 !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item:hover,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item:hover {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-nav-item:hover,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-nav-item:hover {
 	background: var(--pgp-surface-2) !important;
 	color: var(--pgp-ink) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item.active,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-nav-item.active,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-nav-item.active {
 	background: var(--pge-color-primary-soft, #edf1ff) !important;
 	color: var(--pge-color-primary, #1b3beb) !important;
 	font-weight: 600 !important;
@@ -181,8 +181,8 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active {
 	border-radius: 10px !important;
 }
 /* Active indicator bar — chip gradient */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-item.active::before,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active::before {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-nav-item.active::before,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-nav-item.active::before {
 	background: var(--pge-gradient, linear-gradient(135deg, #0c1b9e, #0a84ff, #4d93ff)) !important;
 }
 
@@ -190,66 +190,66 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-item.active::befor
    emoji-era treatment (hide the icon span, paint positional ::after
    mask icons) is retired; positional icons break the moment the menu
    changes, which is exactly what happened with the grouped menu. */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-nav-icon,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-nav-icon {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-nav-icon,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-nav-icon {
 	display: inline-flex !important;
 	align-items: center;
 	width: 18px;
 	flex-shrink: 0;
 }
 /* ── Cards / stat tiles / empty states ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-card,
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat,
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-card,
-body.tb-portal-testprep.tb-portal-testprep .tb-empty-state,
-body.tb-portal-competitive.tb-portal-competitive .tb-card,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-card,
-body.tb-portal-competitive.tb-portal-competitive .tb-empty-state {
+body.pge-portal-testprep.pge-portal-testprep .pge-card,
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat,
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-card,
+body.pge-portal-testprep.pge-portal-testprep .pge-empty-state,
+body.pge-portal-competitive.pge-portal-competitive .pge-card,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-card,
+body.pge-portal-competitive.pge-portal-competitive .pge-empty-state {
 	background: var(--pgp-surface) !important;
 	border: 1px solid var(--pgp-line) !important;
 	border-radius: 14px !important;
 	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 	transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card:hover,
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat:hover,
-body.tb-portal-competitive.tb-portal-competitive .tb-card:hover,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat:hover {
+body.pge-portal-testprep.pge-portal-testprep .pge-card:hover,
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat:hover,
+body.pge-portal-competitive.pge-portal-competitive .pge-card:hover,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat:hover {
 	transform: translateY(-2px) !important;
 	border-color: rgba(27, 59, 235, .40) !important;
 	box-shadow: var(--pge-shadow-md, 0 8px 24px -12px rgba(18,38,200,.18)) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card-header,
-body.tb-portal-competitive.tb-portal-competitive .tb-card-header {
+body.pge-portal-testprep.pge-portal-testprep .pge-card-header,
+body.pge-portal-competitive.pge-portal-competitive .pge-card-header {
 	border-bottom: 1px solid var(--pgp-line) !important;
 }
 
 /* ── Stat tile icons — one quiet tint, brand blue ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-icon,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-icon {
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat-icon,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat-icon {
 	background: var(--pge-color-primary-soft, #edf1ff) !important;
 	border: 0 !important;
 	border-radius: 10px !important;
 	box-shadow: none !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat:hover .tb-neu-stat-icon {
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat:hover .pge-neu-stat-icon,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat:hover .pge-neu-stat-icon {
 	transform: none !important;
 	background: var(--pge-color-accent-soft, #dbe3ff) !important;
 }
 
 /* ── Stat values / labels — mono numerals, editorial labels ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-value,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-value {
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat-value,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat-value {
 	color: var(--pgp-ink) !important;
 	font-family: var(--pge-font-mono, 'JetBrains Mono', monospace) !important;
 	font-weight: 700 !important;
 	letter-spacing: -0.02em;
 	font-variant-numeric: tabular-nums;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-neu-stat-label,
-body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-label {
+body.pge-portal-testprep.pge-portal-testprep .pge-neu-stat-label,
+body.pge-portal-competitive.pge-portal-competitive .pge-neu-stat-label {
 	color: var(--pgp-muted) !important;
 	font-weight: 500 !important;
 	letter-spacing: .06em;
@@ -257,9 +257,9 @@ body.tb-portal-competitive.tb-portal-competitive .tb-neu-stat-label {
 	font-size: .72rem !important;
 }
 
-/* ── Flat stat cards (tb-stat-card family) ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-stat-card,
-body.tb-portal-competitive.tb-portal-competitive .tb-stat-card {
+/* ── Flat stat cards (pge-stat-card family) ── */
+body.pge-portal-testprep.pge-portal-testprep .pge-stat-card,
+body.pge-portal-competitive.pge-portal-competitive .pge-stat-card {
 	border: 1px solid var(--pgp-line) !important;
 	border-left-width: 4px !important;
 	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
@@ -267,19 +267,19 @@ body.tb-portal-competitive.tb-portal-competitive .tb-stat-card {
 }
 
 /* ── Mobile bar ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-bar,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-bar {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-mobile-bar,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-mobile-bar {
 	background: var(--pgp-surface) !important;
 	border: 1px solid var(--pgp-line) !important;
 	border-radius: 12px !important;
 	box-shadow: var(--pge-shadow-sm, 0 1px 2px rgba(3,5,15,.05)) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-toggle,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-toggle {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-mobile-toggle,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-mobile-toggle {
 	color: var(--pgp-ink) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-dash-mobile-item.active,
-body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-item.active {
+body.pge-portal-testprep.pge-portal-testprep .pge-dash-mobile-item.active,
+body.pge-portal-competitive.pge-portal-competitive .pge-dash-mobile-item.active {
 	background: var(--pge-color-primary-soft, #edf1ff) !important;
 	color: var(--pge-color-primary, #1b3beb) !important;
 }
@@ -289,53 +289,53 @@ body.tb-portal-competitive.tb-portal-competitive .tb-dash-mobile-item.active {
    full-red bar reads as an error banner). Until the next `npm run build`
    picks up the source fix, restyle it here via inline-style attribute
    hooks: slimmer, pill-shaped, no shouting percentages. ── */
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"][style*="border-radius: 8px"],
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"][style*="border-radius: 8px"] {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"][style*="border-radius: 8px"],
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"][style*="border-radius: 8px"] {
 	height: 12px !important;
 	border-radius: 999px !important;
 	gap: 2px;
 	background: var(--pge-gray-100, #eceff9);
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"][style*="border-radius: 8px"] > div,
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"][style*="border-radius: 8px"] > div {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"][style*="border-radius: 8px"] > div,
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"][style*="border-radius: 8px"] > div {
 	border-radius: 999px !important;
 	font-size: 0 !important; /* tooltip + legend still carry the numbers */
 }
 /* Soften stock status hues to the kit ramp (old bundle only) */
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(239, 68, 68)"],
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(239, 68, 68)"] {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"] > div[style*="rgb(239, 68, 68)"],
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"] > div[style*="rgb(239, 68, 68)"] {
 	background: var(--pge-red-600, #DC2626) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"],
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"] {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"],
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"] > div[style*="rgb(16, 185, 129)"] {
 	background: var(--pge-green-600, #16a34a) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"],
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"] {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"],
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"] > div[style*="rgb(59, 130, 246)"] {
 	background: var(--pge-blue-600, #1b3beb) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep .tb-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"],
-body.tb-portal-competitive.tb-portal-competitive .tb-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"] {
+body.pge-portal-testprep.pge-portal-testprep .pge-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"],
+body.pge-portal-competitive.pge-portal-competitive .pge-card div[style*="height: 28px"] > div[style*="rgb(245, 158, 11)"] {
 	background: var(--pge-amber-600, #D97706) !important;
 }
 
 /* ── Retake nudge ("Did you know?") — brand family, not garden green.
    Duplicates the source-level fix so pre-rebuild bundles render on-brand. ── */
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card,
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge].pge-card,
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge].pge-card {
 	background: linear-gradient(135deg, var(--pge-blue-50, #edf1ff) 0%, var(--pge-gray-25, #f6f7fc) 100%) !important;
 	border: 1px solid var(--pge-gray-200, #dbe0f1) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card > div > div:first-child,
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card > div > div:first-child {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge].pge-card > div > div:first-child,
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge].pge-card > div > div:first-child {
 	color: var(--pgp-ink) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card p,
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card p {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge].pge-card p,
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge].pge-card p {
 	color: var(--pgp-body) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card a,
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card a {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge].pge-card a,
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge].pge-card a {
 	/* --pgp-accent-fill, not --pge-color-primary: this is a FILL behind white
 	   text, and dark mode lightens the primary so accent TEXT stays legible
 	   on dark cards. Using the text accent here would wash the button out. */
@@ -343,17 +343,17 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card a {
 	border-radius: 10px !important;
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 2px 8px rgba(27, 59, 235, .25) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge].tb-card a:hover,
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge].tb-card a:hover {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge].pge-card a:hover,
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge].pge-card a:hover {
 	background: var(--pge-color-primary-strong, #0c1b9e) !important;
 }
-body.tb-portal-testprep.tb-portal-testprep [data-retake-nudge="dismiss"],
-body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
+body.pge-portal-testprep.pge-portal-testprep [data-retake-nudge="dismiss"],
+body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge="dismiss"] {
 	color: var(--pge-ink-400, #868fb6) !important;
 }
 
 /* ── Profile-gate banner: urgent but composed ── */
-#tb-profile-gate-banner {
+#pge-profile-gate-banner {
 	background: var(--pge-color-ink-2, #151c42) !important;
 	color: #ffffff !important;
 	border-bottom: 0 !important;
@@ -361,24 +361,24 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	animation: none !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
-#tb-profile-gate-banner::before {
+#pge-profile-gate-banner::before {
 	content: "";
 	display: block;
 	height: 3px;
 	background: var(--pge-color-danger, #DC2626);
 }
-#tb-profile-gate-banner > div > div:first-child {
+#pge-profile-gate-banner > div > div:first-child {
 	background: rgba(220, 38, 38, .18) !important;
 	border: 1px solid rgba(220, 38, 38, .45) !important;
 	border-radius: 10px !important;
 	animation: none !important;
 	color: #FCA5A5;
 }
-#tb-profile-gate-banner strong {
+#pge-profile-gate-banner strong {
 	font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
 }
-#tb-profile-gate-banner a {
+#pge-profile-gate-banner a {
 	background: #ffffff !important;
 	color: var(--pge-color-ink, #03050f) !important;
 	border: 0 !important;
@@ -389,31 +389,31 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LOGIN / GET-STARTED (signup) — .tb-lg-* split-screen template.
+   LOGIN / GET-STARTED (signup) — .pge-lg-* split-screen template.
    Plugin prints its CSS inline in wp_footer, so overrides carry
    !important. US-school flag colors stay flag-true in the tricolor;
    everything else uses the kit system.
    ═══════════════════════════════════════════════════════════════ */
-.tb-lg-wrapper {
+.pge-lg-wrapper {
 	border: 1px solid var(--pgp-line) !important;
 	border-radius: 16px !important;
 	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
 	background: var(--pgp-surface) !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
-.tb-lg-theme-us-school .tb-lg-brand,
-.tb-lg-theme-edu .tb-lg-brand {
+.pge-lg-theme-us-school .pge-lg-brand,
+.pge-lg-theme-edu .pge-lg-brand {
 	background:
 		radial-gradient(720px 480px at 82% -10%, rgba(10, 132, 255, .28), transparent 60%),
 		linear-gradient(160deg, var(--pge-color-ink, #03050f), var(--pge-color-ink-2, #151c42)) !important;
 }
 /* Flag tricolor stays flag-true — the country-of-operation cue. */
-.tb-lg-theme-us-school .tb-lg-tricolor { height: 4px !important; }
-.tb-lg-theme-us-school .tb-lg-tri-saffron { background: #B22234 !important; }
-.tb-lg-theme-us-school .tb-lg-tri-white   { background: #F5F1E8 !important; display: block !important; }
-.tb-lg-theme-us-school .tb-lg-tri-green   { background: #3C3B6E !important; }
+.pge-lg-theme-us-school .pge-lg-tricolor { height: 4px !important; }
+.pge-lg-theme-us-school .pge-lg-tri-saffron { background: #B22234 !important; }
+.pge-lg-theme-us-school .pge-lg-tri-white   { background: #F5F1E8 !important; display: block !important; }
+.pge-lg-theme-us-school .pge-lg-tri-green   { background: #3C3B6E !important; }
 /* Star watermark — USA counterpart of the India chakra */
-.tb-lg-theme-us-school .tb-lg-brand::after {
+.pge-lg-theme-us-school .pge-lg-brand::after {
 	content: "";
 	position: absolute;
 	top: 28px; right: 20px;
@@ -423,26 +423,26 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	transform: rotate(12deg);
 	pointer-events: none;
 }
-.tb-lg-brand-title, .tb-lg-form-title {
+.pge-lg-brand-title, .pge-lg-form-title {
 	font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
 	letter-spacing: -0.02em;
 }
-.tb-lg-theme-us-school .tb-lg-brand-title-accent,
-.tb-lg-wrapper .tb-lg-brand-title-accent {
+.pge-lg-theme-us-school .pge-lg-brand-title-accent,
+.pge-lg-wrapper .pge-lg-brand-title-accent {
 	color: var(--pge-color-on-dark, #6ba4ff) !important;
 	background: none !important;
 	-webkit-background-clip: initial !important;
 	background-clip: initial !important;
 	-webkit-text-fill-color: var(--pge-color-on-dark, #6ba4ff) !important;
 }
-.tb-lg-theme-us-school .tb-lg-feature-icon { color: var(--pge-color-on-dark, #6ba4ff) !important; }
-.tb-lg-theme-us-school .tb-lg-input:focus {
+.pge-lg-theme-us-school .pge-lg-feature-icon { color: var(--pge-color-on-dark, #6ba4ff) !important; }
+.pge-lg-theme-us-school .pge-lg-input:focus {
 	border-color: var(--pge-color-primary, #1b3beb) !important;
 	box-shadow: 0 0 0 3px rgba(27, 59, 235, .22) !important;
 }
-.tb-lg-theme-us-school .tb-lg-btn,
-.tb-lg-theme-edu .tb-lg-btn {
+.pge-lg-theme-us-school .pge-lg-btn,
+.pge-lg-theme-edu .pge-lg-btn {
 	background: var(--pge-color-primary, #1b3beb) !important;
 	color: #ffffff !important;
 	border: 0 !important;
@@ -451,44 +451,44 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
 }
-.tb-lg-theme-us-school .tb-lg-btn:hover,
-.tb-lg-theme-edu .tb-lg-btn:hover {
+.pge-lg-theme-us-school .pge-lg-btn:hover,
+.pge-lg-theme-edu .pge-lg-btn:hover {
 	background: var(--pge-color-primary-strong, #0c1b9e) !important;
 	transform: translateY(-1px);
 	box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 24px -12px rgba(18,38,200,.4) !important;
 }
-.tb-lg-theme-us-school .tb-lg-forgot,
-.tb-lg-theme-us-school .tb-lg-signup-prompt a { color: var(--pge-color-primary, #1b3beb) !important; }
-.tb-lg-tabs { border: 1px solid var(--pgp-line) !important; border-radius: 10px !important; overflow: hidden; }
-.tb-lg-tab.active, .tb-lg-tab[aria-selected="true"] {
+.pge-lg-theme-us-school .pge-lg-forgot,
+.pge-lg-theme-us-school .pge-lg-signup-prompt a { color: var(--pge-color-primary, #1b3beb) !important; }
+.pge-lg-tabs { border: 1px solid var(--pgp-line) !important; border-radius: 10px !important; overflow: hidden; }
+.pge-lg-tab.active, .pge-lg-tab[aria-selected="true"] {
 	background: var(--pge-color-primary, #1b3beb) !important;
 	color: #ffffff !important;
 }
 /* The inactive tab, the field hairlines, the divider and the legal links
    were the one corner of this page the color-only fix above can't reach —
    they were never tied to $primary, just hardcoded slate. */
-.tb-lg-tab:not(.is-active):not([aria-selected="true"]) { color: var(--pge-ink-500, #5f6894) !important; }
-.tb-lg-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
-.tb-lg-divider { color: var(--pge-ink-400, #868fb6) !important; }
-.tb-lg-divider::before, .tb-lg-divider::after { background: var(--pge-color-line, #dbe0f1) !important; }
-.tb-lg-legal { color: var(--pge-ink-400, #868fb6) !important; }
-.tb-lg-legal a { color: var(--pge-ink-500, #5f6894) !important; }
-.tb-lg-legal a:hover { color: var(--pge-color-ink, #03050f) !important; }
-.tb-lg-social .nsl-container-buttons a { border-color: var(--pge-color-line, #dbe0f1) !important; }
+.pge-lg-tab:not(.is-active):not([aria-selected="true"]) { color: var(--pge-ink-500, #5f6894) !important; }
+.pge-lg-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
+.pge-lg-divider { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-lg-divider::before, .pge-lg-divider::after { background: var(--pge-color-line, #dbe0f1) !important; }
+.pge-lg-legal { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-lg-legal a { color: var(--pge-ink-500, #5f6894) !important; }
+.pge-lg-legal a:hover { color: var(--pge-color-ink, #03050f) !important; }
+.pge-lg-social .nsl-container-buttons a { border-color: var(--pge-color-line, #dbe0f1) !important; }
 
 /* Error / success notices. Both login.php and its forgot-password panel set
    these via `style="background:#fef2f2;…"` directly on the element — an
    inline style an external stylesheet can only beat with !important, no
    matter how specific the selector. Colours map to the kit's semantic red
    and green rather than the plugin's literal hexes. */
-#tb-lg-error, #tb-fp-error {
+#pge-lg-error, #pge-fp-error {
 	background: var(--pge-red-50, #fef2f2) !important;
 	border-color: var(--pge-red-600, #dc2626) !important;
 	color: var(--pge-red-600, #dc2626) !important;
 	border-radius: 10px !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
-#tb-lg-success, #tb-fp-success {
+#pge-lg-success, #pge-fp-success {
 	background: var(--pge-green-50, #f0fdf4) !important;
 	border-color: var(--pge-green-600, #16a34a) !important;
 	color: var(--pge-green-600, #16a34a) !important;
@@ -500,113 +500,113 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
    login-styles.php — same class-based pattern as the notices above, so no
    !important fight this time, but kept for consistency with the rest of
    this section. */
-.tb-lg-wrapper .tb-sl-message-error {
+.pge-lg-wrapper .pge-sl-message-error {
 	background: var(--pge-red-50, #fef2f2) !important;
 	border-color: var(--pge-red-600, #dc2626) !important;
 	color: var(--pge-red-600, #dc2626) !important;
 }
-.tb-lg-wrapper .tb-sl-message-success {
+.pge-lg-wrapper .pge-sl-message-success {
 	background: var(--pge-green-50, #f0fdf4) !important;
 	border-color: var(--pge-green-600, #16a34a) !important;
 	color: var(--pge-green-600, #16a34a) !important;
 }
-.tb-lg-wrapper .tb-lg-trust-row { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
-.tb-lg-wrapper .tb-lg-trust-row span { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-lg-wrapper .pge-lg-trust-row { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
+.pge-lg-wrapper .pge-lg-trust-row span { color: var(--pge-ink-400, #868fb6) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   PASSWORD RESET — .tb-rp-* (templates/public/password-reset.php).
+   PASSWORD RESET — .pge-rp-* (templates/public/password-reset.php).
    Zero theme coverage before this: the whole page was on the retired
    system font stack, slate palette and a diagonal-gradient hero. Colour
    already tracks $primary now that PGT_BRAND_PRIMARY filters the
    `pge_primary_color` option in functions.php — this section is the
    typography/shape/shadow half color alone can't fix.
    ═══════════════════════════════════════════════════════════════ */
-.tb-rp-wrapper { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
-.tb-rp-hero {
-	/* Same ink + radial-glow treatment as .tb-lg-brand, so a visitor who
+.pge-rp-wrapper { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.pge-rp-hero {
+	/* Same ink + radial-glow treatment as .pge-lg-brand, so a visitor who
 	   just came from /login/ reads this as the same product, not a diagonal
 	   brand-blue gradient with no connection to the page before it. */
 	background:
 		radial-gradient(720px 480px at 82% -10%, rgba(10, 132, 255, .28), transparent 60%),
 		linear-gradient(160deg, var(--pge-color-ink, #03050f), var(--pge-color-ink-2, #151c42)) !important;
 }
-/* .tb-rp-hero-title is an <h1> on a dark gradient, and the engine's global
-   rule (body.tb-portal-*:not(:has(.tb-gje-v5)) h1..h4 { color: ink !important })
+/* .pge-rp-hero-title is an <h1> on a dark gradient, and the engine's global
+   rule (body.pge-portal-*:not(:has(.pge-gje-v5)) h1..h4 { color: ink !important })
    — the same one that hid the module page hero titles — paints it ink-on-ink
    here too, since this page keeps its header/footer chrome (unlike
-   login/signup) and so carries the tb-portal-* body class. */
-.tb-rp-hero-title {
+   login/signup) and so carries the pge-portal-* body class. */
+.pge-rp-hero-title {
 	font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important;
 	font-weight: 600 !important;
 	letter-spacing: -.02em;
 	color: #fff !important;
 	-webkit-text-fill-color: #fff !important;
 }
-.tb-rp-card-inner {
+.pge-rp-card-inner {
 	border: 1px solid var(--pgp-line, #dbe0f1) !important;
 	border-radius: var(--pge-radius-lg, 20px) !important;
 	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
 }
-.tb-rp-form-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
-.tb-rp-form-sub { color: var(--pge-ink-400, #868fb6) !important; }
-.tb-rp-label { color: var(--pge-color-body, #3d4570) !important; }
-.tb-rp-req { color: var(--pge-red-600, #dc2626) !important; }
-.tb-rp-input { border-color: var(--pge-color-line, #dbe0f1) !important; color: var(--pge-color-ink, #03050f) !important; }
-.tb-rp-strength-bar { background: var(--pge-gray-100, #eceff9) !important; }
+.pge-rp-form-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
+.pge-rp-form-sub { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-rp-label { color: var(--pge-color-body, #3d4570) !important; }
+.pge-rp-req { color: var(--pge-red-600, #dc2626) !important; }
+.pge-rp-input { border-color: var(--pge-color-line, #dbe0f1) !important; color: var(--pge-color-ink, #03050f) !important; }
+.pge-rp-strength-bar { background: var(--pge-gray-100, #eceff9) !important; }
 /* Flat, not the plugin's diagonal gradient — the redesign's buttons are
    solid fills; the brand-color hover comes from a darker token step, not
    opacity, matching every other primary button on the site. */
-.tb-rp-btn {
+.pge-rp-btn {
 	background: var(--pge-color-primary, #1b3beb) !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
 }
-.tb-rp-btn:hover { background: var(--pge-color-primary-strong, #0c1b9e) !important; opacity: 1 !important; }
-.tb-rp-trust { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
-.tb-rp-trust span { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-rp-btn:hover { background: var(--pge-color-primary-strong, #0c1b9e) !important; opacity: 1 !important; }
+.pge-rp-trust { border-top-color: var(--pge-color-line, #dbe0f1) !important; }
+.pge-rp-trust span { color: var(--pge-ink-400, #868fb6) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   EMAIL VERIFICATION — .tb-verify-* / .tb-otp-*
+   EMAIL VERIFICATION — .pge-verify-* / .pge-otp-*
    (templates/public/email-verification.php). Same story as password
    reset: zero coverage, system fonts, slate palette. The verify/resend/
    update buttons set `style="background:$primary"` inline per-element —
    fixed automatically by the option filter, no override needed here.
    ═══════════════════════════════════════════════════════════════ */
-.tb-verify-wrap { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
-.tb-verify-card {
+.pge-verify-wrap { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.pge-verify-card {
 	border: 1px solid var(--pgp-line, #dbe0f1) !important;
 	border-radius: var(--pge-radius-lg, 20px) !important;
 	box-shadow: var(--pge-shadow-lg, 0 24px 48px -16px rgba(18,38,200,.22)) !important;
 }
-.tb-verify-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
-.tb-verify-desc { color: var(--pge-ink-400, #868fb6) !important; }
-.tb-verify-desc strong { color: var(--pge-color-body, #3d4570) !important; }
+.pge-verify-title { font-family: var(--pge-font-heading, 'Outfit', sans-serif) !important; color: var(--pge-color-ink, #03050f) !important; }
+.pge-verify-desc { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-verify-desc strong { color: var(--pge-color-body, #3d4570) !important; }
 /* Numeral entry — mono face, same as every other numeric field in the
    redesign (scores, prices, question counts). */
-.tb-otp-input {
+.pge-otp-input {
 	border-color: var(--pge-color-line, #dbe0f1) !important;
 	color: var(--pge-color-ink, #03050f) !important;
 	background: var(--pge-gray-50, #f6f7fc) !important;
 	font-family: var(--pge-font-mono, monospace) !important;
 }
-.tb-otp-input:focus { background: var(--pge-white, #fff) !important; }
-.tb-verify-status { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
-.tb-status-error {
+.pge-otp-input:focus { background: var(--pge-white, #fff) !important; }
+.pge-verify-status { font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important; }
+.pge-status-error {
 	background: var(--pge-red-50, #fef2f2) !important;
 	color: var(--pge-red-600, #dc2626) !important;
 	border-color: var(--pge-red-600, #dc2626) !important;
 }
-.tb-status-success {
+.pge-status-success {
 	background: var(--pge-green-50, #f0fdf4) !important;
 	color: var(--pge-green-600, #16a34a) !important;
 	border-color: var(--pge-green-600, #16a34a) !important;
 }
-.tb-verify-resend { color: var(--pge-ink-400, #868fb6) !important; }
-.tb-email-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
+.pge-verify-resend { color: var(--pge-ink-400, #868fb6) !important; }
+.pge-email-input { border-color: var(--pge-color-line, #dbe0f1) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
    LOGGED-OUT GATE — .pge-login-required (templates/public/login-required.php).
    Shown on student-only surfaces (e.g. the Excel portal) to a logged-out
-   visitor. Its CTA carries classes `tb-btn tb-btn-primary`, which are only
+   visitor. Its CTA carries classes `pge-btn pge-btn-primary`, which are only
    ever DEFINED in the React bundle's compiled CSS — on a marketing page
    that never loads that bundle, the button was bare underlined link text.
    Styled directly here instead of chasing that class into existing.
@@ -635,7 +635,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ALL-EXAMS / exam search — .tb-es__*
+   ALL-EXAMS / exam search — .pge-es__*
    Styling now lives in the plugin's own component stylesheet
    (templates/public/exam-search-styles.php), which consumes the
    --pge-* token contract directly. Theme-side overrides removed —
@@ -644,7 +644,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Floating CTA pill: amber → brand gradient ── */
-#tb-floating-cta-btn {
+#pge-floating-cta-btn {
 	background: var(--pge-gradient, linear-gradient(135deg, #0c1b9e, #0a84ff, #4d93ff)) !important;
 	color: #fff !important;
 	font-family: var(--pge-font-sans, 'Outfit', sans-serif) !important;
@@ -652,7 +652,7 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 	box-shadow: 0 8px 24px -8px rgba(18, 38, 200, .5) !important;
 	animation: none !important;
 }
-#tb-floating-cta-btn:hover {
+#pge-floating-cta-btn:hover {
 	box-shadow: 0 12px 32px -8px rgba(18, 38, 200, .6) !important;
 }
 
@@ -719,8 +719,8 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-	body.tb-portal-testprep.tb-portal-testprep *,
-	body.tb-portal-competitive.tb-portal-competitive * {
+	body.pge-portal-testprep.pge-portal-testprep *,
+	body.pge-portal-competitive.pge-portal-competitive * {
 		transition: none !important;
 	}
 }
@@ -743,13 +743,13 @@ body.tb-portal-competitive.tb-portal-competitive [data-retake-nudge="dismiss"] {
 
 /* Portal ground. One quiet surface — the old animated multi-radial azure
    wash is retired along with the neumorphism. */
-body.tb-portal-competitive,
-body.tb-portal-testprep {
+body.pge-portal-competitive,
+body.pge-portal-testprep {
 	background: var(--pgp-surface-2);
 	color: var(--pgp-ink);
 }
 
-.tb-dash {
+.pge-dash {
 	max-width: 1200px;
 	margin: clamp(18px, 3vw, 28px) auto clamp(40px, 5vw, 56px);
 	padding: 0 clamp(14px, 3vw, 28px);
@@ -760,7 +760,7 @@ body.tb-portal-testprep {
 	font-family: var(--pge-font-sans);
 }
 /* 240px on desktop, full width when it wraps — no media query needed. */
-.tb-dash-sidebar {
+.pge-dash-sidebar {
 	flex: 1 1 240px;
 	max-width: 280px;
 	width: auto;
@@ -773,9 +773,9 @@ body.tb-portal-testprep {
 	align-self: flex-start;
 	box-shadow: none;
 }
-.tb-dash-content { flex: 999 1 560px; min-width: 0; }
+.pge-dash-content { flex: 999 1 560px; min-width: 0; }
 
-.tb-dash-sidebar-header {
+.pge-dash-sidebar-header {
 	display: flex;
 	align-items: center;
 	gap: 11px;
@@ -783,14 +783,14 @@ body.tb-portal-testprep {
 	border-bottom: 1px solid var(--pge-gray-100);
 	margin-bottom: 10px;
 }
-.tb-dash-sidebar-brandchip {
+.pge-dash-sidebar-brandchip {
 	width: 40px; height: 40px; flex-shrink: 0;
 	border-radius: 50%;
 	background: var(--pge-gradient);
 	display: flex; align-items: center; justify-content: center;
 	box-shadow: none;
 }
-.tb-dash-sidebar-header h2 {
+.pge-dash-sidebar-header h2 {
 	margin: 0;
 	font-size: 14.5px;
 	font-weight: 600;
@@ -801,12 +801,12 @@ body.tb-portal-testprep {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-.tb-dash-sidebar-header p { margin: 2px 0 0; font-size: 12px; color: var(--pge-ink-400); font-weight: 400; }
+.pge-dash-sidebar-header p { margin: 2px 0 0; font-size: 12px; color: var(--pge-ink-400); font-weight: 400; }
 
 /* Nav rows: 44px targets, pill-adjacent 12px radius, tint when active. The
    sliding left rail and the translateX hover are gone — 120–150ms, no
    bounces, no motion that moves a hit target under the cursor. */
-.tb-dash-nav-item {
+.pge-dash-nav-item {
 	display: flex;
 	align-items: center;
 	gap: 11px;
@@ -825,9 +825,9 @@ body.tb-portal-testprep {
 	font-family: inherit;
 	transition: background-color 140ms ease, color 140ms ease;
 }
-.tb-dash-nav-item::before { content: none; }
-.tb-dash-nav-item:hover { background: var(--pgp-surface-2); color: var(--pgp-ink); transform: none; }
-.tb-dash-nav-item.active {
+.pge-dash-nav-item::before { content: none; }
+.pge-dash-nav-item:hover { background: var(--pgp-surface-2); color: var(--pgp-ink); transform: none; }
+.pge-dash-nav-item.active {
 	background: var(--pge-blue-50);
 	color: var(--pge-color-primary);
 	font-weight: 600;
@@ -835,20 +835,20 @@ body.tb-portal-testprep {
 	outline: none;
 	border: none;
 }
-.tb-dash-nav-icon { width: 17px; height: 17px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
-.tb-dash-nav-divider { height: 1px; background: var(--pge-gray-100); margin: 10px 0; }
-.tb-dash-nav-item--quiet { font-size: 13px; font-weight: 500; color: var(--pge-ink-400); }
+.pge-dash-nav-icon { width: 17px; height: 17px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.pge-dash-nav-divider { height: 1px; background: var(--pge-gray-100); margin: 10px 0; }
+.pge-dash-nav-item--quiet { font-size: 13px; font-weight: 500; color: var(--pge-ink-400); }
 
 /* Flat cards. Explicitly overrides the neumorphic stat treatment (§11:
-   "This replaces .tb-neu-stat. Drop the neumorphic treatment entirely"). */
-body.tb-portal-competitive .tb-card,
-body.tb-portal-competitive .tb-neu-stat,
-body.tb-portal-competitive .tb-neu-card,
-body.tb-portal-competitive .tb-empty-state,
-body.tb-portal-testprep .tb-card,
-body.tb-portal-testprep .tb-neu-stat,
-body.tb-portal-testprep .tb-neu-card,
-body.tb-portal-testprep .tb-empty-state {
+   "This replaces .pge-neu-stat. Drop the neumorphic treatment entirely"). */
+body.pge-portal-competitive .pge-card,
+body.pge-portal-competitive .pge-neu-stat,
+body.pge-portal-competitive .pge-neu-card,
+body.pge-portal-competitive .pge-empty-state,
+body.pge-portal-testprep .pge-card,
+body.pge-portal-testprep .pge-neu-stat,
+body.pge-portal-testprep .pge-neu-card,
+body.pge-portal-testprep .pge-empty-state {
 	background: var(--pgp-surface);
 	border: 1px solid var(--pgp-line);
 	border-radius: 20px;
@@ -857,17 +857,17 @@ body.tb-portal-testprep .tb-empty-state {
 	-webkit-backdrop-filter: none;
 	transition: box-shadow 140ms ease, transform 140ms ease;
 }
-body.tb-portal-competitive .tb-card:hover,
-body.tb-portal-testprep .tb-card:hover {
+body.pge-portal-competitive .pge-card:hover,
+body.pge-portal-testprep .pge-card:hover {
 	transform: translateY(-1px);
 	box-shadow: var(--pge-shadow-md);
 }
-body.tb-portal-competitive .tb-card-header,
-body.tb-portal-testprep .tb-card-header {
+body.pge-portal-competitive .pge-card-header,
+body.pge-portal-testprep .pge-card-header {
 	border-bottom: 1px solid var(--pge-gray-100);
 }
-body.tb-portal-competitive .tb-neu-stat-value,
-body.tb-portal-testprep .tb-neu-stat-value {
+body.pge-portal-competitive .pge-neu-stat-value,
+body.pge-portal-testprep .pge-neu-stat-value {
 	font-family: var(--pge-font-mono);
 	font-size: 28px;
 	font-weight: 700;
@@ -876,16 +876,16 @@ body.tb-portal-testprep .tb-neu-stat-value {
 	-webkit-text-fill-color: currentColor;
 	background: none;
 }
-body.tb-portal-competitive .tb-neu-stat-label,
-body.tb-portal-testprep .tb-neu-stat-label {
+body.pge-portal-competitive .pge-neu-stat-label,
+body.pge-portal-testprep .pge-neu-stat-label {
 	font-size: 11.5px;
 	font-weight: 700;
 	letter-spacing: .06em;
 	text-transform: uppercase;
 	color: var(--pge-ink-400);
 }
-body.tb-portal-competitive .tb-neu-stat-icon,
-body.tb-portal-testprep .tb-neu-stat-icon {
+body.pge-portal-competitive .pge-neu-stat-icon,
+body.pge-portal-testprep .pge-neu-stat-icon {
 	width: 30px; height: 30px;
 	border-radius: 10px;
 	background: var(--pge-blue-50);
@@ -893,17 +893,17 @@ body.tb-portal-testprep .tb-neu-stat-icon {
 	box-shadow: none;
 	display: inline-flex; align-items: center; justify-content: center;
 }
-body.tb-portal-competitive .tb-neu-stat:hover .tb-neu-stat-icon,
-body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; }
+body.pge-portal-competitive .pge-neu-stat:hover .pge-neu-stat-icon,
+body.pge-portal-testprep .pge-neu-stat:hover .pge-neu-stat-icon { transform: none; }
 
-/* Score bands (§11) — replaces tb-badge-green / -warning / -red. */
-.tb-band { display: inline-flex; align-items: center; font-family: var(--pge-font-mono); font-size: 12.5px; font-weight: 700; border-radius: var(--pge-radius-pill); padding: 5px 11px; }
-.tb-band--high { color: #15803d; background: #f0fdf4; }
-.tb-band--mid  { color: #b45309; background: #fffbeb; }
-.tb-band--low  { color: #b91c1c; background: #fef2f2; }
+/* Score bands (§11) — replaces pge-badge-green / -warning / -red. */
+.pge-band { display: inline-flex; align-items: center; font-family: var(--pge-font-mono); font-size: 12.5px; font-weight: 700; border-radius: var(--pge-radius-pill); padding: 5px 11px; }
+.pge-band--high { color: #15803d; background: #f0fdf4; }
+.pge-band--mid  { color: #b45309; background: #fffbeb; }
+.pge-band--low  { color: #b91c1c; background: #fef2f2; }
 
 /* "Retired" badge — the standard level-badge spec, not the old square chip. */
-.tb-retired-badge {
+.pge-retired-badge {
 	display: inline-flex;
 	align-items: center;
 	font-size: 10.5px;
@@ -931,7 +931,7 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
  *     stacked, and the tables never shrank.
  * The structure is restored below; the styling is the A1 system, not the
  * hardcoded hexes the original used. */
-.tb-dash-mobile-bar {
+.pge-dash-mobile-bar {
 	display: none; /* shown by the max-width:768px block at the end of this file */
 	background: var(--pgp-surface);
 	border: 1px solid var(--pgp-line);
@@ -942,8 +942,8 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
 }
 /* Both controls are <button>s: reset the UA chrome or they render as
  * grey 2px-outset system buttons. */
-.tb-dash-mobile-toggle,
-.tb-dash-mobile-item {
+.pge-dash-mobile-toggle,
+.pge-dash-mobile-item {
 	border: none;
 	background: none;
 	cursor: pointer;
@@ -952,7 +952,7 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
 	-webkit-appearance: none;
 	appearance: none;
 }
-.tb-dash-mobile-toggle {
+.pge-dash-mobile-toggle {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -962,16 +962,16 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
 	font-weight: 600;
 	color: var(--pgp-ink);
 }
-.tb-dash-mobile-toggle svg { transition: transform .2s var(--pgt-ease, ease); }
-.tb-dash-mobile-toggle.open svg { transform: rotate(180deg); }
-.tb-dash-mobile-dropdown {
+.pge-dash-mobile-toggle svg { transition: transform .2s var(--pgt-ease, ease); }
+.pge-dash-mobile-toggle.open svg { transform: rotate(180deg); }
+.pge-dash-mobile-dropdown {
 	display: none;
 	margin-top: 10px;
 	padding-top: 10px;
 	border-top: 1px solid var(--pge-color-line);
 }
-.tb-dash-mobile-dropdown.open { display: block; }
-.tb-dash-mobile-item {
+.pge-dash-mobile-dropdown.open { display: block; }
+.pge-dash-mobile-item {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -982,36 +982,36 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
 	font-size: 14px;
 	color: var(--pgp-body);
 }
-.tb-dash-mobile-item:hover { background: var(--pgp-surface-2); }
-.tb-dash-mobile-item.active { background: var(--pge-blue-50); color: var(--pge-color-primary); font-weight: 600; }
+.pge-dash-mobile-item:hover { background: var(--pgp-surface-2); }
+.pge-dash-mobile-item.active { background: var(--pge-blue-50); color: var(--pge-color-primary); font-weight: 600; }
 
 /* ── Portal responsive layer (was the inline block's max-width:768px) ── */
 @media (max-width: 768px) {
-	.tb-dash {
+	.pge-dash {
 		flex-direction: column;
 		gap: 0;
 		margin: 16px auto !important;
 		padding: 0 12px !important;
 		max-width: 100% !important;
 	}
-	.tb-dash-sidebar { display: none; }
-	.tb-dash-mobile-bar { display: block; }
-	.tb-dash-content { min-width: 0; width: 100%; overflow-x: hidden; }
-	.tb-dash-content .tb-card { overflow: hidden; word-break: break-word; border-radius: 8px; }
-	.tb-dash-content table { font-size: 13px !important; }
+	.pge-dash-sidebar { display: none; }
+	.pge-dash-mobile-bar { display: block; }
+	.pge-dash-content { min-width: 0; width: 100%; overflow-x: hidden; }
+	.pge-dash-content .pge-card { overflow: hidden; word-break: break-word; border-radius: 8px; }
+	.pge-dash-content table { font-size: 13px !important; }
 	/* Two-column grids collapse to one. */
-	.tb-perf-charts,
-	.tb-profile-row { grid-template-columns: 1fr !important; }
+	.pge-perf-charts,
+	.pge-profile-row { grid-template-columns: 1fr !important; }
 	/* Results toolbar: search and filter stack instead of squeezing. */
-	.tb-results-toolbar { flex-direction: column; }
-	.tb-results-toolbar > div:first-child { max-width: 100% !important; flex: 1 1 100% !important; }
-	.tb-results-toolbar .tb-select { width: 100% !important; }
+	.pge-results-toolbar { flex-direction: column; }
+	.pge-results-toolbar > div:first-child { max-width: 100% !important; flex: 1 1 100% !important; }
+	.pge-results-toolbar .pge-select { width: 100% !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.tb-dash-nav-item,
-	body.tb-portal-competitive .tb-card,
-	body.tb-portal-testprep .tb-card { transition: none; }
+	.pge-dash-nav-item,
+	body.pge-portal-competitive .pge-card,
+	body.pge-portal-testprep .pge-card { transition: none; }
 }
 
 /* Dark theme (Acorn Next) — same attribute as the rest of the app, and the
@@ -1023,47 +1023,47 @@ body.tb-portal-testprep .tb-neu-stat:hover .tb-neu-stat-icon { transform: none; 
  * rule near the top skips `.pg-app` bodies (they paint their own module
  * ground), which left the portal inheriting the UA default black — invisible
  * once the surfaces went dark. */
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive:has(.pge-pro-app),
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep:has(.pge-pro-app) { background: #0f131c; color: #eef2f9; }
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive:has(.pge-pro-app),
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep:has(.pge-pro-app) { background: #0f131c; color: #eef2f9; }
 html[data-pge-admin-theme="dark"] .pge-pro-app,
-html[data-pge-admin-theme="dark"] .pge-pro-app .tb-card,
-html[data-pge-admin-theme="dark"] .pge-pro-app .tb-dash,
-html[data-pge-admin-theme="dark"] .pge-pro-app .tb-dash-content { color: var(--pgp-ink, #eef2f9); }
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-dash-sidebar,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-dash-sidebar,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-card,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-card,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-empty-state,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-empty-state {
+html[data-pge-admin-theme="dark"] .pge-pro-app .pge-card,
+html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash,
+html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-content { color: var(--pgp-ink, #eef2f9); }
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-dash-sidebar,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-dash-sidebar,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-card,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-card,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-empty-state,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-empty-state {
 	background: #1c2230;
 	border-color: #2a3345;
 }
-html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header h2,
-html[data-pge-admin-theme="dark"] .tb-dash-nav-item,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat-value,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat-value { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header p,
-html[data-pge-admin-theme="dark"] .tb-dash-nav-item--quiet,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-neu-stat-label,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-neu-stat-label { color: #93a0b5; }
-html[data-pge-admin-theme="dark"] .tb-dash-nav-item:hover { background: #232c3d; color: #fff; }
-html[data-pge-admin-theme="dark"] .tb-dash-nav-item.active { background: #232c3d; color: #6ba4ff; }
-html[data-pge-admin-theme="dark"] .tb-dash-nav-divider,
-html[data-pge-admin-theme="dark"] .tb-dash-sidebar-header,
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-card-header { border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .tb-dash-mobile-bar,
-html[data-pge-admin-theme="dark"] .tb-dash-mobile-dropdown { background: #1c2230; border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .tb-dash-mobile-item { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .tb-dash-mobile-item:hover,
-html[data-pge-admin-theme="dark"] .tb-dash-mobile-item.active { background: #232c3d; }
+html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header h2,
+html[data-pge-admin-theme="dark"] .pge-dash-nav-item,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat-value,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat-value { color: #eef2f9; }
+html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header p,
+html[data-pge-admin-theme="dark"] .pge-dash-nav-item--quiet,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat-label,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat-label { color: #93a0b5; }
+html[data-pge-admin-theme="dark"] .pge-dash-nav-item:hover { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"] .pge-dash-nav-item.active { background: #232c3d; color: #6ba4ff; }
+html[data-pge-admin-theme="dark"] .pge-dash-nav-divider,
+html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header,
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-card-header { border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pge-dash-mobile-bar,
+html[data-pge-admin-theme="dark"] .pge-dash-mobile-dropdown { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"] .pge-dash-mobile-item { color: #eef2f9; }
+html[data-pge-admin-theme="dark"] .pge-dash-mobile-item:hover,
+html[data-pge-admin-theme="dark"] .pge-dash-mobile-item.active { background: #232c3d; }
 
 /* Score bands (README §11) — the badge classes every portal surface already
    uses are restyled in place, so RecentActivityList, ResultsHistoryTable and
    the rest pick up the new bands without touching their markup. */
-body.tb-portal-competitive .tb-badge,
-body.tb-portal-testprep .tb-badge {
+body.pge-portal-competitive .pge-badge,
+body.pge-portal-testprep .pge-badge {
 	display: inline-flex;
 	align-items: center;
 	font-family: var(--pge-font-mono);
@@ -1073,20 +1073,20 @@ body.tb-portal-testprep .tb-badge {
 	padding: 5px 11px;
 	border: 0;
 }
-body.tb-portal-competitive .tb-badge-green,
-body.tb-portal-testprep .tb-badge-green   { color: #15803d; background: #f0fdf4; }
-body.tb-portal-competitive .tb-badge-warning,
-body.tb-portal-competitive .tb-badge-yellow,
-body.tb-portal-testprep .tb-badge-warning,
-body.tb-portal-testprep .tb-badge-yellow  { color: #b45309; background: #fffbeb; }
-body.tb-portal-competitive .tb-badge-red,
-body.tb-portal-testprep .tb-badge-red     { color: #b91c1c; background: #fef2f2; }
+body.pge-portal-competitive .pge-badge-green,
+body.pge-portal-testprep .pge-badge-green   { color: #15803d; background: #f0fdf4; }
+body.pge-portal-competitive .pge-badge-warning,
+body.pge-portal-competitive .pge-badge-yellow,
+body.pge-portal-testprep .pge-badge-warning,
+body.pge-portal-testprep .pge-badge-yellow  { color: #b45309; background: #fffbeb; }
+body.pge-portal-competitive .pge-badge-red,
+body.pge-portal-testprep .pge-badge-red     { color: #b91c1c; background: #fef2f2; }
 
 
 /* ══════════════════════════════════════════════════════════════════════
    DARK THEME OVERRIDES
    These live at the END of the file on purpose. Several of the light rules
-   above are `body.tb-portal-x.tb-portal-x .thing.state { … !important }`,
+   above are `body.pge-portal-x.pge-portal-x .thing.state { … !important }`,
    which is specificity (0,4,1) WITH !important — identical weight to a
    `html[data-pge-admin-theme="dark"] .pge-pro-app .thing.state` rule. When
    two !important declarations tie on specificity, source order decides, so
@@ -1118,7 +1118,7 @@ html[data-pge-admin-theme="dark"] .pge-pro-app [style*="239, 246, 255"] { backgr
 html[data-pge-admin-theme="dark"] .pge-pro-app [style*="226, 232, 240"] { background: #232c3d !important; }
 
 /* Headings. The engine forces every h1–h4 to its ink with !important
-   (`body.tb-portal-*:not(:has(.tb-gje-v5)) h1..h4`), which in dark mode
+   (`body.pge-portal-*:not(:has(.pge-gje-v5)) h1..h4`), which in dark mode
    paints them near-black on the dark cards — "Profile Information" and
    "In progress" were invisible. Same fight as the marketing page's on-dark
    headings in theme.css, so it needs !important to win. */
@@ -1129,7 +1129,7 @@ html[data-pge-admin-theme="dark"] .pge-pro-app :is(h1, h2, h3, h4, h5, h6) {
 /* The active sidebar item is a soft-blue plate with brand-blue text; on a
    dark rail that plate has to darken and the text lighten together, or one
    of the two goes unreadable. */
-html[data-pge-admin-theme="dark"] .pge-pro-app .tb-dash-nav-item.active {
+html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-nav-item.active {
 	background: #1b2740 !important;
 	color: #6ba4ff !important;
 }
@@ -1147,25 +1147,25 @@ html[data-pge-admin-theme="dark"] .pge-pro-app {
 /* Blue-800 body copy the bundle sets inline, on the darkened blue plate. */
 html[data-pge-admin-theme="dark"] .pge-pro-app [style*="30, 64, 175"] { color: #93c5fd !important; }
 
-/* --tb-primary does double duty in the bundle: `background: var(--tb-primary)`
-   on filled buttons (white text, fine at #1b3beb) and `color: var(--tb-primary)`
+/* --pge-ui-primary does double duty in the bundle: `background: var(--pge-ui-primary)`
+   on filled buttons (white text, fine at #1b3beb) and `color: var(--pge-ui-primary)`
    on text buttons like "All results →" (2.2:1 on a dark card). The inline
    style itself is what separates the two, so match on it — this reaches only
    the text usages and leaves every fill at brand blue. */
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="color: var(--tb-primary"] {
+html[data-pge-admin-theme="dark"] .pge-pro-app [style*="color: var(--pge-ui-primary"] {
 	color: #6ba4ff !important;
 }
 
 /* Mobile nav, same pairing as the sidebar item above. Hidden at this width,
    but it is the whole navigation on a phone. */
-html[data-pge-admin-theme="dark"] .pge-pro-app .tb-dash-mobile-item.active {
+html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-mobile-item.active {
 	background: #1b2740 !important;
 	color: #6ba4ff !important;
 }
 
 /* Surfaces the engine paints that this file does not otherwise own. */
-html[data-pge-admin-theme="dark"] body.tb-portal-testprep .tb-po-card,
-html[data-pge-admin-theme="dark"] body.tb-portal-competitive .tb-po-card {
+html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-po-card,
+html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-po-card {
 	background: var(--pgp-surface) !important;
 	border-color: var(--pgp-line) !important;
 	color: var(--pgp-ink) !important;

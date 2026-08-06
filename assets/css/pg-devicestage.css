@@ -40,19 +40,19 @@
 	/* Type. One family (Outfit) plus the mono face for numerals. */
 	--pg-display: var(--pge-font-heading);
 	--pg-mono: var(--pge-font-mono);
-	--tb-neu-font: var(--pge-font-sans);
+	--pge-ui-neu-font: var(--pge-font-sans);
 
-	--tb-radius-2xl: 28px;
-	--tb-radius-xl: 18px;
+	--pge-ui-radius-2xl: 28px;
+	--pge-ui-radius-xl: 18px;
 
 	/* Neumorphism retired. Every raised surface becomes flat + hairline, lit
 	   by one cool shadow; every recessed surface becomes a tinted ground
 	   (the border does the work the inset shadow used to). */
-	--tb-neu-out: 0 1px 2px rgba(3, 5, 15, .04), 0 18px 44px -20px rgba(3, 5, 15, .16);
-	--tb-neu-out-sm: 0 1px 2px rgba(3, 5, 15, .04);
-	--tb-neu-out-xs: 0 1px 1px rgba(3, 5, 15, .04);
-	--tb-neu-in: none;
-	--tb-neu-accent-out: 0 8px 18px -8px rgba(27, 59, 235, .45);
+	--pge-ui-neu-out: 0 1px 2px rgba(3, 5, 15, .04), 0 18px 44px -20px rgba(3, 5, 15, .16);
+	--pge-ui-neu-out-sm: 0 1px 2px rgba(3, 5, 15, .04);
+	--pge-ui-neu-out-xs: 0 1px 1px rgba(3, 5, 15, .04);
+	--pge-ui-neu-in: none;
+	--pge-ui-neu-accent-out: 0 8px 18px -8px rgba(27, 59, 235, .45);
 }
 
 /* ── Shells ───────────────────────────────────────────────────────────
@@ -225,7 +225,7 @@
 .pgh-devices .pg-dl__btn--store:hover { box-shadow: 0 12px 24px -10px rgba(3, 5, 15, .55); }
 .pgh-devices .pg-dl__btn--web {
 	background: var(--pge-color-primary);
-	box-shadow: var(--tb-neu-accent-out);
+	box-shadow: var(--pge-ui-neu-accent-out);
 }
 .pgh-devices .pg-dl__btn:focus-visible { outline: var(--pge-focus-ring, 2px solid var(--pge-color-primary)); outline-offset: 3px; }
 

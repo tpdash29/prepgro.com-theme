@@ -20,10 +20,10 @@
  * report showcase panel, for one, rendered 1266px wide inside a 1160px grid
  * and visibly jutted past every other section on the front page.
  *
- * The engine opts each of its own subtrees in (`.tb-hp *`, `.pgw-page *`,
+ * The engine opts each of its own subtrees in (`.pge-hp *`, `.pgw-page *`,
  * `.pgr-page *`), so this reset is additive there and corrective everywhere
  * the theme draws — including the engine's device stage, which is authored
- * for border-box but rendered outside `.tb-hp` when the theme embeds it. */
+ * for border-box but rendered outside `.pge-hp` when the theme embeds it. */
 *,
 *::before,
 *::after {
@@ -713,12 +713,12 @@ main .pgt-eyebrow::after {
 }
 
 /* Selector list includes portal-body variants: the engine adds
-   body.tb-portal-* on every page and ships a high-specificity
-   `body.tb-portal-*:not(:has(...)) h1 { color !important }` rule that must
+   body.pge-portal-* on every page and ships a high-specificity
+   `body.pge-portal-*:not(:has(...)) h1 { color !important }` rule that must
    be out-specified here, or dark-surface headings render ink-on-ink. */
 body .pgt-hero .pgt-hero__title,
-body.tb-portal-testprep .pgt-hero .pgt-hero__title,
-body.tb-portal-competitive .pgt-hero .pgt-hero__title {
+body.pge-portal-testprep .pgt-hero .pgt-hero__title,
+body.pge-portal-competitive .pgt-hero .pgt-hero__title {
 	font-size: clamp(2.5rem, 5.2vw, 3.8rem);
 	font-weight: 650;
 	letter-spacing: -0.028em;
@@ -730,13 +730,13 @@ body.tb-portal-competitive .pgt-hero .pgt-hero__title {
 }
 /* Same fight, 2026-08 redesign surfaces.
  *
- * The engine's rule is `body.tb-portal-*:not(:has(.tb-gje-v5)) h1..h4
- * { color: var(--tb-neu-ink) !important }`. Its opt-out was the `.tb-gje-v5`
+ * The engine's rule is `body.pge-portal-*:not(:has(.pge-gje-v5)) h1..h4
+ * { color: var(--pge-ui-neu-ink) !important }`. Its opt-out was the `.pge-gje-v5`
  * class the old front-page hero carried; the redesign dropped that class, so
  * the rule now fires on every page and paints ink-on-ink over every heading
  * that sits on a dark ground.
  *
- * Re-adding `.tb-gje-v5` somewhere would switch the whole engine block off in
+ * Re-adding `.pge-gje-v5` somewhere would switch the whole engine block off in
  * one line, but it would also switch it off for engine-rendered content inside
  * theme pages, which is not ours to change. So the headings are reclaimed by
  * container instead: only the four dark surfaces the redesign actually draws.
@@ -774,8 +774,8 @@ body[class] .pgp-card--featured :is(h1, h2, h3, h4) {
 	pointer-events: none;
 }
 body .pgt-hero .pgt-hero__title .accent,
-body.tb-portal-testprep .pgt-hero .pgt-hero__title .accent,
-body.tb-portal-competitive .pgt-hero .pgt-hero__title .accent {
+body.pge-portal-testprep .pgt-hero .pgt-hero__title .accent,
+body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	background: linear-gradient(135deg, #4d93ff 0%, #6ba4ff 55%, #8aa6ff 100%);
 	-webkit-background-clip: text;
 	background-clip: text;
@@ -1909,8 +1909,8 @@ body.home .pgt-cat-card__name { font-size: 1.08rem; }
 /* !important + doubled selector: outranks the engine's portal-body
    `h1..h4 { color: ink !important }` runtime rule (see hero note above). */
 .pgt2-duo__panel--dark h3,
-body.tb-portal-testprep .pgt2-duo__panel--dark h3,
-body.tb-portal-competitive .pgt2-duo__panel--dark h3 {
+body.pge-portal-testprep .pgt2-duo__panel--dark h3,
+body.pge-portal-competitive .pgt2-duo__panel--dark h3 {
 	color: #fff !important;
 	-webkit-text-fill-color: #fff !important;
 }
