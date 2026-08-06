@@ -193,6 +193,10 @@ body.pg-module-excel {
 	border: 1px solid rgba(255,255,255,.14);
 	border-radius: 20px;
 	padding: 22px 24px 24px;
+	/* "See a sample report" anchor-links here (id="pgm-fig-{module}"); the
+	   header is sticky at 74px min-height, so an unadjusted jump tucks the
+	   figure straight under it. */
+	scroll-margin-top: 96px;
 }
 .pgm-fig__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .pgm-fig__title { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--neutral-400); }

@@ -165,7 +165,7 @@ final class Chrome {
 						'items'   => array(
 							array( 'icon' => 'circle-check', 'title' => __( 'Free readiness check', 'prepgro-theme' ), 'sub' => __( '~20 min, adaptive', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
 							array( 'icon' => 'play-circle', 'title' => __( 'Resume my check', 'prepgro-theme' ), 'sub' => __( 'Picks up where you stopped', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/evaluate/' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
 						),
 					),
 					array(

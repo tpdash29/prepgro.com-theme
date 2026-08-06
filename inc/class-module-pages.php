@@ -157,7 +157,12 @@ final class Module_Pages {
 				'title'   => __( 'Find the gaps before they cost you points.', 'prepgro-theme' ),
 				'body'    => __( 'One free adaptive check, about 20 minutes. It scores every sub-skill separately and names the ones actually costing you marks.', 'prepgro-theme' ),
 				'cta'     => array( 'label' => __( 'Start the free check', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
-				'alt'     => array( 'label' => __( 'See a sample report', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
+				// Was the SAME url as 'cta' — a "See a sample report" button
+				// that started a new diagnostic instead of showing anything.
+				// Now points at the full sample report (engine page, real
+				// PGAssessmentResultPage component with static demo data —
+				// see class-sample-report-page.php in the plugin).
+				'alt'     => array( 'label' => __( 'See a sample report', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
 				'stats'   => array(
 					array( 'value' => __( '~20 min', 'prepgro-theme' ), 'label' => __( 'one adaptive check', 'prepgro-theme' ) ),
 					array( 'value' => __( '4 gaps', 'prepgro-theme' ), 'label' => __( 'named in your report', 'prepgro-theme' ) ),
@@ -451,7 +456,7 @@ final class Module_Pages {
 			. '</div>'
 			. '<div class="pgm-stats">' . $stats . '</div>'
 			. '</div>'
-			. '<figure class="pgm-fig">'
+			. '<figure class="pgm-fig" id="' . esc_attr( 'pgm-fig-' . $key ) . '">'
 			. '<figcaption class="pgm-fig__head">'
 			. '<span class="pgm-fig__title">' . esc_html( $m['fig']['title'] ) . '</span>'
 			. '<span class="pgm-fig__note">' . esc_html( $m['fig']['note'] ) . '</span>'
