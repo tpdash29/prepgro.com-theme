@@ -1,0 +1,16 @@
+<!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","anchor":"pgt-main","className":"pgt-exam-single","layout":{"type":"default"}} -->
+<main id="pgt-main" class="wp-block-group pgt-exam-single">
+  <!-- An exam paper is a product/assessment page, not a Journal article, so
+       none of the article furniture renders here: no [pgt_article_byline]
+       (author · date · "N min read" reads as thin blog content to both
+       humans and crawlers), no "All articles" back link, no end-of-article
+       CTA, no featured image, and no wp:post-title — the engine renders its
+       own H1 inside the exam hero with the exam's clean display title, so a
+       second title block here would mean two H1s on the page. -->
+  <!-- wp:post-content {"layout":{"type":"default"}} /-->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->
