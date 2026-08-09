@@ -103,7 +103,7 @@ final class Chrome {
 				'id'    => 'evaluate',
 				'label' => __( 'Evaluate', 'prepgro-theme' ),
 				'url'   => home_url( '/evaluate/' ),
-				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/' ),
+				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/' ),
 				'panel' => 'evaluate',
 			),
 			array(
@@ -163,8 +163,16 @@ final class Chrome {
 						'eyebrow' => __( 'Diagnostic', 'prepgro-theme' ),
 						'note'    => __( 'free', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'circle-check', 'title' => __( 'Free readiness check', 'prepgro-theme' ), 'sub' => __( '~20 min, adaptive', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
-							array( 'icon' => 'play-circle', 'title' => __( 'Resume my check', 'prepgro-theme' ), 'sub' => __( 'Picks up where you stopped', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
+							// Was two items ('Free readiness check' / 'Resume my
+							// check') that both hardcoded /get-started/ — a signed-in
+							// user with onboarding already complete was sent back to
+							// the sign-up page they'd already finished. There is also
+							// no "resume an open attempt" mechanism anywhere in the
+							// diagnostic runner today, so a second, distinct "Resume"
+							// item would have been a false promise.
+							// Destination::start_practicing() is the resolver that
+							// already gets this right for every auth state.
+							array( 'icon' => 'circle-check', 'title' => __( 'Continue my check', 'prepgro-theme' ), 'sub' => __( 'Free, ~20 min, adaptive', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
 							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
 						),
 					),
@@ -172,8 +180,8 @@ final class Chrome {
 						'eyebrow' => __( 'By exam', 'prepgro-theme' ),
 						'note'    => __( 'pick yours', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
-							array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
+							array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'url' => home_url( '/sat-act-psat/' ) ),
+							array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/ap/' ) ),
 							array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
 						),
 					),
@@ -181,9 +189,13 @@ final class Chrome {
 						'eyebrow' => __( 'Results', 'prepgro-theme' ),
 						'note'    => __( 'after the check', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'line-chart', 'title' => __( 'My readiness report', 'prepgro-theme' ), 'sub' => __( 'Skills to fix, in order', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=results' ) ),
-							array( 'icon' => 'info', 'title' => __( 'How we measure', 'prepgro-theme' ), 'sub' => __( 'What the number means', 'prepgro-theme' ), 'url' => home_url( '/evaluate/' ) ),
-							array( 'icon' => 'mail', 'title' => __( 'Parent digest', 'prepgro-theme' ), 'sub' => __( 'Weekly progress email', 'prepgro-theme' ), 'url' => home_url( '/evaluate/' ) ),
+							array( 'icon' => 'line-chart', 'title' => __( 'My readiness report', 'prepgro-theme' ), 'sub' => __( 'Skills to fix, in order', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=results' ) ),
+							array( 'icon' => 'info', 'title' => __( 'How we measure', 'prepgro-theme' ), 'sub' => __( 'What the number means', 'prepgro-theme' ), 'url' => home_url( '/how-we-measure/' ) ),
+							// [pge_parent_portal] (a child's exam-progress stats) had
+							// never had a live page — 'parent-portal' is Excel's
+							// tutoring scheduling portal, a different feature. See
+							// class-activator.php's 'parent-progress' entry.
+							array( 'icon' => 'mail', 'title' => __( 'Parent digest', 'prepgro-theme' ), 'sub' => __( "Your child's progress", 'prepgro-theme' ), 'url' => home_url( '/parent-progress/' ) ),
 						),
 					),
 				),
@@ -202,9 +214,9 @@ final class Chrome {
 						'eyebrow' => __( 'Learn', 'prepgro-theme' ),
 						'note'    => __( 'LMS', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'book-open', 'title' => __( 'Lesson library', 'prepgro-theme' ), 'sub' => __( 'Mapped to every skill', 'prepgro-theme' ), 'url' => home_url( '/elevate/' ) ),
-							array( 'icon' => 'clipboard', 'title' => __( 'My study plan', 'prepgro-theme' ), 'sub' => __( 'What to do this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
-							array( 'icon' => 'pencil', 'title' => __( 'Assignments', 'prepgro-theme' ), 'sub' => __( 'Set by your tutor', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
+							array( 'icon' => 'book-open', 'title' => __( 'Lesson library', 'prepgro-theme' ), 'sub' => __( 'Mapped to every skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
+							array( 'icon' => 'clipboard', 'title' => __( 'My study plan', 'prepgro-theme' ), 'sub' => __( 'What to do this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=plan' ) ),
+							array( 'icon' => 'pencil', 'title' => __( 'Assignments', 'prepgro-theme' ), 'sub' => __( 'Set by your tutor', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
 						),
 					),
 					array(
@@ -212,8 +224,8 @@ final class Chrome {
 						'note'    => __( '8 / month', 'prepgro-theme' ),
 						'items'   => array(
 							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Session recaps', 'prepgro-theme' ), 'sub' => __( 'What was covered, next step', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
+							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Session recaps', 'prepgro-theme' ), 'sub' => __( 'What was covered, next step', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
 						),
 					),
 					array(
@@ -250,9 +262,9 @@ final class Chrome {
 						'eyebrow' => __( 'Review', 'prepgro-theme' ),
 						'note'    => __( 'every answer', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
-							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=performance' ) ),
-							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
+							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks' ) ),
+							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=performance' ) ),
+							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks' ) ),
 						),
 					),
 					array(
@@ -316,6 +328,19 @@ final class Chrome {
 	}
 
 	/**
+	 * Where "Continue my check" (and any other "start/continue the free
+	 * diagnostic" CTA) should send THIS visitor — signed out → /get-started/;
+	 * signed in with onboarding incomplete → the exact missing step; signed
+	 * in and ready → the diagnostic itself. Never the sign-up page for a
+	 * signed-in user.
+	 *
+	 * @return string
+	 */
+	private function start_practicing_url() {
+		return \PrepGro\Engine\Core\Onboarding\Destination::start_practicing();
+	}
+
+	/**
 	 * Permalink of the posts page, falling back to /blog/.
 	 *
 	 * @return string
@@ -349,7 +374,7 @@ final class Chrome {
 			array(
 				'id'    => 'report',
 				'label' => __( 'My readiness report', 'prepgro-theme' ),
-				'url'   => home_url( '/my-dashboard/?tab=results' ),
+				'url'   => home_url( '/my-dashboard/?tab=readiness&seg=results' ),
 				'icon'  => 'file-text',
 			),
 			array(
@@ -402,7 +427,7 @@ final class Chrome {
 			'support' => array(
 				'title' => __( 'Product', 'prepgro-theme' ),
 				'links' => array(
-					array( 'id' => 'readiness', 'label' => __( 'Free readiness check', 'prepgro-theme' ), 'url' => home_url( '/get-started/' ) ),
+					array( 'id' => 'readiness', 'label' => __( 'Free readiness check', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
 					array( 'id' => 'practice', 'label' => __( 'Unlimited practice', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
 					array( 'id' => 'tutor', 'label' => __( 'Find a tutor', 'prepgro-theme' ), 'url' => home_url( '/elevate/' ) ),
 					array( 'id' => 'faq', 'label' => __( 'Parent FAQ', 'prepgro-theme' ), 'url' => home_url( '/#pg-faq' ) ),
@@ -1321,7 +1346,7 @@ final class Chrome {
 	 * @return string
 	 */
 	private function brand_kit_logo( $grad_id = 'pgtLogoChipGrad', $with_tagline = true ) {
-		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">Gro</span></span>';
+		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r</span><span class="pgt-brandlogo__o">o</span></span></span>';
 
 		/*
 		 * Product lockup. Inside a pillar, its NAME sits under the wordmark in
