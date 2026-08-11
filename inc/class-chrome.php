@@ -103,14 +103,14 @@ final class Chrome {
 				'id'    => 'evaluate',
 				'label' => __( 'Evaluate', 'prepgro-theme' ),
 				'url'   => home_url( '/evaluate/' ),
-				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/' ),
+				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
 				'panel' => 'evaluate',
 			),
 			array(
 				'id'    => 'elevate',
 				'label' => __( 'Elevate', 'prepgro-theme' ),
 				'url'   => home_url( '/elevate/' ),
-				'owns'  => array( '/elevate/', '/pricing/', '/find-a-tutor/' ),
+				'owns'  => array( '/elevate/', '/pricing/', '/find-a-tutor/', '/courses/' ),
 				'panel' => 'elevate',
 			),
 			array(
@@ -173,6 +173,7 @@ final class Chrome {
 							// Destination::start_practicing() is the resolver that
 							// already gets this right for every auth state.
 							array( 'icon' => 'circle-check', 'title' => __( 'Continue my check', 'prepgro-theme' ), 'sub' => __( 'Free, ~20 min, adaptive', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
+							array( 'icon' => 'clipboard-list', 'title' => __( 'Browse all diagnostics', 'prepgro-theme' ), 'sub' => __( 'Every exam, one catalogue', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
 							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
 						),
 					),
@@ -182,7 +183,11 @@ final class Chrome {
 						'items'   => array(
 							array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'url' => home_url( '/sat-act-psat/' ) ),
 							array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/ap/' ) ),
-							array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
+							// Was /all-exams/ — Excel's practice catalogue, not a
+							// diagnostic. /diagnostic-tests/ is Evaluate's own
+							// catalogue now; ?filter=state pre-selects its
+							// "State-test diagnostic" chip (theme.js reads it).
+							array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/?filter=state' ) ),
 						),
 					),
 					array(
@@ -214,6 +219,11 @@ final class Chrome {
 						'eyebrow' => __( 'Learn', 'prepgro-theme' ),
 						'note'    => __( 'LMS', 'prepgro-theme' ),
 						'items'   => array(
+							// "Lesson library" is the signed-in member's own
+							// enrolled courses; "Browse all courses" is the new
+							// public catalogue (/courses/) — free previews for a
+							// visitor who hasn't picked an exam yet.
+							array( 'icon' => 'layers', 'title' => __( 'Browse all courses', 'prepgro-theme' ), 'sub' => __( 'Free lesson previews', 'prepgro-theme' ), 'url' => home_url( '/courses/' ) ),
 							array( 'icon' => 'book-open', 'title' => __( 'Lesson library', 'prepgro-theme' ), 'sub' => __( 'Mapped to every skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
 							array( 'icon' => 'clipboard', 'title' => __( 'My study plan', 'prepgro-theme' ), 'sub' => __( 'What to do this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=plan' ) ),
 							array( 'icon' => 'pencil', 'title' => __( 'Assignments', 'prepgro-theme' ), 'sub' => __( 'Set by your tutor', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
@@ -253,9 +263,9 @@ final class Chrome {
 						'eyebrow' => __( 'Practice', 'prepgro-theme' ),
 						'note'    => __( 'unlimited', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
-							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
+							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
+							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
 						),
 					),
 					array(
@@ -272,7 +282,7 @@ final class Chrome {
 						'note'    => __( 'by level', 'prepgro-theme' ),
 						'items'   => array(
 							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
+							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
 							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
 						),
 					),
@@ -419,7 +429,9 @@ final class Chrome {
 				'title' => __( 'Explore', 'prepgro-theme' ),
 				'links' => array(
 					array( 'id' => 'how', 'label' => __( 'How it works', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
-					array( 'id' => 'exams', 'label' => __( 'Exams', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),
+					array( 'id' => 'exams', 'label' => __( 'Practice tests', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
+					array( 'id' => 'diagnostics', 'label' => __( 'Diagnostic tests', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
+					array( 'id' => 'courses', 'label' => __( 'Courses', 'prepgro-theme' ), 'url' => home_url( '/courses/' ) ),
 					array( 'id' => 'pricing', 'label' => __( 'Pricing', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 					array( 'id' => 'journal', 'label' => __( 'Journal', 'prepgro-theme' ), 'url' => $this->blog_url() ),
 				),
