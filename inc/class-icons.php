@@ -30,6 +30,8 @@ final class Icons {
 	 */
 	private static function paths() {
 		return array(
+			'check'             => '<path d="M20 6L9 17l-5-5"/>',
+			'lock'              => '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
 			'circle-check'      => '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
 			'circle-check-big'  => '<path d="M9 11l3 3L22 4"/><path d="M21 12a9 9 0 1 1-6.2-8.5"/>',
 			'play-circle'       => '<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4Z"/>',

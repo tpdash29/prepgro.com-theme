@@ -1,0 +1,86 @@
+/*
+ * PrepGro Theme — courses index (/courses/), Elevate pillar.
+ * Structural pieces come from pg-exams.css's .pgx system with the
+ * .pgx--elevate accent override; this sheet carries only what exists here
+ * alone: the weekly-plan checklist card, course-card covers, the lock
+ * badge and the two-tier comparison strip.
+ */
+
+/* ── Weekly-plan checklist hero card ───────────────────────────────── */
+.pgc-plan__row {
+	display: flex; align-items: center; gap: 10px;
+	font-size: 13.5px; color: #fff;
+	padding: 7px 0;
+}
+.pgc-plan__row.is-done { color: var(--neutral-400); }
+.pgc-plan__row.is-done > span:last-child { text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
+.pgc-plan__box {
+	width: 16px; height: 16px; flex: none;
+	border-radius: 5px;
+	background: rgba(255, 255, 255, .1);
+	color: #fff;
+	display: inline-flex; align-items: center; justify-content: center;
+}
+.pgc-plan__row.is-done .pgc-plan__box { background: var(--green-500, #0e9f6e); }
+
+/* ── Course cards ──────────────────────────────────────────────────── */
+.pgc-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.pgc-card { padding: 0; overflow: hidden; }
+.pgc-card__cover { aspect-ratio: 16 / 9; background: var(--pgx-ground); }
+.pgc-card__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pgc-card__imgslot {
+	width: 100%; height: 100%;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+	color: var(--pgx-accent);
+	opacity: .55;
+}
+.pgc-card__tags { display: flex; align-items: center; gap: 8px; padding: 16px 20px 0; }
+.pgc-card__lessons { font-size: 12.5px; color: var(--pge-ink-400); }
+.pgc-card .pgx-card__name { padding: 0 20px; margin-top: 8px; }
+.pgc-card .pgx-card__sub { padding: 0 20px; margin-top: 4px; }
+.pgc-card .pgx-card__rule { margin: 14px 20px 0; }
+.pgc-card .pgx-card__meta { padding: 12px 20px 18px; }
+.pgc-card__lock {
+	display: inline-flex; align-items: center; gap: 5px;
+	font-size: 12.5px; font-weight: 600;
+	color: var(--pgx-accent);
+	white-space: nowrap;
+}
+
+/* ── "What's inside" tiles + tier strip ────────────────────────────── */
+.pgc-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+	gap: 16px;
+	margin-bottom: 24px;
+}
+.pgc-stat b {
+	display: block;
+	font-family: var(--pge-font-mono);
+	font-size: 24px; font-weight: 700; color: var(--pgx-accent);
+}
+.pgc-stat span { font-size: 12.5px; color: var(--pge-ink-500); margin-top: 2px; display: block; }
+.pgc-tiers {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+	gap: 16px;
+	border-top: 1px solid var(--pge-gray-100);
+	padding-top: 22px;
+}
+.pgc-tier {
+	background: var(--pge-gray-50);
+	border: 1px solid var(--pge-color-line);
+	border-radius: 16px;
+	padding: 18px;
+}
+.pgc-tier h3 { font-size: 14.5px; font-weight: 700; color: var(--pge-color-ink); margin: 0; }
+.pgc-tier p { font-size: 13px; line-height: 1.55; color: var(--pge-ink-500); margin: 6px 0 0; }
+.pgc-tier--featured {
+	background: var(--pgx-ground);
+	border-color: var(--pgx-soft);
+}
+.pgc-tier--featured h3 { color: var(--pgx-accent); }
+.pgc-tier--facts { display: grid; gap: 12px; align-content: center; }
+.pgc-tier__k { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pge-ink-400); }
+.pgc-tier__v { display: block; font-size: 14px; font-weight: 600; color: var(--pge-color-ink); margin-top: 2px; }

@@ -98,6 +98,22 @@ final class Image_Slots {
 				'alt'     => __( 'A tutor and student on a video call.', 'prepgro-theme' ),
 				'subject' => 'a tutor and a student together in a live one-to-one lesson, working through a problem on paper between them',
 			),
+			'pgt_exams_band_photo' => array(
+				'label'   => __( 'Practice tests — image band photo', 'prepgro-theme' ),
+				'where'   => __( 'The wide photo beside the dark stat plate on the /practice-tests/ index.', 'prepgro-theme' ),
+				'width'   => 1500,
+				'height'  => 560,
+				'alt'     => __( 'A student taking a timed practice test on a laptop.', 'prepgro-theme' ),
+				'subject' => 'a student taking a timed practice test on a laptop, focused expression, natural daylight, no readable text on the screen',
+			),
+			'pgt_course_cover_default' => array(
+				'label'   => __( 'Courses — default cover photo', 'prepgro-theme' ),
+				'where'   => __( 'The fallback cover on /courses/ cards for any course without its own featured image. Upload several — cards rotate between them.', 'prepgro-theme' ),
+				'width'   => 1120,
+				'height'  => 630,
+				'alt'     => __( 'Study materials arranged on a desk.', 'prepgro-theme' ),
+				'subject' => 'clean flat-lay of study materials — open notebook, pencil, laptop corner — on a light desk, soft daylight, plenty of negative space',
+			),
 			'pgt_module_photo_excel' => array(
 				'label'   => __( 'Excel — proof band photo', 'prepgro-theme' ),
 				'where'   => __( 'The photo beside the results bars on the Excel page.', 'prepgro-theme' ),

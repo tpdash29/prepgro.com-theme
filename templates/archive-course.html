@@ -1,0 +1,14 @@
+<!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","anchor":"pgt-main","layout":{"type":"default"}} -->
+<main id="pgt-main" class="wp-block-group">
+  <!-- The Course CPT archive (/courses/). Custom HTML block, not
+       wp:shortcode, for the same wpautop reason as page-exams.html. The
+       shortcode runs its own query — the archive main query is unused. -->
+  <!-- wp:html -->
+  [pgt_courses]
+  <!-- /wp:html -->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->

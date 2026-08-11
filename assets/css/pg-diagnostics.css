@@ -1,0 +1,32 @@
+/*
+ * PrepGro Theme — diagnostics index (/diagnostic-tests/), Evaluate pillar.
+ * Everything structural comes from pg-exams.css's .pgx system with the
+ * .pgx--evaluate accent override; this sheet only carries the pieces that
+ * exist on this page alone: the readiness-donut hero card, the four-step
+ * grid and the empty state.
+ */
+
+/* ── Readiness-donut hero card ─────────────────────────────────────── */
+.pgd-donutcard__row { display: flex; align-items: center; gap: 24px; }
+.pgd-donut { position: relative; flex: none; }
+.pgd-donut__label {
+	position: absolute; inset: 0;
+	display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.pgd-donut__label b {
+	font-family: var(--pge-font-mono);
+	font-size: 20px; font-weight: 700; color: #fff;
+}
+.pgd-donut__label span { font-size: 10px; color: var(--neutral-400); }
+.pgd-donutcard__copy p {
+	font-size: 13.5px; line-height: 1.55;
+	color: var(--neutral-300, #d4d4d8);
+	margin: 10px 0 0;
+	max-width: 24ch;
+}
+
+/* ── Four-step how-it-works ────────────────────────────────────────── */
+.pgx-steps__grid--four { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+
+/* ── Empty state ───────────────────────────────────────────────────── */
+.pgx-empty__t { font-size: 17px; font-weight: 700; color: var(--pge-color-ink); margin: 0 0 6px; }

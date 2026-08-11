@@ -26,6 +26,8 @@ require_once PGT_DIR . '/inc/class-pricing-levels.php';
 require_once PGT_DIR . '/inc/class-module-pages.php';
 require_once PGT_DIR . '/inc/class-pricing-page.php';
 require_once PGT_DIR . '/inc/class-exams-page.php';
+require_once PGT_DIR . '/inc/class-diagnostics-page.php';
+require_once PGT_DIR . '/inc/class-courses-page.php';
 require_once PGT_DIR . '/inc/class-blog.php';
 require_once PGT_DIR . '/inc/class-theme-options.php';
 require_once PGT_DIR . '/inc/class-chrome.php';
@@ -39,6 +41,8 @@ require_once PGT_DIR . '/inc/class-homepage-sections.php';
 \PrepGro\Theme\Module_Pages::instance()->init();
 \PrepGro\Theme\Pricing_Page::instance()->init();
 \PrepGro\Theme\Exams_Page::instance()->init();
+\PrepGro\Theme\Diagnostics_Page::instance()->init();
+\PrepGro\Theme\Courses_Page::instance()->init();
 \PrepGro\Theme\Blog::instance()->init();
 
 /**
@@ -293,10 +297,23 @@ add_action(
 			// and the sample badges are styled here.
 			'pgt-exams'   => array(
 				'file' => 'pg-exams.css',
+				// The diagnostics index reuses the .pgx component system
+				// (accent-swapped via .pgx--evaluate), so it needs this
+				// sheet too; pg-diagnostics.css only adds its own pieces.
 				'on'   => ( is_page() && \PrepGro\Theme\Exams_Page::instance()->is_exams_page() )
+					|| ( is_page() && \PrepGro\Theme\Diagnostics_Page::instance()->is_diagnostics_page() )
+					|| \PrepGro\Theme\Courses_Page::instance()->is_courses_page()
 					|| is_singular( 'exam' )
 					|| is_post_type_archive( 'exam' )
 					|| is_tax( 'pricing_level' ),
+			),
+			'pgt-diagnostics' => array(
+				'file' => 'pg-diagnostics.css',
+				'on'   => is_page() && \PrepGro\Theme\Diagnostics_Page::instance()->is_diagnostics_page(),
+			),
+			'pgt-courses' => array(
+				'file' => 'pg-courses.css',
+				'on'   => \PrepGro\Theme\Courses_Page::instance()->is_courses_page(),
 			),
 			'pgt-blog'    => array(
 				'file' => 'pg-blog.css',

@@ -449,23 +449,80 @@
 		}
 		var cards = document.querySelectorAll( '[data-pgt-family]' );
 
+		function apply( chip, want ) {
+			Array.prototype.forEach.call( chips, function ( c ) {
+				var on = c === chip;
+				c.classList.toggle( 'is-on', on );
+				c.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+			} );
+
+			Array.prototype.forEach.call( cards, function ( card ) {
+				if ( want === 'all' || card.getAttribute( 'data-pgt-family' ) === want ) {
+					card.removeAttribute( 'hidden' );
+				} else {
+					card.setAttribute( 'hidden', '' );
+				}
+			} );
+		}
+
 		Array.prototype.forEach.call( chips, function ( chip ) {
 			chip.addEventListener( 'click', function () {
 				var want = chip.getAttribute( 'data-pgt-filter' );
+				apply( chip, want );
 
-				Array.prototype.forEach.call( chips, function ( c ) {
-					var on = c === chip;
-					c.classList.toggle( 'is-on', on );
-					c.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
-				} );
-
-				Array.prototype.forEach.call( cards, function ( card ) {
-					if ( want === 'all' || card.getAttribute( 'data-pgt-family' ) === want ) {
-						card.removeAttribute( 'hidden' );
+				// Keep the filtered view shareable / back-button-safe
+				// without adding history entries per click.
+				if ( window.history && window.history.replaceState && window.URL ) {
+					var url = new URL( window.location.href );
+					if ( want === 'all' ) {
+						url.searchParams.delete( 'filter' );
 					} else {
-						card.setAttribute( 'hidden', '' );
+						url.searchParams.set( 'filter', want );
+					}
+					window.history.replaceState( null, '', url.toString() );
+				}
+			} );
+		} );
+
+		// Honour an incoming ?filter= (shared link).
+		var params = window.URLSearchParams ? new URLSearchParams( window.location.search ) : null;
+		var want   = params ? params.get( 'filter' ) : '';
+		if ( want ) {
+			Array.prototype.forEach.call( chips, function ( chip ) {
+				if ( chip.getAttribute( 'data-pgt-filter' ) === want ) {
+					apply( chip, want );
+				}
+			} );
+		}
+	}
+
+	/* ---------- FAQ accordion ----------
+	 * Disclosure buttons rendered server-side with the full Q&A always in
+	 * the DOM (FAQPage schema + no-JS read the same content). One open at a
+	 * time; first item ships open from the server. */
+	function initFaqAccordion() {
+		var btns = document.querySelectorAll( '[data-pgt-faq]' );
+		if ( ! btns.length ) {
+			return;
+		}
+
+		Array.prototype.forEach.call( btns, function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var panel  = document.getElementById( btn.getAttribute( 'aria-controls' ) );
+				var isOpen = btn.getAttribute( 'aria-expanded' ) === 'true';
+
+				Array.prototype.forEach.call( btns, function ( other ) {
+					other.setAttribute( 'aria-expanded', 'false' );
+					var p = document.getElementById( other.getAttribute( 'aria-controls' ) );
+					if ( p ) {
+						p.setAttribute( 'hidden', '' );
 					}
 				} );
+
+				if ( ! isOpen && panel ) {
+					btn.setAttribute( 'aria-expanded', 'true' );
+					panel.removeAttribute( 'hidden' );
+				}
 			} );
 		} );
 	}
@@ -671,6 +728,7 @@
 		initDrawerAccordions();
 		initPricingLevels();
 		initExamFilters();
+		initFaqAccordion();
 		initNavAnalytics();
 		initReveals();
 		initCounters();
