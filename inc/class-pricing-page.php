@@ -125,7 +125,7 @@ final class Pricing_Page {
 			$tabs .= '<a class="pgp-tab' . ( $on ? ' is-on' : '' ) . '" role="tab"'
 				. ' aria-selected="' . ( $on ? 'true' : 'false' ) . '"'
 				. ' href="' . esc_url( Pricing_Levels::url( $key ) ) . '"'
-				. ' data-pgt-level="' . esc_attr( $key ) . '">' . esc_html( $l['name'] ) . '</a>';
+				. ' data-pgt-level="' . esc_attr( $key ) . '" data-no-overlay="1">' . esc_html( $l['name'] ) . '</a>';
 		}
 
 		$names = '';
