@@ -445,6 +445,16 @@ final class Exams_Page {
 					'orderby'        => 'title',
 					'order'          => 'ASC',
 					'no_found_rows'  => true,
+					// Elevate course quizzes (Studio-generated, tagged
+					// _pge_quiz_course_id) live in this same CPT but only
+					// belong inside their course/lesson -- never as a
+					// standalone practice-test card.
+					'meta_query'     => array(
+						array(
+							'key'     => '_pge_quiz_course_id',
+							'compare' => 'NOT EXISTS',
+						),
+					),
 				)
 			);
 		}
@@ -856,7 +866,7 @@ final class Exams_Page {
 	 * @return string
 	 */
 	private function cta_band() {
-		return '<section class="pgx-ctaband">'
+		return '<section class="pgx-ctaband" id="pgx-ctaband">'
 			. '<div><h2>' . esc_html__( 'Every exam starts free.', 'prepgro-theme' ) . '</h2>'
 			. '<p>' . esc_html__( 'Take the readiness check, then practice your exact gaps.', 'prepgro-theme' ) . '</p></div>'
 			. '<a class="pgx-btn pgx-btn--onaccent" href="' . esc_url( home_url( '/diagnostic-tests/' ) ) . '">' . esc_html__( 'Start your free diagnostic', 'prepgro-theme' ) . '</a>'
@@ -969,7 +979,8 @@ final class Exams_Page {
 			"SELECT p.post_title AS title, COUNT(DISTINCT eq.question_id) AS n
 			 FROM {$wpdb->posts} p
 			 INNER JOIN {$eq} eq ON eq.exam_id = p.ID
-			 WHERE p.post_type = 'exam' AND p.post_status = 'publish'
+			 LEFT JOIN {$wpdb->postmeta} pm_quiz ON pm_quiz.post_id = p.ID AND pm_quiz.meta_key = '_pge_quiz_course_id'
+			 WHERE p.post_type = 'exam' AND p.post_status = 'publish' AND pm_quiz.post_id IS NULL
 			 GROUP BY p.ID, p.post_title"
 		);
 
