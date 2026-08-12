@@ -445,4 +445,55 @@ add_action(
 	}
 );
 
+/**
+ * Countdown markup for a pillar the engine has switched off.
+ *
+ * The date is the engine's (Settings → Modules → "Available from"); this only
+ * renders it. Returns '' when the pillar is on, no date is set, or the date has
+ * already passed — pge_module_available_at() folds all three into a 0, so a
+ * countdown can never be caught showing a launch that has come and gone.
+ *
+ * The unit values are rendered SERVER-side and the absolute date is printed
+ * alongside them, so the block is correct and readable with JavaScript off or
+ * still loading; theme.js then ticks it. `role="timer"` with aria-live off is
+ * deliberate — a value changing every second must not be announced every
+ * second — and the absolute date is what a screen reader actually reads.
+ *
+ * @param string $key Pillar key: evaluate | elevate | excel.
+ * @return string
+ */
+function pgt_countdown( $key ) {
+	if ( ! function_exists( 'pge_module_available_at' ) ) {
+		return '';
+	}
+	$ts = (int) \pge_module_available_at( $key );
+	if ( $ts <= 0 ) {
+		return '';
+	}
 
+	$left  = max( 0, $ts - time() );
+	$units = array(
+		'd' => array( (int) floor( $left / DAY_IN_SECONDS ), _n( 'day', 'days', (int) floor( $left / DAY_IN_SECONDS ), 'prepgro-theme' ) ),
+		'h' => array( (int) floor( ( $left % DAY_IN_SECONDS ) / HOUR_IN_SECONDS ), __( 'hrs', 'prepgro-theme' ) ),
+		'm' => array( (int) floor( ( $left % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS ), __( 'min', 'prepgro-theme' ) ),
+		's' => array( (int) ( $left % MINUTE_IN_SECONDS ), __( 'sec', 'prepgro-theme' ) ),
+	);
+
+	$cells = '';
+	foreach ( $units as $slug => $u ) {
+		$cells .= '<span class="pgt-cd__unit">'
+			. '<b class="pgt-cd__n" data-pgt-cd="' . esc_attr( $slug ) . '">' . esc_html( (string) $u[0] ) . '</b>'
+			. '<i class="pgt-cd__l" data-pgt-cd-label="' . esc_attr( $slug ) . '">' . esc_html( $u[1] ) . '</i>'
+			. '</span>';
+	}
+
+	// wp_date(), not date_i18n(): the timestamp is absolute and wp_date
+	// formats it in the site's timezone without the legacy offset guesswork.
+	$absolute = wp_date( get_option( 'date_format' ) . ', ' . get_option( 'time_format' ), $ts );
+
+	return '<div class="pgt-cd" data-pgt-countdown="' . esc_attr( (string) $ts ) . '" role="timer">'
+		. '<span class="pgt-cd__lead">' . esc_html__( 'Opens in', 'prepgro-theme' ) . '</span>'
+		. '<span class="pgt-cd__units">' . $cells . '</span>'
+		. '<span class="pgt-cd__date">' . esc_html( $absolute ) . '</span>'
+		. '</div>';
+}

@@ -66,6 +66,101 @@ final class Chrome {
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
+	   Pillar gating. The engine can switch any of Evaluate / Elevate / Excel
+	   off from Settings → Modules, which unregisters that pillar's runtime
+	   surface. The chrome kept advertising it anyway: the nav tab, its mega
+	   panel, the footer statement and several cross-pillar rows all pointed
+	   at pages that had gone dark. These helpers are the whole gate.
+	   ──────────────────────────────────────────────────────────────────── */
+
+	/**
+	 * Is a pillar switched on?
+	 *
+	 * Defaults to TRUE when pge_feature() is unavailable: the theme has to
+	 * stand on its own with the engine deactivated, and hiding two thirds of
+	 * the navigation would be a far worse failure than showing a link to a
+	 * page that is missing for an unrelated reason.
+	 *
+	 * @param string $key Pillar key: evaluate | elevate | excel.
+	 * @return bool
+	 */
+	private function pillar_on( $key ) {
+		if ( ! function_exists( 'pge_feature' ) ) {
+			return true;
+		}
+		return (bool) \pge_feature( $key );
+	}
+
+	/**
+	 * Which pillar a chrome URL belongs to, or '' when it is pillar-neutral.
+	 *
+	 * Deliberately NOT built from nav_links()'s `owns` map, which is a wider
+	 * "keep this tab lit" net: /pricing/ sits in Elevate's `owns` because
+	 * pricing is where a tutor plan is bought, but the pricing page sells all
+	 * three pillars and must survive any one of them switching off. Same for
+	 * /my-dashboard/ — one dashboard, every pillar. Only paths a disabled
+	 * pillar actually takes down are listed here.
+	 *
+	 * The pillar's OWN landing page (/excel/) is excluded on purpose and
+	 * returns '': that page renders a "not open yet" panel with the countdown,
+	 * so it is the one destination in a switched-off pillar that a link should
+	 * still lead to. Everything deeper is genuinely gone.
+	 *
+	 * @param string $url Absolute or relative URL.
+	 * @return string Pillar key, or ''.
+	 */
+	private function pillar_of_url( $url ) {
+		$map = array(
+			'evaluate' => array( '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
+			'elevate'  => array( '/find-a-tutor/', '/courses/', '/book-a-session/', '/teacher-portal/', '/flashcards/', '/cheat-sheets/' ),
+			'excel'    => array( '/all-exams/', '/practice-tests/' ),
+		);
+
+		$path = (string) wp_parse_url( (string) $url, PHP_URL_PATH );
+		if ( '' === $path ) {
+			return '';
+		}
+		// home_url() may sit in a subdirectory; compare on the site-relative part.
+		$home = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		if ( '' !== $home && '/' !== $home && 0 === strpos( $path, $home ) ) {
+			$path = '/' . ltrim( substr( $path, strlen( $home ) ), '/' );
+		}
+		$path = '/' . trim( $path, '/' ) . '/';
+
+		foreach ( $map as $key => $prefixes ) {
+			foreach ( $prefixes as $prefix ) {
+				if ( 0 === strpos( $path, $prefix ) ) {
+					return $key;
+				}
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Drop every item in a list whose URL points into a switched-off pillar.
+	 * Items without a URL (headings, toggle-only labels) are left alone.
+	 *
+	 * @param array  $items   Items carrying a URL.
+	 * @param string $url_key Which key holds the URL.
+	 * @return array
+	 */
+	private function drop_disabled_links( array $items, $url_key = 'url' ) {
+		$out = array();
+		foreach ( $items as $item ) {
+			$url = ( is_array( $item ) && isset( $item[ $url_key ] ) ) ? $item[ $url_key ] : '';
+			if ( '' !== $url ) {
+				$pillar = $this->pillar_of_url( $url );
+				if ( '' !== $pillar && ! $this->pillar_on( $pillar ) ) {
+					continue;
+				}
+			}
+			$out[] = $item;
+		}
+		return array_values( $out );
+	}
+
+	/* ─────────────────────────────────────────────────────────────────────
 	   Menu configuration — single source of truth for every chrome region.
 	   ──────────────────────────────────────────────────────────────────── */
 
@@ -131,6 +226,23 @@ final class Chrome {
 				'toggle_only' => true,
 			),
 		);
+
+		// A switched-off pillar KEEPS its tab. Its landing page still answers
+		// "what is this?" and now says when it opens, so hiding the tab would
+		// hide the very page written to explain the absence — the product is
+		// three parts, and a menu of two says one was never planned.
+		//
+		// What the tab loses is its dropdown: every row in a pillar's own mega
+		// panel points deeper into that pillar, at pages that really are gone.
+		// Dropping `panel` turns the label back into a plain link straight to
+		// the landing page (nav_items() only draws a chevron and a disclosure
+		// when a panel exists), so there is nothing left to open onto nothing.
+		foreach ( $links as $i => $l ) {
+			$id = isset( $l['id'] ) ? $l['id'] : '';
+			if ( in_array( $id, array( 'evaluate', 'elevate', 'excel' ), true ) && ! $this->pillar_on( $id ) ) {
+				unset( $links[ $i ]['panel'] );
+			}
+		}
 
 		/**
 		 * Filter the header nav links.
@@ -329,6 +441,45 @@ final class Chrome {
 			),
 		);
 
+		// A disabled pillar's own panel goes entirely — belt and braces with
+		// nav_links() dropping its trigger, so the panel cannot be reached by
+		// a stale `data-pgt-panel` target or by keyboard either.
+		foreach ( array( 'evaluate', 'elevate', 'excel' ) as $pgt_pillar ) {
+			if ( ! $this->pillar_on( $pgt_pillar ) ) {
+				unset( $panels[ $pgt_pillar ] );
+			}
+		}
+
+		// The SURVIVING panels still cross-link into other pillars (Evaluate's
+		// "By exam" group points at /practice-tests/, which is Excel's). Those
+		// individual rows go too, and a group left with no rows goes with them
+		// rather than rendering an empty column.
+		foreach ( $panels as $pgt_key => $pgt_panel ) {
+			$pgt_groups = array();
+			foreach ( (array) ( $pgt_panel['groups'] ?? array() ) as $pgt_group ) {
+				$pgt_group['items'] = $this->drop_disabled_links( (array) ( $pgt_group['items'] ?? array() ) );
+				if ( $pgt_group['items'] ) {
+					$pgt_groups[] = $pgt_group;
+				}
+			}
+			$panels[ $pgt_key ]['groups'] = $pgt_groups;
+
+			// The aside is one promo CTA; drop only the link, keep the copy.
+			$pgt_aside_url = $pgt_panel['aside']['url'] ?? '';
+			if ( '' !== $pgt_aside_url ) {
+				$pgt_aside_pillar = $this->pillar_of_url( $pgt_aside_url );
+				if ( '' !== $pgt_aside_pillar && ! $this->pillar_on( $pgt_aside_pillar ) ) {
+					unset( $panels[ $pgt_key ]['aside'] );
+				}
+			}
+
+			// Everything in it was cross-pillar: an empty disclosure that opens
+			// onto nothing is worse than no chevron at all.
+			if ( ! $pgt_groups && empty( $panels[ $pgt_key ]['aside'] ) ) {
+				unset( $panels[ $pgt_key ] );
+			}
+		}
+
 		/**
 		 * Filter the mega menu panel contents.
 		 *
@@ -395,10 +546,14 @@ final class Chrome {
 			),
 		);
 
-		// Excel tutors get their real teaching home. Same caps that gate the
+		// Tutors get their real teaching home. Same caps that gate the
 		// [pge_excel_teacher_portal] surface itself, so this can never 403.
 		// (Physical slugs from the engine's Storage_Map; engine-active only.)
+		// Live tutoring is ELEVATE's since the pillar realignment — the caps
+		// keep their historical testbook_excel_* names, but the flag that
+		// decides whether the portal exists at all is Elevate's.
 		if ( function_exists( 'pge_get_template' )
+			&& $this->pillar_on( 'elevate' )
 			&& ( current_user_can( 'testbook_excel_teach' ) || current_user_can( 'testbook_excel_manage' ) || current_user_can( 'manage_options' ) ) ) {
 			$links[] = array(
 				'id'    => 'teacher-portal',
@@ -461,6 +616,9 @@ final class Chrome {
 			if ( null !== $menu_links ) {
 				$columns[ $key ]['links'] = $menu_links;
 			}
+			// Applied AFTER the menu override too: an owner-curated footer
+			// column is just as capable of linking at a switched-off pillar.
+			$columns[ $key ]['links'] = $this->drop_disabled_links( $columns[ $key ]['links'] );
 		}
 
 		/**
@@ -879,14 +1037,20 @@ final class Chrome {
 					. $rows . '</div>';
 			}
 
-			$a     = $p['aside'];
-			$aside = '<div class="pgt-mega__aside">'
-				. '<p class="pgt-mega__asideeyebrow">' . esc_html( $a['eyebrow'] ) . '</p>'
-				. '<p class="pgt-mega__asidetitle">' . esc_html( $a['title'] ) . '</p>'
-				. '<p class="pgt-mega__asidebody">' . esc_html( $a['body'] ) . '</p>'
-				. '<a class="pgt-mega__asidecta" href="' . esc_url( $a['url'] ) . '" data-nav="' . esc_attr( 'mega-cta:' . $key ) . '">'
-				. esc_html( $a['cta'] ) . Icons::svg( 'arrow-right', array( 'size' => 14, 'stroke' => 2 ) ) . '</a>'
-				. '</div>';
+			// The aside is optional: mega_panels() drops it when its promo CTA
+			// points into a pillar that is switched off, rather than render a
+			// call to action for something the site no longer offers.
+			$aside = '';
+			if ( ! empty( $p['aside'] ) ) {
+				$a     = $p['aside'];
+				$aside = '<div class="pgt-mega__aside">'
+					. '<p class="pgt-mega__asideeyebrow">' . esc_html( $a['eyebrow'] ) . '</p>'
+					. '<p class="pgt-mega__asidetitle">' . esc_html( $a['title'] ) . '</p>'
+					. '<p class="pgt-mega__asidebody">' . esc_html( $a['body'] ) . '</p>'
+					. '<a class="pgt-mega__asidecta" href="' . esc_url( $a['url'] ) . '" data-nav="' . esc_attr( 'mega-cta:' . $key ) . '">'
+					. esc_html( $a['cta'] ) . Icons::svg( 'arrow-right', array( 'size' => 14, 'stroke' => 2 ) ) . '</a>'
+					. '</div>';
+			}
 
 			$out .= '<div class="pgt-mega pgt-mega--' . esc_attr( $tone ) . '" id="pgt-panel-' . esc_attr( $key ) . '" data-pgt-panel-body="' . esc_attr( $key ) . '" hidden>'
 				. '<div class="pgt-mega__inner"><div class="pgt-mega__groups">' . $groups . '</div>' . $aside . '</div>'
@@ -1173,19 +1337,21 @@ final class Chrome {
 						 * nothing. At rest they look exactly like the statement
 						 * they replace.
 						 */
-						$pgt_statement = array(
+						$pgt_statement = $this->drop_disabled_links(
 							array(
-								'label' => __( 'Evaluate.', 'prepgro-theme' ),
-								'url'   => home_url( '/evaluate/' ),
-							),
-							array(
-								'label' => __( 'Elevate.', 'prepgro-theme' ),
-								'url'   => home_url( '/elevate/' ),
-							),
-							array(
-								'label' => __( 'Excel.', 'prepgro-theme' ),
-								'url'   => home_url( '/excel/' ),
-							),
+								array(
+									'label' => __( 'Evaluate.', 'prepgro-theme' ),
+									'url'   => home_url( '/evaluate/' ),
+								),
+								array(
+									'label' => __( 'Elevate.', 'prepgro-theme' ),
+									'url'   => home_url( '/elevate/' ),
+								),
+								array(
+									'label' => __( 'Excel.', 'prepgro-theme' ),
+									'url'   => home_url( '/excel/' ),
+								),
+							)
 						);
 						?>
 						<h2 class="pgt-footer__statement">

@@ -472,3 +472,30 @@
 	.pgh-reportskill > span:first-child { font-size: 12.5px; }
 	.pgh-reportskill .pgh-mono { font-size: 11.5px; }
 }
+
+/* ── Coming soon — a pillar switched off in the engine's Settings → Modules.
+   The loop card stays (three parts is the product) but says plainly that this
+   one is not open, and its CTA is replaced by text rather than a dead link.
+   See Homepage_Sections::gate_loop_cards(). */
+.pgh-phaserow {
+	display: inline-flex;
+	align-self: flex-start;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.pgh-soon {
+	display: inline-flex;
+	border-radius: var(--pge-radius-pill);
+	padding: 5px 11px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	background: var(--neutral-100, #f3f4f6);
+	color: var(--pge-ink-500, #6b7280);
+}
+/* Muted, but never below the 4.5:1 the body copy already meets — the card
+   still has to be readable, it is just not clickable. */
+.pgh-loopcard--soon { opacity: .82; }
+.pgh-loopcard--soon .pgh-phase { filter: saturate(.3); }

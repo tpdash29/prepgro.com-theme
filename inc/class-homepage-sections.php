@@ -46,6 +46,95 @@ final class Homepage_Sections {
 		add_shortcode( 'pgt_latest_tests', array( $this, 'render_latest_tests' ) );
 		add_shortcode( 'pgt_testimonials', array( $this, 'render_testimonials' ) );
 		add_shortcode( 'pgt_photo_band', array( $this, 'render_photo_band' ) );
+
+		// Badge the "Three parts. One loop." cards for switched-off pillars.
+		add_filter( 'render_block', array( $this, 'gate_loop_cards' ), 10, 2 );
+	}
+
+	/**
+	 * The homepage's three-pillar loop section (#pg-how) is authored as static
+	 * markup inside one core/html block in templates/front-page.html, so it
+	 * cannot be PHP-gated where it is written. This post-processes that one
+	 * block: a pillar the engine has switched off keeps its card — the loop is
+	 * the product, and a two-card row would say prepGro only ever had two
+	 * parts — but gains a "Coming soon" badge and loses its link.
+	 *
+	 * Scoped tightly: it only touches core/html blocks that actually contain a
+	 * .pgh-loopcard, so the common path is one strpos over a handful of blocks.
+	 * The hero's .pgh-fcard mockup cards are deliberately left alone — that is
+	 * a picture of the product, not navigation, and the phase names in it are
+	 * labels rather than promises.
+	 *
+	 * @param string $content Rendered block HTML.
+	 * @param array  $block   Parsed block.
+	 * @return string
+	 */
+	public function gate_loop_cards( $content, $block ) {
+		if ( ! function_exists( 'pge_feature' ) ) {
+			return $content;
+		}
+		if ( empty( $block['blockName'] ) || 'core/html' !== $block['blockName'] ) {
+			return $content;
+		}
+		if ( false === strpos( $content, 'pgh-loopcard' ) ) {
+			return $content;
+		}
+
+		return (string) preg_replace_callback(
+			'#<article class="pgh-loopcard">(.*?)</article>#s',
+			static function ( $m ) {
+				if ( ! preg_match( '#pgh-phase--([a-z]+)#', $m[1], $phase ) ) {
+					return $m[0];
+				}
+				$key = $phase[1];
+				if ( ! in_array( $key, array( 'evaluate', 'elevate', 'excel' ), true ) || \pge_feature( $key ) ) {
+					return $m[0];
+				}
+
+				$inner = $m[1];
+
+				// Badge, alongside the phase chip it belongs to. Wrapped in a
+				// row rather than dropped in as a sibling: the card is a flex
+				// column, so a bare second chip would take a line of its own
+				// under the first instead of sitting beside it.
+				$inner = preg_replace(
+					'#(<span class="pgh-phase pgh-phase--' . preg_quote( $key, '#' ) . '">.*?</span>)#s',
+					'<span class="pgh-phaserow">$1<span class="pgh-soon">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span></span>',
+					$inner,
+					1
+				);
+
+				// The CTA keeps its link but changes what it promises. It points
+				// at the pillar's landing page, which is written for exactly
+				// this state — what the pillar is, that it is closed, and the
+				// countdown to when it opens. Only the label was a lie.
+				$inner = preg_replace(
+					'#(<a class="pgh-linkarrow"[^>]*>).*?(<svg)#s',
+					'$1' . esc_html__( 'See when it opens', 'prepgro-theme' ) . '$2',
+					$inner,
+					1
+				);
+
+				// Countdown between the stat block and the link, when a launch
+				// date is set. Inserted through a callback, not a replacement
+				// string: the countdown is arbitrary markup and preg_replace
+				// would read any $-sequence in it as a backreference.
+				$cd = function_exists( 'pgt_countdown' ) ? pgt_countdown( $key ) : '';
+				if ( '' !== $cd ) {
+					$inner = preg_replace_callback(
+						'#</div>\s*<a class="pgh-linkarrow"#s',
+						static function ( $hit ) use ( $cd ) {
+							return '</div>' . $cd . '<a class="pgh-linkarrow"';
+						},
+						$inner,
+						1
+					);
+				}
+
+				return '<article class="pgh-loopcard pgh-loopcard--soon">' . $inner . '</article>';
+			},
+			$content
+		);
 	}
 
 

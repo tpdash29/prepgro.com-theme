@@ -2086,3 +2086,57 @@ html[data-pge-admin-theme="dark"] .pgt-drawer__close { background: #1c2230; bord
 	background: rgba(255,255,255,.07);
 	border-color: rgba(107,164,255,.24);
 }
+
+/* ── Launch countdown ────────────────────────────────────────────────
+   Rendered by pgt_countdown() wherever a switched-off pillar has an
+   "Available from" date; theme.js keeps the numbers moving. Lives in
+   theme.css rather than a page stylesheet because both the homepage
+   (pg-home.css) and the module landing pages (pg-module.css) use it. */
+.pgt-cd {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 6px 12px;
+	margin-top: 16px;
+	padding: 12px 14px;
+	border: 1px solid var(--pge-color-line, #e5e7eb);
+	border-radius: 14px;
+	background: var(--pge-color-surface, #fff);
+}
+.pgt-cd__lead {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: var(--pge-ink-500, #6b7280);
+}
+.pgt-cd__units { display: flex; gap: 14px; }
+.pgt-cd__unit { display: flex; align-items: baseline; gap: 4px; }
+.pgt-cd__n {
+	font-size: 19px;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: -.02em;
+	color: var(--pge-color-ink, #0b1020);
+	/* Tabular figures so the seconds column does not shuffle the row a
+	   pixel left and right on every tick. */
+	font-variant-numeric: tabular-nums;
+}
+.pgt-cd__l {
+	font-style: normal;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--pge-ink-500, #6b7280);
+}
+/* The absolute date is the accessible answer — role="timer" is not live,
+   so this is what a screen reader reads out with the block. */
+.pgt-cd__date {
+	flex: 1 0 100%;
+	font-size: 12px;
+	color: var(--pge-ink-500, #6b7280);
+}
+.pgt-cd.is-done .pgt-cd__lead { color: var(--pge-color-ink, #0b1020); }
+
+/* On a module page's dark hero the panel sits on light ground, so no dark
+   variant is needed; inside the homepage loop card it inherits the card. */
+.pgh-loopcard .pgt-cd { margin-top: 14px; }

@@ -722,6 +722,70 @@
 		}
 	}
 
+	/* ---------- Launch countdowns ----------
+	 * A pillar switched off in the engine can carry an "Available from" date;
+	 * PHP renders the block already filled in (see pgt_countdown() in
+	 * functions.php) and this only keeps it moving. One shared interval for
+	 * every countdown on the page rather than one each.
+	 *
+	 * The target is an absolute UNIX timestamp, so a visitor in another
+	 * timezone — or with a wrong clock — sees the same remaining time as the
+	 * admin who set it, not the same wall-clock date read locally.
+	 */
+	function initCountdowns() {
+		var nodes = [].slice.call( document.querySelectorAll( '[data-pgt-countdown]' ) );
+		if ( ! nodes.length ) {
+			return;
+		}
+
+		var PLURAL = { d: [ 'day', 'days' ], h: [ 'hrs', 'hrs' ], m: [ 'min', 'min' ], s: [ 'sec', 'sec' ] };
+
+		function paint( el ) {
+			var target = parseInt( el.getAttribute( 'data-pgt-countdown' ), 10 ) * 1000;
+			var left   = Math.max( 0, target - Date.now() );
+
+			if ( left <= 0 ) {
+				// Reached the date while someone had the page open. The module
+				// is still off until an admin switches it on, so this promises
+				// nothing beyond "the date has arrived".
+				el.classList.add( 'is-done' );
+				el.innerHTML = '<span class="pgt-cd__lead">Opening today</span>';
+				return false;
+			}
+
+			var sec  = Math.floor( left / 1000 );
+			var vals = {
+				d: Math.floor( sec / 86400 ),
+				h: Math.floor( ( sec % 86400 ) / 3600 ),
+				m: Math.floor( ( sec % 3600 ) / 60 ),
+				s: sec % 60
+			};
+
+			Object.keys( vals ).forEach( function ( k ) {
+				var n = el.querySelector( '[data-pgt-cd="' + k + '"]' );
+				if ( n && n.textContent !== String( vals[ k ] ) ) {
+					n.textContent = vals[ k ];
+				}
+				var l = el.querySelector( '[data-pgt-cd-label="' + k + '"]' );
+				if ( l && PLURAL[ k ] ) {
+					var word = vals[ k ] === 1 ? PLURAL[ k ][ 0 ] : PLURAL[ k ][ 1 ];
+					if ( l.textContent !== word ) {
+						l.textContent = word;
+					}
+				}
+			} );
+			return true;
+		}
+
+		nodes.forEach( paint );
+		var timer = setInterval( function () {
+			nodes = nodes.filter( paint );
+			if ( ! nodes.length ) {
+				clearInterval( timer );
+			}
+		}, 1000 );
+	}
+
 	function init() {
 		initHeaderDisclosures();
 		initDrawer();
@@ -733,6 +797,7 @@
 		initReveals();
 		initCounters();
 		initProctorAlerts();
+		initCountdowns();
 	}
 
 	if ( document.readyState === 'loading' ) {

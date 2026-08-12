@@ -142,6 +142,29 @@ final class Module_Pages {
 		return isset( $map[ $post->post_name ] ) ? $map[ $post->post_name ] : '';
 	}
 
+	/**
+	 * Is a pillar switched on in the engine (Settings → Modules)?
+	 *
+	 * These landing pages are THEME-rendered — route_template() swaps the page
+	 * template for page-module.html, which prints [pgt_module_page] instead of
+	 * the page's own content. That is why switching a pillar off in the engine
+	 * did nothing here: the engine's disabled-shortcode fallback never sees
+	 * these pages, so /elevate/ went on selling a pillar whose runtime surface
+	 * had been unregistered, CTAs and all.
+	 *
+	 * Defaults to TRUE with the engine deactivated — same reasoning as
+	 * Chrome::pillar_on(): the theme must stand on its own.
+	 *
+	 * @param string $key Pillar key.
+	 * @return bool
+	 */
+	private function pillar_on( $key ) {
+		if ( ! function_exists( 'pge_feature' ) ) {
+			return true;
+		}
+		return (bool) \pge_feature( $key );
+	}
+
 	/* ─────────────────────────────────────────────────────────────────────
 	   Content sets. Copy is final — lifted from the prototype's moduleVals().
 	   ──────────────────────────────────────────────────────────────────── */
@@ -166,7 +189,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => __( '~20 min', 'prepgro-theme' ), 'label' => __( 'one adaptive check', 'prepgro-theme' ) ),
 					array( 'value' => __( '4 gaps', 'prepgro-theme' ), 'label' => __( 'named in your report', 'prepgro-theme' ) ),
-					array( 'value' => '$0', 'label' => __( 'no card needed', 'prepgro-theme' ) ),
+					array( 'value' => '$0', 'label' => __( 'no card needed', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'Your readiness report', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'A diagnostic, a per-skill breakdown, and a report a parent can read in two minutes.', 'prepgro-theme' ),
@@ -231,7 +254,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => '8', 'label' => __( 'live classes a month', 'prepgro-theme' ) ),
 					array( 'value' => '1:1', 'label' => __( 'never a group call', 'prepgro-theme' ) ),
-					array( 'value' => '$129', 'label' => __( 'per month, one subject', 'prepgro-theme' ) ),
+					array( 'value' => '$129', 'label' => __( 'per month, one subject', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'A week on your plan', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'A study plan you can follow without deciding what to do next, and a tutor for the parts that need a human.', 'prepgro-theme' ),
@@ -294,7 +317,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => __( 'Unlimited', 'prepgro-theme' ), 'label' => __( 'attempts, one subject', 'prepgro-theme' ) ),
 					array( 'value' => '38', 'label' => __( 'AP exams covered', 'prepgro-theme' ) ),
-					array( 'value' => '$9.99', 'label' => __( 'per month', 'prepgro-theme' ) ),
+					array( 'value' => '$9.99', 'label' => __( 'per month', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'Score trend, 12 tests', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'Real exam structure and timing, explanations on every question, and progress tracked per skill.', 'prepgro-theme' ),
@@ -404,11 +427,71 @@ final class Module_Pages {
 		}
 		$m = $mods[ $key ];
 
+		// Pillar switched off: keep the URL and the hero (the page still has
+		// to answer "what is Excel?" for anyone who lands on it, and the URL
+		// keeps its inbound links and search presence), but nothing below it.
+		// The sections that go are the ones that make promises the site can no
+		// longer keep — what's inside, the proof band, the how, and above all
+		// the plan with its price and its buy button.
+		if ( ! $this->pillar_on( $key ) ) {
+			return $this->hero( $key, $m, true ) . $this->coming_soon( $key, $m );
+		}
+
 		return $this->hero( $key, $m )
 			. $this->inside( $m )
 			. $this->proof_band( $m )
 			. $this->how( $m )
 			. $this->plan( $key, $m );
+	}
+
+	/**
+	 * The body a switched-off pillar gets instead of its five sections: one
+	 * panel that says so plainly, plus the pillars that ARE live so the
+	 * visitor leaves with somewhere to go rather than a dead end.
+	 *
+	 * @param string $key Module key.
+	 * @param array  $m   Content.
+	 * @return string
+	 */
+	private function coming_soon( $key, $m ) {
+		$links = $this->cross_links();
+		$rest  = '';
+		foreach ( (array) $m['next'] as $other ) {
+			if ( ! isset( $links[ $other ] ) || ! $this->pillar_on( $other ) ) {
+				continue;
+			}
+			$l     = $links[ $other ];
+			$rest .= '<a class="pgm-next pgm-next--' . esc_attr( $other ) . '" href="' . esc_url( $l['url'] ) . '">'
+				. '<span class="pgm-next__icon">' . Icons::svg( $l['icon'], array( 'size' => 17, 'stroke' => 1.9 ) ) . '</span>'
+				. '<span class="pgm-next__copy"><span class="pgm-next__label">' . esc_html( $l['label'] ) . '</span>'
+				. '<span class="pgm-next__sub">' . esc_html( $l['sub'] ) . '</span></span>'
+				. '<span class="pgm-next__arrow">' . Icons::svg( 'arrow-right', array( 'size' => 15, 'stroke' => 2 ) ) . '</span>'
+				. '</a>';
+		}
+
+		$onward = $rest
+			? '<div class="pgm-nextcol"><p class="pgm-kicker">' . esc_html__( 'Available now', 'prepgro-theme' ) . '</p>' . $rest . '</div>'
+			: '';
+
+		// Countdown, when the admin has set a launch date for this pillar.
+		// With one, the body copy can name the date instead of saying "soon".
+		$countdown = function_exists( 'pgt_countdown' ) ? pgt_countdown( $key ) : '';
+		$body      = $countdown
+			? __( 'We are still building this part of prepGro. Nothing here can be bought or booked yet — this page is where it lands when it opens.', 'prepgro-theme' )
+			: __( 'We are still building this part of prepGro. Nothing here can be bought or booked yet — when it opens, this page is where it lands.', 'prepgro-theme' );
+
+		return '<section class="pgm-section pgm-section--last"><div class="pgm-inner pgm-soonrow">'
+			. '<div class="pgm-soonpanel">'
+			. '<span class="pgm-soon">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span>'
+			. '<h2 class="pgm-soonpanel__title">'
+			/* translators: %s: pillar name, e.g. Excel. */
+			. esc_html( sprintf( __( '%s is not open yet', 'prepgro-theme' ), $m['eyebrow'] ) )
+			. '</h2>'
+			. '<p class="pgm-soonpanel__body">' . esc_html( $body ) . '</p>'
+			. $countdown
+			. '</div>'
+			. $onward
+			. '</div></section>';
 	}
 
 	/**
@@ -429,16 +512,41 @@ final class Module_Pages {
 	 * Section 1 — dark hero. Same --neutral-950 surface and the same two
 	 * radial washes as the homepage dark band; no new colours.
 	 *
-	 * @param string $key Module key.
-	 * @param array  $m   Content.
+	 * @param string $key  Module key.
+	 * @param array  $m    Content.
+	 * @param bool   $soon Pillar is switched off: badge the eyebrow and drop
+	 *                     the CTA pair. The stats and the infographic stay —
+	 *                     they describe what the pillar IS, which is still
+	 *                     true, and a hero stripped to a headline reads like
+	 *                     a broken page rather than a deliberate one.
 	 * @return string
 	 */
-	private function hero( $key, $m ) {
+	private function hero( $key, $m, $soon = false ) {
 		$stats = '';
 		foreach ( $m['stats'] as $st ) {
+			// A closed pillar shows no price. The stat is flagged in modules()
+			// rather than sniffed for a '$' so it survives translation, a
+			// currency change and the country profile — and so "$0 · no card
+			// needed" goes too: on a pillar nobody can sign up for, a free
+			// price is still a price, and the panel below already says nothing
+			// here can be bought yet.
+			if ( $soon && ! empty( $st['price'] ) ) {
+				continue;
+			}
 			$stats .= '<div class="pgm-stat"><p class="pgm-stat__v">' . esc_html( $st['value'] ) . '</p>'
 				. '<p class="pgm-stat__l">' . esc_html( $st['label'] ) . '</p></div>';
 		}
+
+		$badge = $soon
+			? '<span class="pgm-soon pgm-soon--onhero">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span>'
+			: '';
+
+		$cta = $soon
+			? ''
+			: '<div class="pgm-hero__cta">'
+				. '<a class="pgm-btn pgm-btn--primary" href="' . esc_url( $this->cta_url( $m['cta'] ) ) . '">' . esc_html( $m['cta']['label'] ) . '</a>'
+				. '<a class="pgm-btn pgm-btn--quiet" href="' . esc_url( $this->cta_url( $m['alt'] ) ) . '">' . esc_html( $m['alt']['label'] ) . '</a>'
+				. '</div>';
 
 		return '<section class="pgm-hero">'
 			. '<div class="pgm-hero__wash" aria-hidden="true"></div>'
@@ -447,13 +555,11 @@ final class Module_Pages {
 			. '<div class="pgm-eyebrowrow">'
 			. '<span class="pgm-iconchip">' . Icons::svg( $m['icon'], array( 'size' => 16, 'stroke' => 1.9 ) ) . '</span>'
 			. '<span class="pgm-eyebrow">' . esc_html( $m['eyebrow'] ) . '</span>'
+			. $badge
 			. '</div>'
 			. '<h1 class="pgm-hero__title">' . esc_html( $m['title'] ) . '</h1>'
 			. '<p class="pgm-hero__body">' . esc_html( $m['body'] ) . '</p>'
-			. '<div class="pgm-hero__cta">'
-			. '<a class="pgm-btn pgm-btn--primary" href="' . esc_url( $this->cta_url( $m['cta'] ) ) . '">' . esc_html( $m['cta']['label'] ) . '</a>'
-			. '<a class="pgm-btn pgm-btn--quiet" href="' . esc_url( $this->cta_url( $m['alt'] ) ) . '">' . esc_html( $m['alt']['label'] ) . '</a>'
-			. '</div>'
+			. $cta
 			. '<div class="pgm-stats">' . $stats . '</div>'
 			. '</div>'
 			. '<figure class="pgm-fig" id="' . esc_attr( 'pgm-fig-' . $key ) . '">'
@@ -741,15 +847,25 @@ final class Module_Pages {
 			if ( ! isset( $links[ $other ] ) ) {
 				continue;
 			}
-			$l     = $links[ $other ];
+			$l    = $links[ $other ];
+			$open = $this->pillar_on( $other );
+
 			// pgm-next--{module}: this card links TO $other, so its icon
 			// takes $other's colour (not the current page's) — a preview of
 			// what you're headed to, and one more place the three pillars
 			// read as distinct rather than one repeated blue.
-			$rest .= '<a class="pgm-next pgm-next--' . esc_attr( $other ) . '" href="' . esc_url( $l['url'] ) . '">'
+			//
+			// A switched-off pillar keeps its card AND its link — the loop is
+			// the product, and its landing page is the one page in that pillar
+			// still written to be read: it says what the pillar is, that it is
+			// not open, and when it opens. The card is muted and badged so the
+			// state is clear before the click rather than after it.
+			$rest .= '<a class="pgm-next pgm-next--' . esc_attr( $other ) . ( $open ? '' : ' pgm-next--soon' ) . '" href="' . esc_url( $l['url'] ) . '">'
 				. '<span class="pgm-next__icon">' . Icons::svg( $l['icon'], array( 'size' => 17, 'stroke' => 1.9 ) ) . '</span>'
-				. '<span class="pgm-next__copy"><span class="pgm-next__label">' . esc_html( $l['label'] ) . '</span>'
-				. '<span class="pgm-next__sub">' . esc_html( $l['sub'] ) . '</span></span>'
+				. '<span class="pgm-next__copy"><span class="pgm-next__label">' . esc_html( $l['label'] )
+				. ( $open ? '' : ' <span class="pgm-soon">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span>' )
+				. '</span>'
+				. '<span class="pgm-next__sub">' . esc_html( $open ? $l['sub'] : __( 'See what it is and when it opens', 'prepgro-theme' ) ) . '</span></span>'
 				. '<span class="pgm-next__arrow">' . Icons::svg( 'arrow-right', array( 'size' => 15, 'stroke' => 2 ) ) . '</span>'
 				. '</a>';
 		}

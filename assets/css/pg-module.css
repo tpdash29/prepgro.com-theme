@@ -521,3 +521,70 @@ body.pg-module .pgt-brandlogo__copy { position: relative; }
 body.pg-module .pgt-header {
 	border-bottom: 3px solid var(--pgm-accent, var(--pge-color-primary));
 }
+
+/* ── 6. Coming soon — a pillar switched off in Settings → Modules ────
+   The landing page keeps its URL and its hero (see
+   class-module-pages.php::render()); everything that made a promise the
+   site can no longer keep is replaced by the panel below. */
+.pgm-soon {
+	display: inline-block;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	line-height: 1.5;
+	vertical-align: middle;
+	background: var(--neutral-100, #f3f4f6);
+	color: var(--pge-ink-500, #6b7280);
+	border: 1px solid var(--pge-color-line, #e5e7eb);
+}
+/* On the dark hero the neutral chip disappears, so it borrows the same
+   translucent-white treatment as .pgm-iconchip beside it. */
+.pgm-soon--onhero {
+	background: rgba(255,255,255,.12);
+	border-color: rgba(255,255,255,.22);
+	color: var(--pgm-on-dark, var(--pge-color-on-dark));
+}
+
+.pgm-soonrow {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+	gap: 18px;
+	align-items: start;
+}
+.pgm-soonpanel {
+	background: var(--pge-color-surface-2, var(--neutral-50, #f9fafb));
+	border: 1px solid var(--pge-color-line);
+	border-radius: 24px;
+	padding: clamp(24px, 3vw, 32px);
+}
+.pgm-soonpanel__title {
+	margin: 14px 0 0;
+	font-size: clamp(21px, 2.4vw, 27px);
+	line-height: 1.15;
+	letter-spacing: -.025em;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+}
+.pgm-soonpanel__body {
+	margin: 10px 0 0;
+	font-size: 14.5px;
+	line-height: 1.6;
+	color: var(--pge-ink-500);
+	max-width: 46ch;
+}
+
+/* The disabled card in "the rest of the loop". Rendered as a <div>, so it
+   needs no pointer-events guard — there is no href to follow. The muted
+   treatment is what tells a sighted reader; the missing link role and the
+   "Coming soon" text in the label tell everyone else. */
+.pgm-next--soon {
+	background: var(--pge-color-surface-2, var(--neutral-50, #f9fafb));
+	box-shadow: none;
+	cursor: default;
+}
+.pgm-next--soon .pgm-next__icon { filter: saturate(.35); opacity: .8; }
+.pgm-next--soon .pgm-next__label { color: var(--pge-ink-500); }
+.pgm-next--soon .pgm-soon { margin-left: 6px; }
