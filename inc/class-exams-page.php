@@ -271,6 +271,94 @@ final class Exams_Page {
 	}
 
 	/**
+	 * The hero and closing-band CTA pair, resolved for THIS visitor.
+	 *
+	 * The pair used to be a constant: "Start your free diagnostic" (accent,
+	 * hardcoded to /diagnostic-tests/) beside "Browse all exams" (ghost,
+	 * scrolling to the grid this page already is). Three things were wrong
+	 * with that on Excel's own catalogue page:
+	 *
+	 *  1. The diagnostic is EVALUATE's. With that pillar switched off the
+	 *     catalogue still renders (it is theme-routed, so the engine's
+	 *     disabled-shortcode fallback never sees it), the cards degrade to
+	 *     ?p=123 permalinks because the CPT never registered, and every one
+	 *     of them 404s. The loudest button on the commercial page led there.
+	 *  2. It never asked whether this visitor had already been diagnosed. A
+	 *     learner who sat one last week was still told to start one — the
+	 *     same mistake the mega menu made with /get-started/ before
+	 *     Destination::start_practicing() was introduced.
+	 *  3. A visitor who HAS evidence and is standing in the practice
+	 *     catalogue is there to practise. Sending them away to a diagnostic
+	 *     is the wrong ask; the grid below is the right one.
+	 *
+	 * So: no diagnostic CTA at all when Evaluate is off; the diagnostic leads
+	 * when there is no evidence yet; and once there is, practice leads and
+	 * the report becomes the quiet second option.
+	 *
+	 * `mode` is what callers branch on — never the label, which is translated
+	 * and would silently stop matching on a localised site.
+	 *
+	 * @return array{mode:string,primary:array{label:string,url:string},secondary:array{label:string,url:string}|null}
+	 */
+	private function hero_ctas() {
+		$browse = array(
+			'label' => __( 'Browse all exams', 'prepgro-theme' ),
+			'url'   => '#pgx-grid',
+		);
+
+		// Evaluate off: the diagnostic does not exist. One honest CTA beats
+		// two where the loud one is broken.
+		if ( ! $this->pillar_on( 'evaluate' ) ) {
+			return array( 'mode' => 'practice', 'primary' => $browse, 'secondary' => null );
+		}
+
+		$diagnosed = function_exists( 'pge_learner_has_results' ) && \pge_learner_has_results();
+
+		if ( $diagnosed ) {
+			return array(
+				'mode'      => 'practice',
+				'primary'   => $browse,
+				'secondary' => array(
+					'label' => __( 'See my readiness report', 'prepgro-theme' ),
+					'url'   => home_url( '/my-dashboard/?tab=readiness&seg=results' ),
+				),
+			);
+		}
+
+		// No evidence yet. start_practicing() is the resolver that gets the
+		// AUTH state right — sign-up for a visitor, the exact missing step for
+		// a half-onboarded account, the diagnostic for a ready one — so this
+		// never sends a signed-in learner back to a sign-up page.
+		$start = function_exists( 'pge_feature' )
+			&& class_exists( '\\PrepGro\\Engine\\Core\\Onboarding\\Destination' )
+				? \PrepGro\Engine\Core\Onboarding\Destination::start_practicing()
+				: home_url( '/diagnostic-tests/' );
+
+		return array(
+			'mode'      => 'diagnostic',
+			'primary'   => array(
+				'label' => __( 'Start your free diagnostic', 'prepgro-theme' ),
+				'url'   => $start,
+			),
+			'secondary' => $browse,
+		);
+	}
+
+	/**
+	 * Is a pillar switched on? Defaults to TRUE when the engine is inactive —
+	 * same convention as Chrome::pillar_on().
+	 *
+	 * @param string $key Pillar key.
+	 * @return bool
+	 */
+	private function pillar_on( $key ) {
+		if ( ! function_exists( 'pge_feature' ) ) {
+			return true;
+		}
+		return (bool) \pge_feature( $key );
+	}
+
+	/**
 	 * Hero: copy column + the score-trend sample card (Excel's signature
 	 * infographic per the redesign — illustrative, so it carries a visible
 	 * "Sample" badge).
@@ -279,6 +367,7 @@ final class Exams_Page {
 	 */
 	private function header() {
 		$student = $this->student_context();
+		$ctas    = $this->hero_ctas();
 		$note    = '';
 		if ( $student['grade'] || $student['state'] ) {
 			$bits = array_filter( array( $student['grade'], $student['state'] ) );
@@ -292,11 +381,21 @@ final class Exams_Page {
 		$copy = '<div class="pgx-head__copy">'
 			. '<span class="pgx-chip"><span class="pgx-chip__dot" aria-hidden="true"></span>' . esc_html__( 'Excel · Practice tests', 'prepgro-theme' ) . '</span>'
 			. '<h1 class="pgx-h1">' . esc_html__( 'Practice like it’s test day — timed, untimed, unlimited.', 'prepgro-theme' ) . '</h1>'
-			. '<p class="pgx-lede">' . esc_html__( 'Every exam below includes a free diagnostic, unlimited practice at your own pace, and an explanation on every question. Pricing is scoped to your level.', 'prepgro-theme' ) . '</p>'
+			// The lede promised "a free diagnostic" on every exam. That is
+			// Evaluate's, so with the pillar off the page opened by advertising
+			// something the site cannot deliver — the same claim the CTA below
+			// it just stopped making.
+			. '<p class="pgx-lede">' . esc_html(
+				'diagnostic' === $ctas['mode']
+					? __( 'Every exam below includes a free diagnostic, unlimited practice at your own pace, and an explanation on every question. Pricing is scoped to your level.', 'prepgro-theme' )
+					: __( 'Every exam below gives you unlimited practice at your own pace, with an explanation on every question. Pricing is scoped to your level.', 'prepgro-theme' )
+			) . '</p>'
 			. $note
 			. '<div class="pgx-ctas">'
-			. '<a class="pgx-btn pgx-btn--accent" href="' . esc_url( home_url( '/diagnostic-tests/' ) ) . '">' . esc_html__( 'Start your free diagnostic', 'prepgro-theme' ) . '</a>'
-			. '<a class="pgx-btn pgx-btn--ghost" href="#pgx-grid">' . esc_html__( 'Browse all exams', 'prepgro-theme' ) . '</a>'
+			. '<a class="pgx-btn pgx-btn--accent" href="' . esc_url( $ctas['primary']['url'] ) . '">' . esc_html( $ctas['primary']['label'] ) . '</a>'
+			. ( $ctas['secondary']
+				? '<a class="pgx-btn pgx-btn--ghost" href="' . esc_url( $ctas['secondary']['url'] ) . '">' . esc_html( $ctas['secondary']['label'] ) . '</a>'
+				: '' )
 			. '</div></div>';
 
 		return '<section class="pgx-head">'
@@ -866,10 +965,26 @@ final class Exams_Page {
 	 * @return string
 	 */
 	private function cta_band() {
+		$ctas = $this->hero_ctas();
+
+		// The band's whole pitch is "start free, then practice your gaps",
+		// which is the readiness check's pitch. With Evaluate off there is no
+		// free start to offer, and with a diagnostic already sat the promise
+		// is stale — in both cases the copy has to move with the button, or
+		// the page closes on a claim it cannot keep.
+		$diagnostic_led = 'diagnostic' === $ctas['mode'];
+
+		$head = $diagnostic_led
+			? __( 'Every exam starts free.', 'prepgro-theme' )
+			: __( 'Practice until the skill holds.', 'prepgro-theme' );
+		$body = $diagnostic_led
+			? __( 'Take the readiness check, then practice your exact gaps.', 'prepgro-theme' )
+			: __( 'Unlimited attempts, a fresh set of questions each time, and an explanation on every answer.', 'prepgro-theme' );
+
 		return '<section class="pgx-ctaband" id="pgx-ctaband">'
-			. '<div><h2>' . esc_html__( 'Every exam starts free.', 'prepgro-theme' ) . '</h2>'
-			. '<p>' . esc_html__( 'Take the readiness check, then practice your exact gaps.', 'prepgro-theme' ) . '</p></div>'
-			. '<a class="pgx-btn pgx-btn--onaccent" href="' . esc_url( home_url( '/diagnostic-tests/' ) ) . '">' . esc_html__( 'Start your free diagnostic', 'prepgro-theme' ) . '</a>'
+			. '<div><h2>' . esc_html( $head ) . '</h2>'
+			. '<p>' . esc_html( $body ) . '</p></div>'
+			. '<a class="pgx-btn pgx-btn--onaccent" href="' . esc_url( $ctas['primary']['url'] ) . '">' . esc_html( $ctas['primary']['label'] ) . '</a>'
 			. '</section>';
 	}
 
