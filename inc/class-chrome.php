@@ -365,7 +365,7 @@ final class Chrome {
 				'tone'   => 'excel',
 				'aside'  => array(
 					'eyebrow' => __( 'Prove it', 'prepgro-theme' ),
-					'title'   => __( 'Practise until it holds', 'prepgro-theme' ),
+					'title'   => __( 'Practice until it holds', 'prepgro-theme' ),
 					'body'    => __( 'Unlimited attempts for one subject, with explanations and a trend by skill.', 'prepgro-theme' ),
 					'cta'     => __( 'See test packs', 'prepgro-theme' ),
 					'url'     => Pricing_Levels::url(),
@@ -937,7 +937,19 @@ final class Chrome {
 					?>
 						<?php echo $this->account_cluster( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php echo $this->country_chip(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
+						<?php
+						// The free check is EVALUATE's. With that pillar off it
+						// does not exist, and /get-started/ resolves into its
+						// diagnostic catalogue — so the loudest button in the
+						// chrome, on every page of the site, pointed at a dead
+						// pillar. The nav's own links are filtered elsewhere;
+						// this one is markup, so it needs its own gate.
+						if ( $this->pillar_on( 'evaluate' ) ) :
+							?>
+							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
+							<?php
+						endif;
+						?>
 						<button class="pgt-burger" type="button" aria-label="<?php esc_attr_e( 'Open menu', 'prepgro-theme' ); ?>" aria-expanded="false" aria-controls="pgt-drawer">
 							<span></span><span></span><span></span>
 						</button>
@@ -1184,7 +1196,9 @@ final class Chrome {
 				</button>
 			</div>
 			<div class="pgt-drawer__body">
-				<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
+				<?php if ( $this->pillar_on( 'evaluate' ) ) : // Same gate as the desktop header CTA above. ?>
+					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
+				<?php endif; ?>
 				<nav class="pgt-drawer__nav" aria-label="<?php esc_attr_e( 'Menu', 'prepgro-theme' ); ?>">
 					<?php
 					foreach ( $links as $l ) {

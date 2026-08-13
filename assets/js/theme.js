@@ -436,6 +436,76 @@
 				show( level );
 			}
 		} );
+
+		initPricingTerms( root );
+	}
+
+	/* ---------- Pricing billing term ----------
+	 * Same trick as the level tabs: every term's panel is already server-
+	 * rendered, so choosing one is a visibility swap. It has to stay in sync
+	 * ACROSS levels — all four levels are in the DOM at once, so switching to
+	 * Annual then to "AP subjects" must land on AP's annual panel, not on
+	 * whatever that level was left showing. Hence one selected term for the
+	 * whole page rather than per-card state.
+	 *
+	 * Keyboard: a radiogroup is a single tab stop with arrow keys moving
+	 * between options, which is what the role promises a screen reader.
+	 */
+	function initPricingTerms( root ) {
+		var tabs = Array.prototype.slice.call( root.querySelectorAll( '[data-pgt-termtab]' ) );
+		if ( ! tabs.length ) {
+			return;
+		}
+
+		function pick( term, focus ) {
+			root.setAttribute( 'data-term', term );
+
+			tabs.forEach( function ( t ) {
+				var on = t.getAttribute( 'data-pgt-termtab' ) === term;
+				t.classList.toggle( 'is-on', on );
+				t.setAttribute( 'aria-checked', on ? 'true' : 'false' );
+				// Roving tabindex: only the checked radio is tabbable.
+				t.setAttribute( 'tabindex', on ? '0' : '-1' );
+				if ( on && focus ) {
+					t.focus();
+				}
+			} );
+
+			Array.prototype.forEach.call( root.querySelectorAll( '[data-pgt-term]' ), function ( el ) {
+				if ( el.getAttribute( 'data-pgt-term' ) === term ) {
+					el.removeAttribute( 'hidden' );
+				} else {
+					el.setAttribute( 'hidden', '' );
+				}
+			} );
+		}
+
+		tabs.forEach( function ( t ) {
+			t.addEventListener( 'click', function () {
+				pick( t.getAttribute( 'data-pgt-termtab' ), false );
+			} );
+
+			t.addEventListener( 'keydown', function ( e ) {
+				var i = tabs.indexOf( t );
+				var next = null;
+				if ( 'ArrowRight' === e.key || 'ArrowDown' === e.key ) {
+					next = tabs[ ( i + 1 ) % tabs.length ];
+				} else if ( 'ArrowLeft' === e.key || 'ArrowUp' === e.key ) {
+					next = tabs[ ( i - 1 + tabs.length ) % tabs.length ];
+				}
+				if ( next ) {
+					e.preventDefault();
+					pick( next.getAttribute( 'data-pgt-termtab' ), true );
+				}
+			} );
+		} );
+
+		// Adopt whatever the server marked as selected, so the roving tabindex
+		// is correct from the first keypress rather than after the first click.
+		var initial = tabs.filter( function ( t ) {
+			return t.classList.contains( 'is-on' );
+		} )[ 0 ] || tabs[ tabs.length - 1 ];
+		pick( initial.getAttribute( 'data-pgt-termtab' ), false );
 	}
 
 	/* ---------- Exam index filters ----------

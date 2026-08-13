@@ -81,6 +81,113 @@ final class Pricing_Levels {
 	}
 
 	/**
+	 * Billing terms, in display order, with the months each one covers.
+	 *
+	 * The months are what makes an honest comparison possible: the card can
+	 * only claim "save 58%" if it knows annual is twelve of the monthly price
+	 * rather than three. Annual sits last because that is where a segmented
+	 * control puts its default, and the default is the plan worth selling.
+	 *
+	 * @return array<string,array{label:string,months:int,billed:string}>
+	 */
+	public static function terms() {
+		return array(
+			'monthly'   => array(
+				'label'  => __( 'Monthly', 'prepgro-theme' ),
+				'months' => 1,
+				/* translators: %s: amount charged, e.g. $19.99. */
+				'billed' => __( 'Billed %s each month', 'prepgro-theme' ),
+			),
+			'quarterly' => array(
+				'label'  => __( 'Quarterly', 'prepgro-theme' ),
+				'months' => 3,
+				/* translators: %s: amount charged, e.g. $49.99. */
+				'billed' => __( 'Billed %s every 3 months', 'prepgro-theme' ),
+			),
+			'annual'    => array(
+				'label'  => __( 'Annual', 'prepgro-theme' ),
+				'months' => 12,
+				/* translators: %s: amount charged, e.g. $99.99. */
+				'billed' => __( 'Billed %s once a year', 'prepgro-theme' ),
+			),
+		);
+	}
+
+	/** Term selected by default — the best value, and the one worth selling. */
+	const DEFAULT_TERM = 'annual';
+
+	/**
+	 * What a term costs per month, and what it saves against paying monthly.
+	 *
+	 * Returns a zero saving rather than a negative one when a longer term is
+	 * priced above N months of the monthly rate: a misconfigured price should
+	 * make the badge disappear, not advertise "save -12%".
+	 *
+	 * @param array  $pack Level's pack prices.
+	 * @param string $term Term key.
+	 * @return array{per_month:float,total:float,saved:float,percent:int}
+	 */
+	public static function term_value( array $pack, $term ) {
+		$terms  = self::terms();
+		$months = isset( $terms[ $term ] ) ? (int) $terms[ $term ]['months'] : 1;
+		$total  = (float) ( isset( $pack[ $term ] ) ? $pack[ $term ] : 0 );
+		$month  = (float) ( isset( $pack['monthly'] ) ? $pack['monthly'] : 0 );
+
+		$full  = $month * $months;
+		$saved = $full - $total;
+
+		return array(
+			'per_month' => $months > 0 ? $total / $months : $total,
+			'total'     => $total,
+			'saved'     => $saved > 0 ? $saved : 0.0,
+			'percent'   => ( $saved > 0 && $full > 0 ) ? (int) round( $saved / $full * 100 ) : 0,
+		);
+	}
+
+	/**
+	 * Is there a real, purchasable SKU behind this level + term?
+	 *
+	 * buy_url() answers "where should the button point", which has always had
+	 * a fallback and therefore always looked like a working buy button. This
+	 * answers the question the CTA actually needs — "can this be bought at
+	 * all" — so the page can offer an enquiry instead of pretending to sell
+	 * something the site cannot yet take money for.
+	 *
+	 * @param string $level Level key.
+	 * @param string $term  Term key.
+	 * @return bool
+	 */
+	public static function has_sku( $level, $term ) {
+		$levels = self::levels();
+		$pid    = (int) ( isset( $levels[ $level ]['buy'][ $term ] ) ? $levels[ $level ]['buy'][ $term ] : 0 );
+		if ( ! $pid || ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_get_checkout_url' ) ) {
+			return false;
+		}
+		$product = wc_get_product( $pid );
+		return (bool) ( $product && $product->is_purchasable() && $product->is_in_stock() );
+	}
+
+	/**
+	 * Where a plan's CTA goes when nothing is purchasable yet.
+	 *
+	 * NOT /get-started/. That is the readiness-check funnel, and CTA_Router
+	 * rewrites it for a signed-in user into Destination::start_practicing(),
+	 * which lands an onboarded learner on Evaluate's diagnostic catalogue —
+	 * so "buy the unlimited test pack" ended on an exam page, and on a site
+	 * with Evaluate switched off, on a 404. An enquiry keeps the lead.
+	 *
+	 * @return string
+	 */
+	public static function enquiry_url() {
+		/**
+		 * Filter where an unpurchasable plan's CTA points (e.g. a waitlist form).
+		 *
+		 * @param string $url Fallback URL.
+		 */
+		return (string) apply_filters( 'pgt_pricing_enquiry_url', home_url( '/contact-us/' ) );
+	}
+
+	/**
 	 * Resolved levels: design figures overlaid with real package prices.
 	 *
 	 * @return array<string,array<string,mixed>>
@@ -211,6 +318,24 @@ final class Pricing_Levels {
 				return add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() );
 			}
 		}
+
+		// There is no Live Tutor SKU in the engine yet (see the class docblock),
+		// so this term always falls through. /get-started/ is the wrong fallback
+		// for it specifically: CTA_Router rewrites every /get-started/ href for a
+		// signed-in user to Destination::start_practicing(), which sends an
+		// onboarded learner to the diagnostic catalogue — landing a "Find a
+		// tutor" click on an unrelated exam page. Route to the booking/portal
+		// page instead so the link stays on-topic even without a purchasable SKU.
+		if ( 'tutor' === $term ) {
+			/**
+			 * Filter the fallback URL for the Live Tutor CTA when no SKU exists.
+			 *
+			 * @param string $url   Fallback URL.
+			 * @param string $level Level key.
+			 */
+			return apply_filters( 'pgt_pricing_tutor_fallback_url', home_url( '/live-tutoring/' ), $level );
+		}
+
 		/**
 		 * Filter the fallback URL used when a level has no purchasable SKU.
 		 *

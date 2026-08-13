@@ -147,10 +147,84 @@
 .pgp-figure__u { font-size: 18px; color: var(--neutral-400); }
 .pgp-figure--lg .pgp-figure__n { font-size: 50px; color: #fff; }
 .pgp-figure--lg .pgp-figure__u { font-size: 19px; color: rgba(255,255,255,.75); }
-.pgp-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
-.pgp-term { border: 1px solid var(--pge-gray-100); border-radius: 12px; padding: 12px 14px; }
-.pgp-term__l { margin: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--neutral-400); }
-.pgp-term__v { margin: 5px 0 0; font-family: var(--pge-font-mono); font-size: 17px; font-weight: 700; color: var(--pge-color-ink); }
+/* ── Billing term selector ───────────────────────────────────────────
+   Replaces .pgp-terms / .pgp-term, which were two inert boxes showing
+   prices nobody could choose. Same pill-in-a-track shape as .pgp-tabs
+   above it on purpose: that control is interactive, these read as its
+   siblings, and looking alike while behaving differently is what made
+   the card confusing. */
+.pgp-termswitch {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 20px;
+	padding: 4px;
+	background: var(--pge-gray-50, #f7f8fa);
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+}
+.pgp-termtab {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 8px 12px;
+	font-family: inherit;
+	font-size: 13.5px;
+	font-weight: 600;
+	white-space: nowrap;
+	color: var(--pge-ink-500);
+	background: transparent;
+	border: 0;
+	border-radius: var(--pge-radius-pill);
+	cursor: pointer;
+	transition: background-color 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
+}
+.pgp-termtab:hover { color: var(--pge-color-ink); }
+.pgp-termtab.is-on { background: var(--pge-color-ink); color: #fff; }
+.pgp-termtab.is-on:hover { color: #fff; }
+/* The saving is the reason to pick this term, so it is visible BEFORE the
+   click rather than only in the panel the click reveals. */
+.pgp-termtab__save {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .02em;
+	padding: 2px 6px;
+	border-radius: var(--pge-radius-pill);
+	background: var(--green-50, #ecfdf5);
+	color: var(--green-700, #047857);
+}
+.pgp-termtab.is-on .pgp-termtab__save { background: rgba(255,255,255,.18); color: #fff; }
+
+/* What is actually charged, and what it saves. The big figure is the
+   effective per-month cost of the SELECTED term, so the row underneath
+   has to state the real charge — a per-month number with no billed
+   amount beside it is the oldest dark pattern in subscription pricing. */
+.pgp-billed { margin: 8px 0 0; font-size: 13.5px; color: var(--pge-ink-500); }
+.pgp-save {
+	margin: 10px 0 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--green-700, #047857);
+}
+.pgp-reassure {
+	margin: 10px 0 0;
+	text-align: center;
+	font-size: 12.5px;
+	color: var(--neutral-400);
+}
+/* No purchasable SKU. Quieter than the buy button because it is a lesser
+   action, but still a real, obviously-clickable control — the previous
+   behaviour was a full-strength primary button that silently bounced to
+   an unrelated page. */
+.pgp-cta--enquire {
+	color: var(--pge-color-ink);
+	background: transparent;
+	border: 1.5px solid var(--pge-color-line);
+}
+.pgp-cta--enquire:hover { color: var(--pge-color-ink); background: var(--pge-gray-50, #f7f8fa); filter: none; }
+
 .pgp-subline { margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,.8); }
 
 .pgp-cta {
@@ -276,5 +350,5 @@
 .pgp-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--neutral-300); flex: none; margin-top: 8px; }
 
 @media (prefers-reduced-motion: reduce) {
-	.pgp-tab, .pgp-cta { transition: none; }
+	.pgp-tab, .pgp-cta, .pgp-termtab { transition: none; }
 }
