@@ -232,7 +232,7 @@ final class Module_Pages {
 				'steps'   => array(
 					array( 'n' => '01', 'title' => __( 'Take the check', 'prepgro-theme' ), 'body' => __( 'Pick your exam and answer until the check settles on your level.', 'prepgro-theme' ) ),
 					array( 'n' => '02', 'title' => __( 'Get the report', 'prepgro-theme' ), 'body' => __( 'Same day. Every sub-skill scored, four gaps named in priority order.', 'prepgro-theme' ) ),
-					array( 'n' => '03', 'title' => __( 'Choose your path', 'prepgro-theme' ), 'body' => __( 'Practise on your own, or get matched to a tutor for the weak skills.', 'prepgro-theme' ) ),
+					array( 'n' => '03', 'title' => __( 'Choose your path', 'prepgro-theme' ), 'body' => __( 'Practice on your own, or get matched to a tutor for the weak skills.', 'prepgro-theme' ) ),
 				),
 				'plan'    => array(
 					'tag'   => __( 'Always free', 'prepgro-theme' ),
@@ -310,7 +310,7 @@ final class Module_Pages {
 			'excel'    => array(
 				'eyebrow' => __( 'Excel', 'prepgro-theme' ),
 				'icon'    => 'trend-up',
-				'title'   => __( 'Practise until the skill holds under time.', 'prepgro-theme' ),
+				'title'   => __( 'Practice until the skill holds under time.', 'prepgro-theme' ),
 				'body'    => __( 'Unlimited timed and untimed practice for your exam, every answer explained, and a trend line that shows whether a fixed skill stayed fixed.', 'prepgro-theme' ),
 				'cta'     => array( 'label' => __( 'See test packs', 'prepgro-theme' ), 'url' => '', 'pricing' => true ),
 				'alt'     => array( 'label' => __( 'Browse all exams', 'prepgro-theme' ), 'url' => home_url( '/all-exams/' ) ),

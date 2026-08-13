@@ -671,7 +671,7 @@ final class Exams_Page {
 			array( 'icon' => 'circle-check-big', 'label' => __( 'Blueprint coverage', 'prepgro-theme' ), 'sub' => __( 'Every sub-skill the exam tests', 'prepgro-theme' ), 'value' => '100%' ),
 			array( 'icon' => 'help-circle', 'label' => __( 'Questions explained', 'prepgro-theme' ), 'sub' => __( 'Step-by-step, not just a key', 'prepgro-theme' ), 'value' => '100%' ),
 			array( 'icon' => 'clock', 'label' => __( 'Full mock tests', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'value' => $bank['mocks'] > 0 ? number_format_i18n( (int) $bank['mocks'] ) : '8+' ),
-			array( 'icon' => 'refresh-cw', 'label' => __( 'Retakes allowed', 'prepgro-theme' ), 'sub' => __( 'Practise until the skill holds', 'prepgro-theme' ), 'value' => '∞' ),
+			array( 'icon' => 'refresh-cw', 'label' => __( 'Retakes allowed', 'prepgro-theme' ), 'sub' => __( 'Practice until the skill holds', 'prepgro-theme' ), 'value' => '∞' ),
 		);
 
 		$tilerows = '';
