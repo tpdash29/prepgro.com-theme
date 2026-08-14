@@ -405,7 +405,7 @@ final class Diagnostics_Page {
 	 * @return string
 	 */
 	private function cta_band() {
-		return '<section class="pgx-ctaband">'
+		return '<section class="pgx-ctaband" id="pgx-ctaband">'
 			. '<div><h2>' . esc_html__( 'Free. No card needed.', 'prepgro-theme' ) . '</h2>'
 			. '<p>' . esc_html__( '20 minutes now saves weeks of practicing the wrong thing.', 'prepgro-theme' ) . '</p></div>'
 			. '<a class="pgx-btn pgx-btn--onaccent" href="#pgx-grid">' . esc_html__( 'Start your free diagnostic', 'prepgro-theme' ) . '</a>'

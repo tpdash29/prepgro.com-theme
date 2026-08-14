@@ -1,6 +1,8 @@
 <?php
 /**
- * Pattern: Feature grid (3 cards).
+ * Title: Feature Grid
+ * Slug: prepgro-theme/feature-grid
+ * Categories: prepgro
  *
  * @package PrepGro\Theme
  */

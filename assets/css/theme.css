@@ -31,7 +31,7 @@
 }
 
 :root {
-	--pgt-header-h: 68px;
+	--pgt-header-h: 74px; /* overridden by the Customizer "Header height" setting */
 	--pgt-max: 1200px;
 	--pgt-logo-h: 34px; /* overridden by the Customizer "Logo size" setting */
 	--pgt-ease: cubic-bezier(.22, .61, .36, 1);
@@ -43,7 +43,7 @@
 	   the nav and the module page together instead of drifting apart.
 	   All three clear 4.5:1 on white, which nav links at 14.5px require:
 	   blue 7.31, teal 5.47, amber 5.02. */
-	--pgt-pillar-evaluate: var(--blue-600);
+	--pgt-pillar-evaluate: #0a84ff;
 	--pgt-pillar-elevate:  var(--teal-700);
 	--pgt-pillar-excel:    var(--amber-700);
 	/* The non-pillar tone, shared by Home and Help in the nav and by the Help
@@ -144,6 +144,229 @@ a:hover { text-decoration: underline; }
 	white-space: nowrap;
 }
 
+/* ---------- WP admin toolbar — front end only ----------
+   Core's #wpadminbar has no width guard: at viewport widths roughly between
+   its own 783px mobile breakpoint and ~1050px (depends how many toolbar items
+   a logged-in admin/editor has), the right-aligned "Howdy, Name" item doesn't
+   fit the row and wraps onto a second, unclipped 32px band that sits ON TOP
+   of whatever comes next in the fixed-position stack — which is now our
+   topbar instead of the old plain-white header, so the collision that used
+   to be nearly invisible now reads as two overlapping bars.
+   The name is already shown in the topbar (with the child switcher), so
+   "Howdy, Name" is pure duplication on the front end — collapse it to just
+   the avatar rather than chase the exact wrap breakpoint, which shifts with
+   every plugin that adds a toolbar item. */
+#wpadminbar #wp-admin-bar-my-account > .ab-item { font-size: 0; }
+/* Core's own #wpadminbar * { font-size: 13px } sets the size directly on this
+   nested span, so it does NOT inherit the 0 above — direct rules win over
+   inheritance regardless of specificity. Has to be zeroed explicitly too. */
+#wpadminbar #wp-admin-bar-my-account .display-name { font-size: 0; }
+#wpadminbar #wp-admin-bar-my-account > .ab-item .avatar { vertical-align: middle; }
+
+/* ---------- Utility topbar ----------
+   Thin ink strip above everything, printed from wp_body_open so it exists even
+   on pages that suppress the marketing chrome. Deliberately NOT sticky: it
+   scrolls away and leaves the sticky header the whole viewport. Always dark,
+   in both admin themes — it is the one piece of chrome that never re-skins. */
+.pgt-topbar {
+	background: var(--pge-ink-950, #0f1419);
+	color: rgba(255, 255, 255, .72);
+	font-family: var(--pge-font-sans);
+	font-size: 12.5px;
+	line-height: 1.3;
+	border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+.pgt-topbar a { text-decoration: none; }
+.pgt-topbar__inner {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	min-height: 38px;
+	padding: 4px clamp(16px, 3vw, 32px);
+}
+/* Equal flexible side slots keep the pulse line truly centred. */
+.pgt-topbar__stat,
+.pgt-topbar__actions {
+	flex: 1 1 0;
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+.pgt-topbar__stat { gap: 7px; }
+.pgt-topbar__stat > svg,
+.pgt-topbar__statlink > svg {
+	flex: none;
+	color: var(--pgt-topbar-accent, #fbbf24);
+	fill: currentColor;
+}
+.pgt-topbar__statlink {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: inherit;
+	min-width: 0;
+}
+.pgt-topbar__statlink:hover .pgt-topbar__stattext { color: #fff; }
+.pgt-topbar__stattext {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: color 140ms var(--pgt-ease);
+}
+.pgt-topbar__stattext strong { color: #fff; font-weight: 700; }
+.pgt-topbar__pulse {
+	margin: 0;
+	flex: none;
+	text-align: center;
+	white-space: nowrap;
+	/* No overflow:hidden here — the learner switcher's menu hangs below the
+	   bar. The NAME is what gets clamped instead. */
+	min-width: 0;
+}
+.pgt-topbar__pulse strong {
+	color: #fff;
+	font-weight: 600;
+	display: inline-block;
+	max-width: min(40vw, 260px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	vertical-align: bottom;
+}
+.pgt-topbar__pulse em {
+	font-style: normal;
+	font-weight: 700;
+	color: var(--pgt-topbar-accent, #fbbf24);
+}
+/* Beacon — the pulsing dot before the learner's name: "this is who is
+   studying right now". A soft ping, not a hard blink; stilled entirely for
+   prefers-reduced-motion. */
+.pgt-topbar__beacon {
+	position: relative;
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	margin-right: 8px;
+	border-radius: 50%;
+	background: var(--pgt-topbar-accent, #fbbf24);
+	vertical-align: 1px;
+}
+.pgt-topbar__beacon::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background: var(--pgt-topbar-accent, #fbbf24);
+	animation: pgt-beacon-ping 2s cubic-bezier(0, 0, .2, 1) infinite;
+}
+@keyframes pgt-beacon-ping {
+	0%   { transform: scale(1); opacity: .8; }
+	70%, 100% { transform: scale(2.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.pgt-topbar__beacon::after { animation: none; opacity: 0; }
+}
+
+/* Learner switcher — a family account with 2+ child profiles gets a
+   disclosure on the name: pick who is studying. */
+.pgt-topbar__learner { position: relative; display: inline-flex; }
+.pgt-topbar__learnerbtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 8px;
+	margin: -4px 0;
+	background: transparent;
+	border: 0;
+	border-radius: var(--pge-radius-pill);
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	transition: background-color 140ms var(--pgt-ease);
+}
+.pgt-topbar__learnerbtn:hover,
+.pgt-topbar__learnerbtn[aria-expanded="true"] { background: rgba(255, 255, 255, .1); }
+.pgt-topbar__learnerbtn svg { opacity: .6; }
+.pgt-topbar__learnermenu {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 60; /* above the sticky header (z 50) */
+	display: flex;
+	flex-direction: column;
+	min-width: 180px;
+	padding: 6px;
+	background: var(--pge-ink-950, #0f1419);
+	border: 1px solid rgba(255, 255, 255, .14);
+	border-radius: 12px;
+	box-shadow: 0 14px 34px -12px rgba(3, 5, 15, .65);
+	text-align: left;
+}
+.pgt-topbar__learnermenu[hidden] { display: none; }
+.pgt-topbar__learnerhead {
+	padding: 6px 10px 7px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, .45);
+}
+.pgt-topbar__learneropt {
+	display: block;
+	width: 100%;
+	padding: 8px 10px;
+	background: transparent;
+	border: 0;
+	border-radius: 8px;
+	color: rgba(255, 255, 255, .85);
+	font: inherit;
+	font-weight: 600;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
+}
+.pgt-topbar__learneropt:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.pgt-topbar__learneropt.is-active { color: var(--pgt-topbar-accent, #fbbf24); }
+.pgt-topbar__learneropt.is-active::after { content: " ✓"; }
+.pgt-topbar__learner.is-busy { opacity: .55; pointer-events: none; }
+.pgt-topbar__actions { justify-content: flex-end; gap: 8px; }
+.pgt-topbar__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border-radius: var(--pge-radius-pill);
+	color: rgba(255, 255, 255, .82);
+	font-weight: 600;
+	white-space: nowrap;
+	transition: background-color 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
+}
+.pgt-topbar__link:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.pgt-topbar__link svg { opacity: .75; }
+/* Country chip + theme toggle re-skinned for the dark strip. */
+.pgt-topbar .pgt-countrychip {
+	background: rgba(255, 255, 255, .06);
+	border-color: rgba(255, 255, 255, .16);
+}
+.pgt-topbar .pgt-countrychip__code { color: #e7ecf5; letter-spacing: 0; white-space: nowrap; }
+.pgt-topbar .pgt-iconbtn {
+	width: 30px;
+	height: 30px;
+	background: transparent;
+	border-color: rgba(255, 255, 255, .16);
+	color: rgba(255, 255, 255, .82);
+}
+.pgt-topbar .pgt-iconbtn:hover { color: #fff; border-color: rgba(255, 255, 255, .34); }
+@media (max-width: 900px) {
+	.pgt-topbar__stat { display: none; }
+	.pgt-topbar__pulse { flex: 1 1 auto; text-align: left; }
+}
+@media (max-width: 600px) {
+	.pgt-topbar__pulse em { display: none; }
+	.pgt-topbar__inner { gap: 10px; }
+}
+
 /* ---------- Header ----------
    Opaque and non-blurred: the design system does not use transparency or
    backdrop-filter. Sticky is kept, but the bar is a normal in-flow element as
@@ -152,14 +375,14 @@ a:hover { text-decoration: underline; }
 	position: sticky;
 	top: 0;
 	z-index: 50;
-	background: var(--pge-white);
+	background: var(--pgt-header-bg, var(--pge-white));
 }
 .pgt-header {
-	background: var(--pge-white);
+	background: var(--pgt-header-bg, var(--pge-white));
 	border-bottom: 1px solid var(--pge-gray-100);
 }
 .pgt-header__inner {
-	min-height: 74px;
+	min-height: var(--pgt-header-h, 74px);
 	display: flex;
 	align-items: center;
 	gap: clamp(10px, 2vw, 28px);
@@ -192,7 +415,7 @@ a:hover { text-decoration: underline; }
 	font-family: var(--pgt-nav-font, inherit);
 	font-size: var(--pgt-nav-size, 14.5px);
 	font-weight: 500;
-	color: var(--pge-color-body);
+	color: var(--pgt-header-fg, var(--pge-color-body));
 	background: transparent;
 	border: 0;
 	padding: 8px 14px;
@@ -257,7 +480,7 @@ a:hover { text-decoration: underline; }
 	border: 1px solid var(--pge-color-line);
 	background: var(--pge-white);
 	border-radius: var(--pge-radius-pill);
-	color: var(--pge-color-body);
+	color: var(--pgt-header-fg, var(--pge-color-body));
 	cursor: pointer;
 	transition: background-color 140ms var(--pgt-ease), border-color 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
 }
@@ -280,7 +503,7 @@ a:hover { text-decoration: underline; }
 	background: var(--pge-white);
 	border-radius: var(--pge-radius-pill);
 	cursor: pointer;
-	color: var(--pge-color-muted);
+	color: var(--pgt-header-fg, var(--pge-color-muted));
 	transition: background-color 140ms var(--pgt-ease), border-color 140ms var(--pgt-ease);
 }
 .pgt-account__btn[aria-expanded="true"] {
@@ -1219,10 +1442,11 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 .pgt-footer {
 	background:
 		radial-gradient(var(--pge-gray-200) 1px, transparent 1px) 0 0 / 22px 22px,
-		var(--pge-gray-50);
+		var(--pgt-footer-bg, var(--pge-gray-50));
 	border-top: 1px solid var(--pge-gray-100);
 	padding: clamp(36px, 5vw, 52px) clamp(20px, 4vw, 40px) 26px;
-	color: var(--pge-color-body);
+	min-height: var(--pgt-footer-min-h, 0);
+	color: var(--pgt-footer-fg, var(--pge-color-body));
 }
 .pgt-footer__inner { max-width: 1160px; margin-inline: auto; }
 .pgt-footer__top {
@@ -1249,7 +1473,7 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	line-height: 1.04;
 	letter-spacing: -.032em;
 	font-weight: 600;
-	color: var(--pge-color-ink);
+	color: var(--pgt-footer-fg, var(--pge-color-ink));
 	margin: 18px 0 0;
 }
 .pgt-footer__statement-line {
@@ -1274,9 +1498,9 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	display: flex;
 	align-items: center;
 	gap: 9px;
-	font-size: 14px;
+	font-size: var(--pgt-footer-fs, 14px);
 	font-weight: 500;
-	color: var(--pge-color-body);
+	color: var(--pgt-footer-fg, var(--pge-color-body));
 	text-decoration: none;
 	transition: color 140ms var(--pgt-ease);
 }
@@ -1330,7 +1554,9 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 .pgt-brandlogo__word { font-family: var(--pge-font-heading); font-size: 20px; letter-spacing: -.015em; line-height: 1; }
 .pgt-logo .pgt-brandlogo__word { font-size: calc(var(--pgt-logo-h, 30px) * .67); }
 .pgt-brandlogo__prep { font-weight: 500; color: var(--pge-color-ink); }
-.pgt-brandlogo__gro { font-weight: 700; color: var(--pge-color-primary); }
+.pgt-brandlogo__gro { font-weight: 700; color: #0a84ff; }
+.pgt-brandlogo__r { font-weight: inherit; color: var(--pgt-pillar-elevate, #0f766e); }
+.pgt-brandlogo__o { font-weight: inherit; color: var(--pgt-pillar-excel, #b45309); }
 .pgt-brandlogo__copy { display: flex; flex-direction: column; gap: .18rem; }
 .pgt-brandlogo__tagline {
 	font-size: .6rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
@@ -1936,7 +2162,7 @@ html[data-pge-admin-theme="dark"] .pgt-header {
 	border-bottom-color: #2a3345;
 }
 html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__prep { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__gro { color: #6ba4ff; }
+html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__gro { color: #0a84ff; }
 html[data-pge-admin-theme="dark"] .pgt-nav__link,
 html[data-pge-admin-theme="dark"] .pgt-burger span,
 html[data-pge-admin-theme="dark"] .pgt-account__id strong,
@@ -1945,7 +2171,9 @@ html[data-pge-admin-theme="dark"] .pgt-drawer__link,
 html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__prep {
 	color: #eef2f9;
 }
-html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__gro { color: #6ba4ff; }
+html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__gro { color: #0a84ff; }
+html[data-pge-admin-theme="dark"] .pgt-brandlogo__r { color: #2dd4bf; }
+html[data-pge-admin-theme="dark"] .pgt-brandlogo__o { color: #fbbf24; }
 html[data-pge-admin-theme="dark"] .pgt-nav__link:hover,
 html[data-pge-admin-theme="dark"] .pgt-nav__link[aria-expanded="true"] { background: #2a3345; color: #fff; }
 html[data-pge-admin-theme="dark"] .pgt-nav__link.is-current { background: #232c3d; color: #fff; }

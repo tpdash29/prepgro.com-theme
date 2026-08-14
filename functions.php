@@ -241,15 +241,20 @@ add_action(
 add_action(
 	'wp_enqueue_scripts',
 	function () {
-		// Google Fonts — Outfit only (the brand kit's single family: wordmark,
-		// display AND UI text) + JetBrains Mono for tabular data/numerals.
-		// One family = faster loads and a stronger identity.
-		wp_enqueue_style(
-			'pgt-fonts',
-			'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap',
-			array(),
-			null
-		);
+		// Brand face — self-hosted variable Outfit served by the engine plugin
+		// (Phase 2, 2026-08): the same URL every plugin surface links, so the
+		// browser caches ONE font file site-wide and no request leaves the
+		// origin. The JetBrains Mono webfont is retired — tabular numerals
+		// fall through to ui-monospace. If the engine plugin is deactivated
+		// this enqueue is skipped and system-ui serves.
+		if ( defined( 'PGE_URL' ) ) {
+			wp_enqueue_style(
+				'pgt-fonts',
+				PGE_URL . 'assets/css/pge-fonts.css',
+				array(),
+				defined( 'PGE_VERSION' ) ? PGE_VERSION : null
+			);
+		}
 
 		// Stylesheet version = the file's own mtime, so editing a stylesheet
 		// always busts the browser cache. Versioning by PGT_VERSION meant a CSS
@@ -444,6 +449,8 @@ add_action(
 		}
 	}
 );
+
+
 
 /**
  * Countdown markup for a pillar the engine has switched off.

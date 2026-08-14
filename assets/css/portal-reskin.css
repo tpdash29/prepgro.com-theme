@@ -775,6 +775,18 @@ body.pge-portal-testprep {
 }
 .pge-dash-content { flex: 999 1 560px; min-width: 0; }
 
+/* Below ~900px the sidebar's flex-basis (240) + the content's (560) + gap
+   no longer fit one line, so the sidebar wraps onto its own row above the
+   content. It's still `position: sticky` there — and a sticky item's
+   containing block is the whole `.pge-dash` box, not just its own wrapped
+   line, so it keeps sticking through the content row's scroll too. Being
+   positioned, it then paints over the in-flow (static) content underneath
+   it, which reads as the Readiness page overlapping the sidebar. Drop
+   sticky before the wrap point so it just scrolls with the page instead. */
+@media (max-width: 900px) {
+	.pge-dash-sidebar { position: static; top: auto; }
+}
+
 .pge-dash-sidebar-header {
 	display: flex;
 	align-items: center;

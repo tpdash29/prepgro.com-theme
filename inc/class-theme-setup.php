@@ -75,7 +75,21 @@ final class Theme_Setup {
 		add_theme_support( 'responsive-embeds' );
 		add_theme_support( 'editor-styles' );
 		add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
-		add_theme_support( 'custom-logo' );
+		// Args matter: with none, Site Identity's Logo control shows no
+		// recommended-size hint and no crop-or-skip prompt on upload. The
+		// header renders the logo at --pgt-logo-h (theme.css) — a fixed
+		// height, auto width — so flex-width/flex-height stay true; the
+		// width/height pair below is only the suggested starting point core
+		// shows in the uploader, not an enforced crop.
+		add_theme_support(
+			'custom-logo',
+			array(
+				'height'      => 68,
+				'width'       => 220,
+				'flex-height' => true,
+				'flex-width'  => true,
+			)
+		);
 		add_theme_support( 'title-tag' );
 		add_theme_support( 'post-thumbnails' );
 	}

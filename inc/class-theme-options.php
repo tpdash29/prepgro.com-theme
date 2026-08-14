@@ -100,6 +100,42 @@ final class Theme_Options {
 			$vars[] = '--pgt-nav-font:' . $stack . ';';
 		}
 
+		// Header height, background and text colour.
+		$header_h = (int) get_theme_mod( 'pgt_header_height', self::HEADER_HEIGHT_DEFAULT );
+		$header_h = max( 56, min( 120, $header_h ) );
+		$vars[]   = '--pgt-header-h:' . $header_h . 'px;';
+
+		$header_bg = sanitize_hex_color( (string) get_theme_mod( 'pgt_header_bg', '' ) );
+		if ( $header_bg ) {
+			$vars[] = '--pgt-header-bg:' . $header_bg . ';';
+		}
+
+		$header_fg = sanitize_hex_color( (string) get_theme_mod( 'pgt_header_fg', '' ) );
+		if ( $header_fg ) {
+			$vars[] = '--pgt-header-fg:' . $header_fg . ';';
+		}
+
+		// Footer background, text colour, link size and minimum height.
+		$footer_bg = sanitize_hex_color( (string) get_theme_mod( 'pgt_footer_bg', '' ) );
+		if ( $footer_bg ) {
+			$vars[] = '--pgt-footer-bg:' . $footer_bg . ';';
+		}
+
+		$footer_fg = sanitize_hex_color( (string) get_theme_mod( 'pgt_footer_fg', '' ) );
+		if ( $footer_fg ) {
+			$vars[] = '--pgt-footer-fg:' . $footer_fg . ';';
+		}
+
+		$footer_fs = (int) get_theme_mod( 'pgt_footer_font_size', 140 );
+		$footer_fs = max( 120, min( 180, $footer_fs ) );
+		$vars[]    = '--pgt-footer-fs:' . ( $footer_fs / 10 ) . 'px;';
+
+		$footer_min_h = (int) get_theme_mod( 'pgt_footer_min_height', 0 );
+		$footer_min_h = max( 0, min( 480, $footer_min_h ) );
+		if ( $footer_min_h > 0 ) {
+			$vars[] = '--pgt-footer-min-h:' . $footer_min_h . 'px;';
+		}
+
 		// Per-pillar accents go at :root as --pgt-pillar-*, the single source
 		// both consumers read: the nav links (theme.css, every page) and the
 		// module pages' --pgm-accent (pg-module.css derives from these rather
@@ -125,6 +161,12 @@ final class Theme_Options {
 	 * so this one number moves the whole thing proportionally.
 	 */
 	const LOGO_DEFAULT = 38;
+
+	/**
+	 * Default header bar height in px — matches the shipped
+	 * `.pgt-header__inner { min-height }` value in theme.css.
+	 */
+	const HEADER_HEIGHT_DEFAULT = 74;
 
 	/**
 	 * The pillar accent keys and the values pg-module.css ships as defaults —
@@ -299,9 +341,208 @@ final class Theme_Options {
 			)
 		);
 
-		$this->register_menu_type( $wp_customize );
+		$this->register_header_controls( $wp_customize );
+		$this->register_footer_controls( $wp_customize );
 		$this->register_pillar_colours( $wp_customize );
 		$this->register_image_slots( $wp_customize );
+	}
+
+	/**
+	 * Header bar — height, background, text colour, and (moved here from the
+	 * old flat Branding section) the menu font family/size.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @return void
+	 */
+	private function register_header_controls( $wp_customize ) {
+		$wp_customize->add_section(
+			'pgt_header',
+			array(
+				'title'    => __( 'PrepGro Header', 'prepgro-theme' ),
+				'priority' => 31,
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_header_height',
+			array(
+				'default'           => self::HEADER_HEIGHT_DEFAULT,
+				'sanitize_callback' => function ( $value ) {
+					return max( 56, min( 120, (int) $value ) );
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			'pgt_header_height',
+			array(
+				'label'       => __( 'Header height (px)', 'prepgro-theme' ),
+				'description' => __( '74px is the default. Range 56–120px.', 'prepgro-theme' ),
+				'section'     => 'pgt_header',
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 56,
+					'max'  => 120,
+					'step' => 1,
+				),
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_header_bg',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'pgt_header_bg',
+				array(
+					'label'       => __( 'Header background', 'prepgro-theme' ),
+					'description' => __( 'Leave empty for the default, white.', 'prepgro-theme' ),
+					'section'     => 'pgt_header',
+				)
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_header_fg',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'pgt_header_fg',
+				array(
+					'label'       => __( 'Header text & icon colour', 'prepgro-theme' ),
+					'description' => __( 'The menu\'s Home/Help items, the icon buttons and the account button. The three pillar menu items (Evaluate/Elevate/Excel) keep their own colours from PrepGro Pillar Colours below.', 'prepgro-theme' ),
+					'section'     => 'pgt_header',
+				)
+			)
+		);
+
+		$this->register_menu_type( $wp_customize );
+	}
+
+	/**
+	 * Footer band — background, text colour, link size and minimum height.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @return void
+	 */
+	private function register_footer_controls( $wp_customize ) {
+		$wp_customize->add_section(
+			'pgt_footer',
+			array(
+				'title'    => __( 'PrepGro Footer', 'prepgro-theme' ),
+				'priority' => 33,
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_footer_min_height',
+			array(
+				'default'           => 0,
+				'sanitize_callback' => function ( $value ) {
+					return max( 0, min( 480, (int) $value ) );
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			'pgt_footer_min_height',
+			array(
+				'label'       => __( 'Footer minimum height (px)', 'prepgro-theme' ),
+				'description' => __( 'The footer\'s height already follows its content; this only raises a floor under it. 0 leaves it fully automatic.', 'prepgro-theme' ),
+				'section'     => 'pgt_footer',
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 0,
+					'max'  => 480,
+					'step' => 10,
+				),
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_footer_bg',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'pgt_footer_bg',
+				array(
+					'label'       => __( 'Footer background', 'prepgro-theme' ),
+					'description' => __( 'Leave empty for the default, light grey with a dotted texture. The texture stays even when this is set.', 'prepgro-theme' ),
+					'section'     => 'pgt_footer',
+				)
+			)
+		);
+
+		$wp_customize->add_setting(
+			'pgt_footer_fg',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			new \WP_Customize_Color_Control(
+				$wp_customize,
+				'pgt_footer_fg',
+				array(
+					'label'       => __( 'Footer text colour', 'prepgro-theme' ),
+					'description' => __( 'The brand statement and the column links. The copyright row stays a lighter, secondary tone by design.', 'prepgro-theme' ),
+					'section'     => 'pgt_footer',
+				)
+			)
+		);
+
+		// Stored x10, same convention as the header menu font size below.
+		$wp_customize->add_setting(
+			'pgt_footer_font_size',
+			array(
+				'default'           => 140,
+				'sanitize_callback' => function ( $value ) {
+					return max( 120, min( 180, (int) $value ) );
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			'pgt_footer_font_size',
+			array(
+				'label'       => __( 'Footer link size (×10 px)', 'prepgro-theme' ),
+				'description' => __( '140 = 14px, the default. Range 12–18px.', 'prepgro-theme' ),
+				'section'     => 'pgt_footer',
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => 120,
+					'max'  => 180,
+					'step' => 5,
+				),
+			)
+		);
 	}
 
 	/**
@@ -327,7 +568,7 @@ final class Theme_Options {
 			array(
 				'label'       => __( 'Menu font', 'prepgro-theme' ),
 				'description' => __( 'Limited to families the theme already loads — anything else would need a new web-font request on every page.', 'prepgro-theme' ),
-				'section'     => 'pge_branding',
+				'section'     => 'pgt_header',
 				'type'        => 'select',
 				'choices'     => array(
 					'heading' => __( 'Outfit (theme default)', 'prepgro-theme' ),
@@ -356,7 +597,7 @@ final class Theme_Options {
 			array(
 				'label'       => __( 'Menu font size (×10 px)', 'prepgro-theme' ),
 				'description' => __( '145 = 14.5px, the default. Range 12–18px.', 'prepgro-theme' ),
-				'section'     => 'pge_branding',
+				'section'     => 'pgt_header',
 				'type'        => 'range',
 				'input_attrs' => array(
 					'min'  => 120,
@@ -437,7 +678,7 @@ final class Theme_Options {
 			array(
 				'title'       => __( 'PrepGro Images', 'prepgro-theme' ),
 				'description' => __( 'Every photograph on the public site. Each position takes up to five images and shows a different one on each page load. Leave a position empty and the layout still holds — it falls back to a brand tint.', 'prepgro-theme' ),
-				'priority'    => 31,
+				'priority'    => 34,
 			)
 		);
 

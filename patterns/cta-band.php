@@ -1,6 +1,8 @@
 <?php
 /**
- * Pattern: CTA band.
+ * Title: CTA Band
+ * Slug: prepgro-theme/cta-band
+ * Categories: prepgro
  *
  * @package PrepGro\Theme
  */

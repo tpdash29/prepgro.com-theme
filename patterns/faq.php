@@ -1,6 +1,8 @@
 <?php
 /**
- * Pattern: FAQ.
+ * Title: FAQ
+ * Slug: prepgro-theme/faq
+ * Categories: prepgro
  *
  * @package PrepGro\Theme
  */

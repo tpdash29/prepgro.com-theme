@@ -455,7 +455,7 @@ final class Courses_Page {
 	 * @return string
 	 */
 	private function cta_band() {
-		return '<section class="pgx-ctaband">'
+		return '<section class="pgx-ctaband" id="pgx-ctaband">'
 			. '<div><h2>' . esc_html__( 'Courses unlock with Live Tutor.', 'prepgro-theme' ) . '</h2>'
 			. '<p>' . esc_html__( 'Pick your exam to see what’s included at each tier.', 'prepgro-theme' ) . '</p></div>'
 			. '<a class="pgx-btn pgx-btn--onaccent" href="' . esc_url( home_url( '/pricing/' ) ) . '">' . esc_html__( 'Compare packages', 'prepgro-theme' ) . '</a>'

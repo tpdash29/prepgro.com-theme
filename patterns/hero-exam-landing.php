@@ -1,6 +1,8 @@
 <?php
 /**
- * Pattern: Hero — exam landing.
+ * Title: Hero — Exam Landing
+ * Slug: prepgro-theme/hero-exam-landing
+ * Categories: prepgro
  *
  * @package PrepGro\Theme
  */

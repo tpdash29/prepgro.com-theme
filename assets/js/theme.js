@@ -856,6 +856,82 @@
 		}, 1000 );
 	}
 
+	/* ---------- Topbar learner switcher ----------
+	 * A parent account with two or more child profiles gets a disclosure on the
+	 * topbar name: pick who is studying. The switch itself is the engine's
+	 * existing POST /me/children/{id}/activate route — ownership checks and the
+	 * competitive-mode guard live server-side, so this is only the trigger.
+	 */
+	function initTopbarLearner() {
+		var wrap = document.querySelector( '[data-pgt-learner]' );
+		if ( ! wrap ) {
+			return;
+		}
+		var btn = wrap.querySelector( '.pgt-topbar__learnerbtn' );
+		var menu = wrap.querySelector( '.pgt-topbar__learnermenu' );
+		if ( ! btn || ! menu ) {
+			return;
+		}
+
+		function close() {
+			menu.hidden = true;
+			btn.setAttribute( 'aria-expanded', 'false' );
+		}
+
+		btn.addEventListener( 'click', function () {
+			var opening = menu.hidden;
+			menu.hidden = ! opening;
+			btn.setAttribute( 'aria-expanded', opening ? 'true' : 'false' );
+		} );
+
+		document.addEventListener( 'click', function ( e ) {
+			if ( ! wrap.contains( e.target ) ) {
+				close();
+			}
+		} );
+		document.addEventListener( 'keydown', function ( e ) {
+			if ( 'Escape' === e.key && ! menu.hidden ) {
+				close();
+				btn.focus();
+			}
+		} );
+
+		menu.addEventListener( 'click', function ( e ) {
+			var opt = e.target.closest ? e.target.closest( '[data-child]' ) : null;
+			if ( ! opt ) {
+				return;
+			}
+			if ( opt.classList.contains( 'is-active' ) ) {
+				close();
+				return;
+			}
+			opt.disabled = true;
+			wrap.classList.add( 'is-busy' );
+			fetch( wrap.getAttribute( 'data-endpoint' ) + opt.getAttribute( 'data-child' ) + '/activate', {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'X-WP-Nonce': wrap.getAttribute( 'data-nonce' ) }
+			} ).then( function ( r ) {
+				return r.json().then( function ( j ) {
+					return { ok: r.ok, body: j };
+				} );
+			} ).then( function ( res ) {
+				if ( res.ok ) {
+					// The whole page is scoped to the active learner — reload
+					// rather than patching the one label.
+					window.location.reload();
+					return;
+				}
+				opt.disabled = false;
+				wrap.classList.remove( 'is-busy' );
+				window.alert( ( res.body && res.body.message ) || 'Could not switch learner.' );
+			} ).catch( function () {
+				opt.disabled = false;
+				wrap.classList.remove( 'is-busy' );
+			} );
+		} );
+	}
+
 	function init() {
 		initHeaderDisclosures();
 		initDrawer();
@@ -868,6 +944,7 @@
 		initCounters();
 		initProctorAlerts();
 		initCountdowns();
+		initTopbarLearner();
 	}
 
 	if ( document.readyState === 'loading' ) {

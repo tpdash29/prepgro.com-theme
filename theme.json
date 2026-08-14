@@ -299,6 +299,13 @@
 			"postTypes": [
 				"page"
 			]
+		},
+		{
+			"name": "page-checklist",
+			"title": "Test-Day Checklist",
+			"postTypes": [
+				"page"
+			]
 		}
 	],
 	"templateParts": [

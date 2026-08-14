@@ -1,6 +1,8 @@
 <?php
 /**
- * Pattern: How it works (3 steps).
+ * Title: How It Works
+ * Slug: prepgro-theme/how-it-works
+ * Categories: prepgro
  *
  * @package PrepGro\Theme
  */

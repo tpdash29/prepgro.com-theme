@@ -63,6 +63,17 @@ final class Chrome {
 	public function init() {
 		add_shortcode( 'pge_header', array( $this, 'render_header' ) );
 		add_shortcode( 'pge_footer', array( $this, 'render_footer' ) );
+		// The utility topbar hangs off wp_body_open, NOT the header shortcode:
+		// it must survive on surfaces that suppress or simply don't include the
+		// marketing chrome (focus surfaces, the chromeless funnel pages), so the
+		// account exits — Dashboard / Logout, or Sign in — exist everywhere.
+		add_action( 'wp_body_open', array( $this, 'print_topbar' ), 5 );
+		// Country-dependent content (topbar phrases, the flag chip, the
+		// footer locale line) is resolved once and cached — see the
+		// "Country-dependent content" block below. This is the fresh-
+		// activation seed; an already-active install self-heals via
+		// country_content()'s lazy path on its next render instead.
+		add_action( 'after_switch_theme', array( $this, 'seed_country_content' ) );
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
@@ -356,7 +367,7 @@ final class Chrome {
 						'items'   => array(
 							array( 'icon' => 'dollar-sign', 'title' => __( 'Live tutor plans', 'prepgro-theme' ), 'sub' => __( 'From $129/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
 							array( 'icon' => 'circle-plus', 'title' => __( 'Add a second subject', 'prepgro-theme' ), 'sub' => __( 'One subject per plan', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'users', 'title' => __( 'Teach with prepGro', 'prepgro-theme' ), 'sub' => __( 'Tutor applications', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
+							array( 'icon' => 'users', 'title' => __( 'Teach with prepGro', 'prepgro-theme' ), 'sub' => __( 'Tutor applications', 'prepgro-theme' ), 'url' => 'https://dash.prepgro.com/teacher-registration/' ),
 						),
 					),
 				),
@@ -376,26 +387,26 @@ final class Chrome {
 						'note'    => __( 'unlimited', 'prepgro-theme' ),
 						'items'   => array(
 							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
-							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
+							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=bank' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=mock' ) ),
 						),
 					),
 					array(
 						'eyebrow' => __( 'Review', 'prepgro-theme' ),
 						'note'    => __( 'every answer', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks' ) ),
+							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=explanations' ) ),
 							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=performance' ) ),
-							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks' ) ),
+							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=retake' ) ),
 						),
 					),
 					array(
 						'eyebrow' => __( 'Test packs', 'prepgro-theme' ),
 						'note'    => __( 'by level', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
-							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
+							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
+							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
+							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/test-day-checklist/' ) ),
 						),
 					),
 				),
@@ -605,7 +616,7 @@ final class Chrome {
 				'links' => array(
 					array( 'id' => 'about', 'label' => __( 'About prepGro', 'prepgro-theme' ), 'url' => home_url( '/about-us/' ) ),
 					array( 'id' => 'contact', 'label' => __( 'Contact us', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
-					array( 'id' => 'teach', 'label' => __( 'Teach with prepGro', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
+					array( 'id' => 'teach', 'label' => __( 'Teach with prepGro', 'prepgro-theme' ), 'url' => 'https://dash.prepgro.com/teacher-registration/' ),
 					array( 'id' => 'help', 'label' => __( 'Help & support', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
 				),
 			),
@@ -814,6 +825,334 @@ final class Chrome {
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
+	   Utility topbar — the thin ink strip above everything.
+	   ──────────────────────────────────────────────────────────────────── */
+
+	/**
+	 * Print the utility topbar. Runs on `wp_body_open`, which every block
+	 * template emits before any template part — so unlike the header shortcode
+	 * this renders on focus surfaces and chromeless funnel pages too. That is
+	 * the point: Dashboard / Logout (or Sign in) are reachable from every page,
+	 * with or without the menu.
+	 *
+	 * @return void
+	 */
+	public function print_topbar() {
+		echo $this->minify( $this->render_topbar() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * The topbar itself: live exam-count stat · personal pulse line ·
+	 * country chip + theme toggle + auth-aware account links.
+	 *
+	 * @return string
+	 */
+	private function render_topbar() {
+		$logged_in = is_user_logged_in();
+
+		ob_start();
+		?>
+		<div class="pgt-topbar" data-pgt-topbar>
+			<div class="pgt-topbar__inner">
+				<div class="pgt-topbar__stat">
+					<?php echo $this->topbar_stat(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+				<div class="pgt-topbar__pulse">
+					<?php echo $this->topbar_pulse( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+				<div class="pgt-topbar__actions">
+					<?php echo $this->country_content()['country_chip_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php
+					/*
+					 * Light/dark switch — APP SURFACES ONLY (dashboard, portals,
+					 * learning player). The engine's App_Shell::theme_boot() owns
+					 * the behaviour: it stamps data-pge-admin-theme on <html>
+					 * pre-paint and delegates clicks from any [data-pg-theme-toggle],
+					 * so this button only has to exist and carry that attribute.
+					 * Both glyphs ship; CSS shows one per mode.
+					 *
+					 * Why gated: the marketing stylesheets (pg-home, pg-module,
+					 * pg-pricing, pg-exams, pg-blog, pg-devicestage) are still
+					 * written light-only — flipping the shared tokens there renders
+					 * white text on white cards. Remove this gate once those six
+					 * files carry dark rules.
+					 */
+					if ( $this->is_app_context() ) :
+						?>
+						<button class="pgt-iconbtn pgt-iconbtn--theme" type="button" data-pg-theme-toggle aria-label="<?php esc_attr_e( 'Switch to dark mode', 'prepgro-theme' ); ?>">
+							<span class="pgt-icon-moon"><?php echo Icons::svg( 'moon', array( 'size' => 15 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<span class="pgt-icon-sun"><?php echo Icons::svg( 'sun', array( 'size' => 15 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						</button>
+						<?php
+					endif;
+
+					if ( $logged_in ) :
+						?>
+						<a class="pgt-topbar__link" href="<?php echo esc_url( home_url( '/my-dashboard/' ) ); ?>" data-nav="topbar:dashboard">
+							<?php echo Icons::svg( 'layout-dashboard', array( 'size' => 13 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php esc_html_e( 'Dashboard', 'prepgro-theme' ); ?>
+						</a>
+						<a class="pgt-topbar__link pgt-topbar__link--out" href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" data-nav="topbar:signout">
+							<?php echo Icons::svg( 'log-out', array( 'size' => 13 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php esc_html_e( 'Logout', 'prepgro-theme' ); ?>
+						</a>
+						<?php
+					else :
+						?>
+						<a class="pgt-topbar__link" href="<?php echo esc_url( home_url( '/login/' ) ); ?>" data-nav="topbar:signin">
+							<?php echo Icons::svg( 'log-in', array( 'size' => 13 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php esc_html_e( 'Sign in', 'prepgro-theme' ); ?>
+						</a>
+						<?php
+					endif;
+					?>
+				</div>
+			</div>
+		</div>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Left slot: "914+ practice exams available", counted live from the
+	 * published exam + diagnostic post types and floored to a round number so
+	 * it reads as marketing, not as a database column. Links into whichever
+	 * catalogue's pillar is switched on; plain text when neither is.
+	 *
+	 * @return string
+	 */
+	private function topbar_stat() {
+		$count = 0;
+		$types = array( 'exam' );
+		if ( class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' ) ) {
+			$diag = \PrepGro\Engine\Storage\Storage_Map::post_type( 'diagnostic' );
+			if ( $diag ) {
+				$types[] = $diag;
+			}
+		}
+		foreach ( array_unique( $types ) as $type ) {
+			if ( ! post_type_exists( $type ) ) {
+				continue;
+			}
+			$counts = wp_count_posts( $type );
+			$count += $counts ? (int) $counts->publish : 0;
+		}
+
+		if ( $count < 1 ) {
+			// Nothing to brag about (fresh install) — hold the slot with the
+			// tagline so the pulse line stays centred.
+			return '<span class="pgt-topbar__stattext">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
+		}
+
+		$figure = $count >= 20
+			? number_format_i18n( (int) floor( $count / 10 ) * 10 ) . '+'
+			: number_format_i18n( $count );
+
+		$text = sprintf(
+			/* translators: %s: rounded count of published practice exams, e.g. "910+" */
+			esc_html__( '%s practice exams available', 'prepgro-theme' ),
+			'<strong>' . esc_html( $figure ) . '</strong>'
+		);
+
+		$inner = Icons::svg( 'zap', array( 'size' => 13 ) ) . '<span class="pgt-topbar__stattext">' . $text . '</span>';
+
+		if ( $this->pillar_on( 'excel' ) ) {
+			return '<a class="pgt-topbar__statlink" href="' . esc_url( home_url( '/practice-tests/' ) ) . '" data-nav="topbar:stat">' . $inner . '</a>';
+		}
+		if ( $this->pillar_on( 'evaluate' ) ) {
+			return '<a class="pgt-topbar__statlink" href="' . esc_url( home_url( '/diagnostic-tests/' ) ) . '" data-nav="topbar:stat">' . $inner . '</a>';
+		}
+		return $inner;
+	}
+
+	/**
+	 * Centre slot. Signed in: whoever is actually studying right now — the
+	 * active child profile on a family account, the account holder otherwise —
+	 * plus a short encouragement that rotates daily (same phrase all day for
+	 * everyone, so it reads as a voice, not a slot machine). A parent with two
+	 * or more children gets a switcher on the name, wired to the engine's
+	 * existing /me/children/{id}/activate route. Signed out: the punchline
+	 * alone.
+	 *
+	 * @param bool $logged_in Current auth state.
+	 * @return string
+	 */
+	private function topbar_pulse( $logged_in ) {
+		if ( ! $logged_in ) {
+			return '<em>' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</em>';
+		}
+
+		$user = wp_get_current_user();
+		$name = $user->display_name ? $user->display_name : $user->user_login;
+
+		$children = $this->child_profiles( (int) $user->ID );
+		foreach ( $children as $child ) {
+			if ( $child['active'] ) {
+				// The activate route also mirrors the child's name into the
+				// parent's display_name, but the profile row is the truth.
+				$name = $child['name'];
+				break;
+			}
+		}
+
+		$phrases = $this->country_content()['topbar_phrases'];
+		$phrase  = '<span aria-hidden="true"> — </span> <em>' . esc_html( $phrases[ (int) gmdate( 'z' ) % count( $phrases ) ] ) . '</em>';
+
+		// The pulsing beacon before the name — "this is who is studying right
+		// now". Pure CSS; stills itself under prefers-reduced-motion.
+		$beacon = '<span class="pgt-topbar__beacon" aria-hidden="true"></span>';
+
+		if ( count( $children ) < 2 ) {
+			return $beacon . '<strong>' . esc_html( $name ) . '</strong>' . $phrase;
+		}
+
+		// Two or more children: the name becomes a disclosure that switches
+		// which child is studying. Behaviour lives in theme.js
+		// (initTopbarLearner); the endpoint is the engine's, so the same rules
+		// (ownership check, competitive-mode guard) apply here as everywhere.
+		$options = '';
+		foreach ( $children as $child ) {
+			$options .= '<button type="button" class="pgt-topbar__learneropt' . ( $child['active'] ? ' is-active' : '' ) . '" data-child="' . (int) $child['id'] . '">'
+				. esc_html( $child['name'] )
+				. ( $child['active'] ? '<span class="pgt-visually-hidden"> ' . esc_html__( '(current)', 'prepgro-theme' ) . '</span>' : '' )
+				. '</button>';
+		}
+
+		return '<span class="pgt-topbar__learner" data-pgt-learner'
+			. ' data-endpoint="' . esc_url( rest_url( 'prepgro/v1/me/children/' ) ) . '"'
+			. ' data-nonce="' . esc_attr( wp_create_nonce( 'wp_rest' ) ) . '">'
+			. '<button type="button" class="pgt-topbar__learnerbtn" aria-haspopup="true" aria-expanded="false">'
+			. $beacon
+			. '<strong>' . esc_html( $name ) . '</strong>'
+			. Icons::svg( 'chevron-down', array( 'size' => 10, 'stroke' => 2 ) )
+			. '<span class="pgt-visually-hidden">' . esc_html__( 'Switch learner', 'prepgro-theme' ) . '</span>'
+			. '</button>'
+			. '<span class="pgt-topbar__learnermenu" hidden>'
+			. '<span class="pgt-topbar__learnerhead">' . esc_html__( 'Who is studying?', 'prepgro-theme' ) . '</span>'
+			. $options
+			. '</span>'
+			. '</span>' . $phrase;
+	}
+
+	/**
+	 * The rotating encouragement phrases, keyed to the install's country —
+	 * "You've got this." reads as American self-affirmation idiom, not a
+	 * universal register, so a single hardcoded list would put US voice in
+	 * front of every family regardless of where the site actually operates.
+	 * Falls back to a deliberately idiom-light set for any country not
+	 * listed (or when `PGE_COUNTRY` is unset), rather than defaulting to US.
+	 *
+	 * SEED-TIME ONLY — see "Country-dependent content" below. Never called
+	 * from a render path; `topbar_pulse()` reads the cached result instead.
+	 *
+	 * @param string $code Two-letter country code (may be '').
+	 * @return string[]
+	 */
+	private function build_topbar_phrases( $code ) {
+		$sets = array(
+			'us' => array(
+				__( 'Keep going!', 'prepgro-theme' ),
+				__( 'You’ve got this.', 'prepgro-theme' ),
+				__( 'One step closer.', 'prepgro-theme' ),
+				__( 'Stay sharp today.', 'prepgro-theme' ),
+				__( 'Small wins add up.', 'prepgro-theme' ),
+				__( 'Progress compounds.', 'prepgro-theme' ),
+				__( 'Show up strong.', 'prepgro-theme' ),
+			),
+			'ca' => array(
+				__( 'Keep going!', 'prepgro-theme' ),
+				__( 'You’ve got this.', 'prepgro-theme' ),
+				__( 'One step closer.', 'prepgro-theme' ),
+				__( 'Nice and steady today.', 'prepgro-theme' ),
+				__( 'Small wins add up.', 'prepgro-theme' ),
+				__( 'Progress compounds.', 'prepgro-theme' ),
+				__( 'Show up strong.', 'prepgro-theme' ),
+			),
+			'in' => array(
+				__( 'All the best!', 'prepgro-theme' ),
+				__( 'Keep it up!', 'prepgro-theme' ),
+				__( 'You can do it!', 'prepgro-theme' ),
+				__( 'Practice makes perfect.', 'prepgro-theme' ),
+				__( 'One step at a time.', 'prepgro-theme' ),
+				__( 'Stay focused today.', 'prepgro-theme' ),
+				__( 'Give it your best shot.', 'prepgro-theme' ),
+			),
+			'au' => array(
+				__( 'Nice work so far.', 'prepgro-theme' ),
+				__( 'Keep at it!', 'prepgro-theme' ),
+				__( 'You’re on track.', 'prepgro-theme' ),
+				__( 'Small wins add up.', 'prepgro-theme' ),
+				__( 'Stay switched on today.', 'prepgro-theme' ),
+				__( 'One step closer.', 'prepgro-theme' ),
+				__( 'Keep pushing.', 'prepgro-theme' ),
+			),
+			'ae' => array(
+				__( 'Keep up the great work.', 'prepgro-theme' ),
+				__( 'Stay focused today.', 'prepgro-theme' ),
+				__( 'One step closer.', 'prepgro-theme' ),
+				__( 'Small progress counts.', 'prepgro-theme' ),
+				__( 'Keep pushing forward.', 'prepgro-theme' ),
+				__( 'You’re doing well.', 'prepgro-theme' ),
+				__( 'Stay consistent.', 'prepgro-theme' ),
+			),
+		);
+
+		$default = array(
+			__( 'Keep going.', 'prepgro-theme' ),
+			__( 'Keep at it.', 'prepgro-theme' ),
+			__( 'One step closer.', 'prepgro-theme' ),
+			__( 'Small wins add up.', 'prepgro-theme' ),
+			__( 'Stay focused today.', 'prepgro-theme' ),
+			__( 'Practice makes progress.', 'prepgro-theme' ),
+			__( 'You can do this.', 'prepgro-theme' ),
+		);
+
+		return isset( $sets[ $code ] ) ? $sets[ $code ] : $default;
+	}
+
+	/**
+	 * The logged-in user's child profiles: id, name, active flag. Empty when
+	 * the engine is inactive, the install runs in competitive mode (no child
+	 * profiles there), or the account simply has none.
+	 *
+	 * @param int $user_id Parent user id.
+	 * @return array<int,array{id:int,name:string,active:bool}>
+	 */
+	private function child_profiles( $user_id ) {
+		if ( ! class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' ) ) {
+			return array();
+		}
+		if ( class_exists( '\\PrepGro\\Engine\\Regional_Manager' )
+			&& \PrepGro\Engine\Regional_Manager::get()->is_competitive() ) {
+			return array();
+		}
+
+		global $wpdb;
+		$table = \PrepGro\Engine\Storage\Storage_Map::table( 'child_profiles' );
+		if ( ! $table || $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return array();
+		}
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT id, name, is_active FROM {$table} WHERE parent_user_id = %d ORDER BY id ASC", $user_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);
+
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			$name = trim( (string) $row->name );
+			if ( '' === $name ) {
+				continue;
+			}
+			$out[] = array(
+				'id'     => (int) $row->id,
+				'name'   => $name,
+				'active' => (bool) $row->is_active,
+			);
+		}
+		return $out;
+	}
+
+	/* ─────────────────────────────────────────────────────────────────────
 	   Header.
 	   ──────────────────────────────────────────────────────────────────── */
 
@@ -908,35 +1247,12 @@ final class Chrome {
 							<span class="pgt-visually-hidden"><?php esc_html_e( 'Search', 'prepgro-theme' ); ?></span>
 						</button>
 					<?php
-					/*
-					 * Light/dark switch — APP SURFACES ONLY (dashboard, portals,
-					 * learning player). The engine's App_Shell::theme_boot() owns
-					 * the behaviour everywhere: it stamps data-pge-admin-theme on
-					 * <html> pre-paint and delegates clicks from any
-					 * [data-pg-theme-toggle], so this button only has to exist and
-					 * carry that attribute. Both glyphs ship; CSS shows one per
-					 * mode, so the icon is right on first paint with no JS swap.
-					 *
-					 * Why gated: the marketing stylesheets (pg-home, pg-module,
-					 * pg-pricing, pg-exams, pg-blog, pg-devicestage) are still
-					 * written light-only — ~29 hardcoded white backgrounds plus
-					 * light-tuned text/borders. Flipping the shared tokens there
-					 * inverts the text but not those surfaces, which renders white
-					 * text on white cards. A switch that visibly breaks the page is
-					 * worse than no switch, so it appears only where dark is real.
-					 * Remove this gate once those six files carry dark rules.
-					 */
-					if ( $this->is_app_context() ) :
-						?>
-						<button class="pgt-iconbtn pgt-iconbtn--theme" type="button" data-pg-theme-toggle aria-label="<?php esc_attr_e( 'Switch to dark mode', 'prepgro-theme' ); ?>">
-							<span class="pgt-icon-moon"><?php echo Icons::svg( 'moon', array( 'size' => 17 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-							<span class="pgt-icon-sun"><?php echo Icons::svg( 'sun', array( 'size' => 17 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-						</button>
-						<?php
-					endif;
+					// The light/dark switch and the country chip both moved up into
+					// the utility topbar (render_topbar()) — 2026-08 ask: free space
+					// in the menu bar, and keep those controls present on pages that
+					// render no menu at all.
 					?>
 						<?php echo $this->account_cluster( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<?php echo $this->country_chip(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php
 						// The free check is EVALUATE's. With that pillar off it
 						// does not exist, and /get-started/ resolves into its
@@ -1408,7 +1724,7 @@ final class Chrome {
 					<span class="pgt-footer__bottomlinks">
 						<a href="<?php echo esc_url( home_url( '/privacy-policy/' ) ); ?>" data-nav="footer:privacy"><?php esc_html_e( 'Privacy Policy', 'prepgro-theme' ); ?></a>
 						<a href="<?php echo esc_url( home_url( '/terms-of-service/' ) ); ?>" data-nav="footer:terms"><?php esc_html_e( 'Terms of Service', 'prepgro-theme' ); ?></a>
-						<?php echo $this->locale_line(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo $this->country_content()['locale_line_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</span>
 				</div>
 			</div>
@@ -1418,29 +1734,112 @@ final class Chrome {
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
-	   Shared pieces.
+	   Country-dependent content — resolved ONCE, cached, never branched on
+	   per request.
+
+	   PGE_COUNTRY is a deploy-time constant — one install serves one
+	   country — so re-deriving "which flag / which phrase set / which
+	   locale string" from it on every single page view is pure waste: the
+	   answer cannot change between one request and the next short of a
+	   redeploy. `seed_country_content()` does that resolution exactly once
+	   — at theme activation, or lazily on the first render after an
+	   upgrade adds a new field — and persists the finished bundle to the
+	   `pgt_country_content` option (autoloaded, so the read costs nothing
+	   extra). Every render call site below reads
+	   `country_content()` and does a plain array-key lookup: no
+	   `defined(PGE_COUNTRY)`, no `isset($set[$code])`, no `apply_filters`
+	   on the hot path.
+
+	   ADDING A NEW COUNTRY-DEPENDENT VALUE: do not compute it inline in a
+	   render method. Add a `build_*( $code )` resolver here, add its result
+	   as a new key inside `seed_country_content()`'s `$content` array, and
+	   read it back through `country_content()['your_key']` at the call
+	   site. This is the standing pattern for this theme — see
+	   [[utility-topbar-shipped]] in project memory.
 	   ──────────────────────────────────────────────────────────────────── */
 
+	const COUNTRY_CONTENT_OPTION = 'pgt_country_content';
+
 	/**
-	 * Country chip for the header — the flag, restored.
+	 * The cached country-content bundle. Self-heals exactly once: if the
+	 * option is missing (fresh install before `after_switch_theme` has
+	 * fired, or this code just shipped to an already-active install that
+	 * therefore never fires that hook), it resolves and persists the bundle
+	 * right here, then every call after this one — same request or any
+	 * later one — is the plain `get_option()` branch above.
 	 *
-	 * The 2026-08 front-end rebuild (c09fa1d) dropped the header flag SVG and
-	 * left only the text locale line in the footer, so on a wide screen there
-	 * was nothing above the fold saying which country's site this is. This
-	 * puts the mark back, after the auth cluster.
+	 * @return array{code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string}
+	 */
+	private function country_content() {
+		$content = get_option( self::COUNTRY_CONTENT_OPTION );
+		if ( is_array( $content ) && $content ) {
+			return $content;
+		}
+		return $this->seed_country_content();
+	}
+
+	/**
+	 * Resolve every country-dependent value and persist the bundle. Hooked
+	 * to `after_switch_theme` (fresh activation); also the self-heal target
+	 * of `country_content()` above for an install that was already active
+	 * when this caching layer shipped. This is the ONLY place `PGE_COUNTRY`
+	 * / `pgt_header_country_code` gets read — no render path touches either
+	 * again after the first successful call.
 	 *
-	 * Flags are inline SVG rather than emoji: emoji flags do not render at all
-	 * on most Windows builds, which is the majority of this audience.
+	 * @return array Same shape as country_content().
+	 */
+	public function seed_country_content() {
+		$code = defined( 'PGE_COUNTRY' ) ? strtolower( (string) PGE_COUNTRY ) : '';
+
+		/**
+		 * Filter the country code the seeded content is resolved for. Runs
+		 * once per seed (activation, or the one-time upgrade bootstrap),
+		 * never per page view.
+		 *
+		 * @param string $code Two-letter country code.
+		 */
+		$code = (string) apply_filters( 'pgt_header_country_code', $code );
+
+		$content = array(
+			'code'              => $code,
+			'topbar_phrases'    => $this->build_topbar_phrases( $code ),
+			'country_chip_html' => $this->build_country_chip_html( $code ),
+			'locale_line_html'  => $this->build_locale_line_html( $code ),
+		);
+
+		/**
+		 * Filter the fully-resolved, about-to-be-cached country content
+		 * bundle. Also seed-time only.
+		 *
+		 * @param array  $content Resolved bundle.
+		 * @param string $code    Two-letter country code (may be '').
+		 */
+		$content = (array) apply_filters( 'pgt_country_content', $content, $code );
+
+		update_option( self::COUNTRY_CONTENT_OPTION, $content, true );
+
+		return $content;
+	}
+
+	/**
+	 * Country chip markup — flag + full country name. Lives in the utility
+	 * topbar since 2026-08 (it was crowding the header icons row; the
+	 * topbar has the width for the full name instead of the two-letter
+	 * code).
+	 *
+	 * Flags are inline SVG rather than emoji: emoji flags do not render at
+	 * all on most Windows builds, which is the majority of this audience.
 	 *
 	 * Indicator, not a switcher — PGE_COUNTRY is a deploy-time constant and
 	 * one install serves one country, so there is nothing to pick. Hence a
 	 * span with a title, not a link.
 	 *
+	 * SEED-TIME ONLY. Render path reads country_content()['country_chip_html'].
+	 *
+	 * @param string $code Two-letter country code (may be '').
 	 * @return string
 	 */
-	private function country_chip() {
-		$code = $this->country_code();
-
+	private function build_country_chip_html( $code ) {
 		$flags = array(
 			'us' => '<rect width="60" height="42" fill="#B22234"/><g fill="#F5F1E8"><rect y="6" width="60" height="6"/><rect y="18" width="60" height="6"/><rect y="30" width="60" height="6"/></g><rect width="27" height="24" fill="#3C3B6E"/><g fill="#F5F1E8"><circle cx="5.5" cy="5" r="1.7"/><circle cx="13.5" cy="5" r="1.7"/><circle cx="21.5" cy="5" r="1.7"/><circle cx="9.5" cy="11.5" r="1.7"/><circle cx="17.5" cy="11.5" r="1.7"/><circle cx="5.5" cy="18" r="1.7"/><circle cx="13.5" cy="18" r="1.7"/><circle cx="21.5" cy="18" r="1.7"/></g>',
 			'ca' => '<rect width="60" height="42" fill="#F5F1E8"/><rect width="15" height="42" fill="#D52B1E"/><rect x="45" width="15" height="42" fill="#D52B1E"/><path d="M30 9.5l2.1 4.4 4.5-1.1-1.5 4.3 3.6 2.3-3.6 2.3 1.1 3.4-4.2-.7-.4 4.6h-3.2l-.4-4.6-4.2.7 1.1-3.4-3.6-2.3 3.6-2.3-1.5-4.3 4.5 1.1z" fill="#D52B1E"/>',
@@ -1461,44 +1860,21 @@ final class Chrome {
 			. '<svg class="pgt-countrychip__flag" viewBox="0 0 60 42" width="21" height="15" aria-hidden="true">'
 			. $flags[ $code ]
 			. '</svg>'
-			. '<span class="pgt-countrychip__code">' . esc_html( strtoupper( $code ) ) . '</span>'
-			. '<span class="pgt-visually-hidden">' . esc_html( $labels[ $code ] ) . '</span>'
+			. '<span class="pgt-countrychip__code">' . esc_html( $labels[ $code ] ) . '</span>'
 			. '</span>';
 	}
 
 	/**
-	 * The site's country code, filtered. Shared by the header chip and the
-	 * footer locale line so the two can never disagree.
+	 * Locale indicator markup — text, footer bottom row. Complements the
+	 * header's country chip: the chip is the glance, this is the full
+	 * statement.
 	 *
-	 * @return string Lowercase two-letter code, or ''.
-	 */
-	private function country_code() {
-		$code = defined( 'PGE_COUNTRY' ) ? strtolower( (string) PGE_COUNTRY ) : '';
-
-		/**
-		 * Filter the country code used for the locale line.
-		 *
-		 * @param string $code Two-letter country code.
-		 */
-		return (string) apply_filters( 'pgt_header_country_code', $code );
-	}
-
-	/**
-	 * Locale indicator — text, footer bottom row. Complements the header's
-	 * country chip: the chip is the glance, this is the full statement.
+	 * SEED-TIME ONLY. Render path reads country_content()['locale_line_html'].
 	 *
+	 * @param string $code Two-letter country code (may be '').
 	 * @return string
 	 */
-	private function locale_line() {
-		$code = defined( 'PGE_COUNTRY' ) ? strtolower( (string) PGE_COUNTRY ) : '';
-
-		/**
-		 * Filter the country code used for the locale line.
-		 *
-		 * @param string $code Two-letter country code.
-		 */
-		$code = apply_filters( 'pgt_header_country_code', $code );
-
+	private function build_locale_line_html( $code ) {
 		$locales = array(
 			'us' => __( 'United States · English', 'prepgro-theme' ),
 			'ca' => __( 'Canada · English', 'prepgro-theme' ),
