@@ -251,6 +251,7 @@ final class Exams_Page {
 			. '<section class="pgx-body">'
 			. $this->filters()
 			. $this->cards()
+			. $this->state_grid()
 			. $this->coverage()
 			. $this->steps()
 			. $this->band()
@@ -687,6 +688,122 @@ final class Exams_Page {
 			return 'gradschool';
 		}
 		return 'state';
+	}
+
+	/* ─────────────────────────────────────────────────────────────────────
+	   Browse by state.
+	   ──────────────────────────────────────────────────────────────────── */
+
+	/** @var array<string,string> US state name → 2-letter code (assets/states/*.svg lives in the engine). */
+	private const US_STATE_ABBR = array(
+		'Alabama' => 'AL', 'Alaska' => 'AK', 'Arizona' => 'AZ', 'Arkansas' => 'AR', 'California' => 'CA',
+		'Colorado' => 'CO', 'Connecticut' => 'CT', 'Delaware' => 'DE', 'Florida' => 'FL', 'Georgia' => 'GA',
+		'Hawaii' => 'HI', 'Idaho' => 'ID', 'Illinois' => 'IL', 'Indiana' => 'IN', 'Iowa' => 'IA',
+		'Kansas' => 'KS', 'Kentucky' => 'KY', 'Louisiana' => 'LA', 'Maine' => 'ME', 'Maryland' => 'MD',
+		'Massachusetts' => 'MA', 'Michigan' => 'MI', 'Minnesota' => 'MN', 'Mississippi' => 'MS', 'Missouri' => 'MO',
+		'Montana' => 'MT', 'Nebraska' => 'NE', 'Nevada' => 'NV', 'New Hampshire' => 'NH', 'New Jersey' => 'NJ',
+		'New Mexico' => 'NM', 'New York' => 'NY', 'North Carolina' => 'NC', 'North Dakota' => 'ND', 'Ohio' => 'OH',
+		'Oklahoma' => 'OK', 'Oregon' => 'OR', 'Pennsylvania' => 'PA', 'Rhode Island' => 'RI', 'South Carolina' => 'SC',
+		'South Dakota' => 'SD', 'Tennessee' => 'TN', 'Texas' => 'TX', 'Utah' => 'UT', 'Vermont' => 'VT',
+		'Virginia' => 'VA', 'Washington' => 'WA', 'West Virginia' => 'WV', 'Wisconsin' => 'WI', 'Wyoming' => 'WY',
+		'District of Columbia' => 'DC',
+	);
+
+	/**
+	 * "Browse by state" directory — testbook-v2's /learn/ hub has this
+	 * section (Browse by State, real counts, a badge for the visitor's own
+	 * state) and this page didn't. Ported structurally, not copied: counts
+	 * come from this engine's exam CPT via the same query shape bank_counts()
+	 * already uses, and "my state" reuses student_context() rather than a
+	 * second profile read. Cards link into the plugin's existing
+	 * /learn/{country}/{state}/ portal (class-cpt.php's SEO rewrite rules).
+	 *
+	 * @return string
+	 */
+	private function state_grid() {
+		$counts = $this->state_exam_counts();
+		if ( ! $counts ) {
+			return '';
+		}
+
+		$student  = $this->student_context();
+		$my_state = $student['state'];
+
+		$states = array_keys( $counts );
+		sort( $states );
+		// Same "bubble mine to the front" convention as sort_by_student_match().
+		if ( $my_state && isset( $counts[ $my_state ] ) ) {
+			$states = array_merge( array( $my_state ), array_diff( $states, array( $my_state ) ) );
+		}
+
+		$country_code = class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' )
+			? (string) get_option( \PrepGro\Engine\Storage\Storage_Map::option( 'country_of_operation' ), 'US' )
+			: 'US';
+		$country_slug = class_exists( '\\PrepGro\\Engine\\Geo_Data' )
+			? \PrepGro\Engine\Geo_Data::country_slug( $country_code )
+			: 'united-states';
+		$plugin_url = defined( 'PGE_URL' ) ? PGE_URL : '';
+
+		$cards = '';
+		foreach ( $states as $state ) {
+			$is_mine = ( $state === $my_state );
+			$abbr    = self::US_STATE_ABBR[ $state ] ?? '';
+			$icon    = ( $abbr && $plugin_url )
+				? '<img src="' . esc_url( $plugin_url . 'assets/states/' . $abbr . '.svg' ) . '" alt="" width="26" height="26" loading="lazy">'
+				: Icons::svg( 'map-pin', array( 'size' => 20, 'stroke' => 1.8 ) );
+			$url = home_url( '/learn/' . $country_slug . '/' . sanitize_title( $state ) . '/' );
+
+			$cards .= '<a class="pgx-state-card' . ( $is_mine ? ' pgx-state-card--mine' : '' ) . '" href="' . esc_url( $url ) . '">'
+				. ( $is_mine ? '<span class="pgx-state-card__badge">' . esc_html__( 'Your state', 'prepgro-theme' ) . '</span>' : '' )
+				. '<span class="pgx-state-card__icon">' . $icon . '</span>'
+				. '<span class="pgx-state-card__name">' . esc_html( $state ) . '</span>'
+				. '<span class="pgx-state-card__count">' . esc_html(
+					sprintf(
+						/* translators: %d: number of exams */
+						_n( '%d exam', '%d exams', $counts[ $state ], 'prepgro-theme' ),
+						$counts[ $state ]
+					)
+				) . '</span>'
+				. '</a>';
+		}
+
+		return '<section class="pgx-states">'
+			. '<span class="pgx-kicker pgx-kicker--accent">' . esc_html__( 'Browse by state', 'prepgro-theme' ) . '</span>'
+			. '<h2 class="pgx-states__h">' . esc_html__( 'Find practice tests for your state', 'prepgro-theme' ) . '</h2>'
+			. '<div class="pgx-states__grid">' . $cards . '</div>'
+			. '</section>';
+	}
+
+	/**
+	 * Real per-state exam counts — same query/cache shape as bank_counts(),
+	 * grouped by `_exam_state` instead of a title-pattern family.
+	 *
+	 * @return array<string,int> State name => published-exam count.
+	 */
+	private function state_exam_counts() {
+		$cached = get_transient( 'pgt_state_counts_v1' );
+		if ( false !== $cached ) {
+			return (array) $cached;
+		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- no external input, wpdb table properties only.
+		$rows = $wpdb->get_results(
+			"SELECT pm.meta_value AS state, COUNT(DISTINCT p.ID) AS n
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_exam_state'
+			 LEFT JOIN {$wpdb->postmeta} pm_quiz ON pm_quiz.post_id = p.ID AND pm_quiz.meta_key = '_pge_quiz_course_id'
+			 WHERE p.post_type = 'exam' AND p.post_status = 'publish' AND pm_quiz.post_id IS NULL AND pm.meta_value != ''
+			 GROUP BY pm.meta_value"
+		);
+
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			$out[ $row->state ] = (int) $row->n;
+		}
+
+		set_transient( 'pgt_state_counts_v1', $out, HOUR_IN_SECONDS );
+		return $out;
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
