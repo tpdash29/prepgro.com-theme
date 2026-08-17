@@ -42,6 +42,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Chrome {
 
+	/**
+	 * Blank headroom row slots Theme_Options::register_mega_menu_controls()
+	 * adds at the end of every mega-menu group, beyond its built-in rows —
+	 * fill in a title and a link and the row appears; leave either blank and
+	 * apply_mega_menu_overrides() skips it. Same fixed-headroom shape as
+	 * Image_Slots::MAX.
+	 */
+	const MEGA_EXTRA_ROWS = 2;
+
 	/** @var Chrome|null */
 	private static $instance = null;
 
@@ -122,7 +131,7 @@ final class Chrome {
 	 */
 	private function pillar_of_url( $url ) {
 		$map = array(
-			'evaluate' => array( '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
+			'evaluate' => array( '/get-started/', '/readiness-check/', '/my-readiness-report/', '/' . ( function_exists( 'pge_content' ) ? pge_content( 'flagship.slug', 'sat-act-psat' ) : 'sat-act-psat' ) . '/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
 			'elevate'  => array( '/find-a-tutor/', '/courses/', '/book-a-session/', '/teacher-portal/', '/flashcards/', '/cheat-sheets/' ),
 			'excel'    => array( '/all-exams/', '/practice-tests/' ),
 		);
@@ -209,7 +218,7 @@ final class Chrome {
 				'id'    => 'evaluate',
 				'label' => __( 'Evaluate', 'prepgro-theme' ),
 				'url'   => home_url( '/evaluate/' ),
-				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/', '/sat-act-psat/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
+				'owns'  => array( '/evaluate/', '/get-started/', '/readiness-check/', '/my-readiness-report/', '/' . ( function_exists( 'pge_content' ) ? pge_content( 'flagship.slug', 'sat-act-psat' ) : 'sat-act-psat' ) . '/', '/how-we-measure/', '/parent-progress/', '/sample-report/', '/diagnostic-tests/', '/all-diagnostics/' ),
 				'panel' => 'evaluate',
 			),
 			array(
@@ -268,189 +277,16 @@ final class Chrome {
 	 * promo aside. Group `tone` selects the phase colour pair used for the
 	 * eyebrow and the icon tiles.
 	 *
+	 * Built from default_mega_panels(), then Theme_Options's "PrepGro Mega
+	 * Menu" Customizer panel is layered on top field-by-field — see
+	 * apply_mega_menu_overrides() — before pillar gating runs, so an owner's
+	 * edited copy is just as subject to the disabled-pillar cleanup below as
+	 * the built-in text is.
+	 *
 	 * @return array<string,array<string,mixed>>
 	 */
 	private function mega_panels() {
-		$panels = array(
-			'evaluate' => array(
-				'tone'   => 'evaluate',
-				'aside'  => array(
-					'eyebrow' => __( 'Start here', 'prepgro-theme' ),
-					'title'   => __( 'One free check, four named gaps', 'prepgro-theme' ),
-					'body'    => __( 'About 20 minutes, no card. The report is ready the same day.', 'prepgro-theme' ),
-					'cta'     => __( 'Take the free check', 'prepgro-theme' ),
-					'url'     => home_url( '/get-started/' ),
-				),
-				'groups' => array(
-					array(
-						'eyebrow' => __( 'Diagnostic', 'prepgro-theme' ),
-						'note'    => __( 'free', 'prepgro-theme' ),
-						'items'   => array(
-							// Was two items ('Free readiness check' / 'Resume my
-							// check') that both hardcoded /get-started/ — a signed-in
-							// user with onboarding already complete was sent back to
-							// the sign-up page they'd already finished. There is also
-							// no "resume an open attempt" mechanism anywhere in the
-							// diagnostic runner today, so a second, distinct "Resume"
-							// item would have been a false promise.
-							// Destination::start_practicing() is the resolver that
-							// already gets this right for every auth state.
-							array( 'icon' => 'circle-check', 'title' => __( 'Continue my check', 'prepgro-theme' ), 'sub' => __( 'Free, ~20 min, adaptive', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
-							array( 'icon' => 'clipboard-list', 'title' => __( 'Browse all diagnostics', 'prepgro-theme' ), 'sub' => __( 'Every exam, one catalogue', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'By exam', 'prepgro-theme' ),
-						'note'    => __( 'pick yours', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'url' => home_url( '/sat-act-psat/' ) ),
-							array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/ap/' ) ),
-							// Was /all-exams/ — Excel's practice catalogue, not a
-							// diagnostic. /diagnostic-tests/ is Evaluate's own
-							// catalogue now; ?filter=state pre-selects its
-							// "State-test diagnostic" chip (theme.js reads it).
-							array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/?filter=state' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Results', 'prepgro-theme' ),
-						'note'    => __( 'after the check', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'line-chart', 'title' => __( 'My readiness report', 'prepgro-theme' ), 'sub' => __( 'Skills to fix, in order', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=results' ) ),
-							array( 'icon' => 'info', 'title' => __( 'How we measure', 'prepgro-theme' ), 'sub' => __( 'What the number means', 'prepgro-theme' ), 'url' => home_url( '/how-we-measure/' ) ),
-							// [pge_parent_portal] (a child's exam-progress stats) had
-							// never had a live page — 'parent-portal' is Excel's
-							// tutoring scheduling portal, a different feature. See
-							// class-activator.php's 'parent-progress' entry.
-							array( 'icon' => 'mail', 'title' => __( 'Parent digest', 'prepgro-theme' ), 'sub' => __( "Your child's progress", 'prepgro-theme' ), 'url' => home_url( '/parent-progress/' ) ),
-						),
-					),
-				),
-			),
-			'elevate'  => array(
-				'tone'   => 'elevate',
-				'aside'  => array(
-					'eyebrow' => __( 'Live support', 'prepgro-theme' ),
-					'title'   => __( '8 live 1:1 classes a month', 'prepgro-theme' ),
-					'body'    => __( 'Your tutor already knows which skills are weak. No hour spent rediscovering them.', 'prepgro-theme' ),
-					'cta'     => __( 'Find a tutor', 'prepgro-theme' ),
-					'url'     => Pricing_Levels::url(),
-				),
-				'groups' => array(
-					array(
-						'eyebrow' => __( 'Learn', 'prepgro-theme' ),
-						'note'    => __( 'LMS', 'prepgro-theme' ),
-						'items'   => array(
-							// "Lesson library" is the signed-in member's own
-							// enrolled courses; "Browse all courses" is the new
-							// public catalogue (/courses/) — free previews for a
-							// visitor who hasn't picked an exam yet.
-							array( 'icon' => 'layers', 'title' => __( 'Browse all courses', 'prepgro-theme' ), 'sub' => __( 'Free lesson previews', 'prepgro-theme' ), 'url' => home_url( '/courses/' ) ),
-							array( 'icon' => 'book-open', 'title' => __( 'Lesson library', 'prepgro-theme' ), 'sub' => __( 'Mapped to every skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
-							array( 'icon' => 'clipboard', 'title' => __( 'My study plan', 'prepgro-theme' ), 'sub' => __( 'What to do this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=plan' ) ),
-							array( 'icon' => 'pencil', 'title' => __( 'Assignments', 'prepgro-theme' ), 'sub' => __( 'Set by your tutor', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Tutor on demand', 'prepgro-theme' ),
-						'note'    => __( '8 / month', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Session recaps', 'prepgro-theme' ), 'sub' => __( 'What was covered, next step', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Plans', 'prepgro-theme' ),
-						'note'    => __( 'by level', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'dollar-sign', 'title' => __( 'Live tutor plans', 'prepgro-theme' ), 'sub' => __( 'From $129/month', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'circle-plus', 'title' => __( 'Add a second subject', 'prepgro-theme' ), 'sub' => __( 'One subject per plan', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'users', 'title' => __( 'Teach with prepGro', 'prepgro-theme' ), 'sub' => __( 'Tutor applications', 'prepgro-theme' ), 'url' => 'https://dash.prepgro.com/teacher-registration/' ),
-						),
-					),
-				),
-			),
-			'excel'    => array(
-				'tone'   => 'excel',
-				'aside'  => array(
-					'eyebrow' => __( 'Prove it', 'prepgro-theme' ),
-					'title'   => __( 'Practice until it holds', 'prepgro-theme' ),
-					'body'    => __( 'Unlimited attempts for one subject, with explanations and a trend by skill.', 'prepgro-theme' ),
-					'cta'     => __( 'See test packs', 'prepgro-theme' ),
-					'url'     => Pricing_Levels::url(),
-				),
-				'groups' => array(
-					array(
-						'eyebrow' => __( 'Practice', 'prepgro-theme' ),
-						'note'    => __( 'unlimited', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
-							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=bank' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=mock' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Review', 'prepgro-theme' ),
-						'note'    => __( 'every answer', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=explanations' ) ),
-							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=performance' ) ),
-							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=retake' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Test packs', 'prepgro-theme' ),
-						'note'    => __( 'by level', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => __( 'From $9.99/month', 'prepgro-theme' ), 'url' => home_url( '/pricing/' ) ),
-							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
-							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/test-day-checklist/' ) ),
-						),
-					),
-				),
-			),
-			'help'     => array(
-				'tone'   => 'neutral',
-				'aside'  => array(
-					'eyebrow' => __( 'Still stuck?', 'prepgro-theme' ),
-					'title'   => __( 'Talk to a person', 'prepgro-theme' ),
-					'body'    => __( 'We answer parent questions about plans, levels and matching within one working day.', 'prepgro-theme' ),
-					'cta'     => __( 'Contact us', 'prepgro-theme' ),
-					'url'     => home_url( '/contact-us/' ),
-				),
-				'groups' => array(
-					array(
-						'eyebrow' => __( 'Support', 'prepgro-theme' ),
-						'note'    => __( 'we reply', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'mail', 'title' => __( 'Contact us', 'prepgro-theme' ), 'sub' => __( 'Email or call', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
-							array( 'icon' => 'help-circle', 'title' => __( 'Parent FAQ', 'prepgro-theme' ), 'sub' => __( 'The common questions', 'prepgro-theme' ), 'url' => home_url( '/#pg-faq' ) ),
-							array( 'icon' => 'credit-card', 'title' => __( 'Billing & refunds', 'prepgro-theme' ), 'sub' => __( 'Cancel anytime', 'prepgro-theme' ), 'url' => home_url( '/refund-policy/' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Learn more', 'prepgro-theme' ),
-						'note'    => __( 'reading', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'book-open', 'title' => __( 'Journal', 'prepgro-theme' ), 'sub' => __( 'Notes on prepping well', 'prepgro-theme' ), 'url' => $this->blog_url() ),
-							array( 'icon' => 'activity', 'title' => __( 'How prepGro works', 'prepgro-theme' ), 'sub' => __( 'The three-part loop', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
-							array( 'icon' => 'users', 'title' => __( 'About prepGro', 'prepgro-theme' ), 'sub' => __( 'Who we are', 'prepgro-theme' ), 'url' => home_url( '/about-us/' ) ),
-						),
-					),
-					array(
-						'eyebrow' => __( 'Trust', 'prepgro-theme' ),
-						'note'    => __( 'the fine print', 'prepgro-theme' ),
-						'items'   => array(
-							array( 'icon' => 'shield', 'title' => __( 'Privacy policy', 'prepgro-theme' ), 'sub' => __( 'Your data stays yours', 'prepgro-theme' ), 'url' => home_url( '/privacy-policy/' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Terms of service', 'prepgro-theme' ), 'sub' => __( 'The agreement', 'prepgro-theme' ), 'url' => home_url( '/terms-of-service/' ) ),
-							array( 'icon' => 'alert-triangle', 'title' => __( 'No score guarantees', 'prepgro-theme' ), 'sub' => __( 'What we do promise', 'prepgro-theme' ), 'url' => home_url( '/terms-of-service/' ) ),
-						),
-					),
-				),
-			),
-		);
+		$panels = $this->apply_mega_menu_overrides( $this->default_mega_panels() );
 
 		// A disabled pillar's own panel goes entirely — belt and braces with
 		// nav_links() dropping its trigger, so the panel cannot be reached by
@@ -500,6 +336,277 @@ final class Chrome {
 	}
 
 	/**
+	 * The hardcoded mega-panel defaults, before Customizer overrides or
+	 * pillar gating. Public so Theme_Options::register_mega_menu_controls()
+	 * can build its section/control layout — and every field's shown
+	 * default — from this exact array instead of a second, hand-kept copy.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 */
+	public function default_mega_panels() {
+		$panels = array(
+			'evaluate' => array(
+				'tone'   => 'evaluate',
+				'aside'  => array(
+					'eyebrow' => __( 'Start here', 'prepgro-theme' ),
+					'title'   => __( 'One free check, four named gaps', 'prepgro-theme' ),
+					'body'    => __( 'About 20 minutes, no card. The report is ready the same day.', 'prepgro-theme' ),
+					'cta'     => __( 'Take the free check', 'prepgro-theme' ),
+					'url'     => home_url( '/get-started/' ),
+				),
+				'groups' => array(
+					array(
+						'eyebrow' => __( 'Diagnostic', 'prepgro-theme' ),
+						'note'    => __( 'free', 'prepgro-theme' ),
+						'items'   => array(
+							// Was two items ('Free readiness check' / 'Resume my
+							// check') that both hardcoded /get-started/ — a signed-in
+							// user with onboarding already complete was sent back to
+							// the sign-up page they'd already finished. There is also
+							// no "resume an open attempt" mechanism anywhere in the
+							// diagnostic runner today, so a second, distinct "Resume"
+							// item would have been a false promise.
+							// Destination::start_practicing() is the resolver that
+							// already gets this right for every auth state.
+							array( 'icon' => 'circle-check', 'title' => __( 'Continue my check', 'prepgro-theme' ), 'sub' => __( 'Free, ~20 min, adaptive', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
+							array( 'icon' => 'clipboard-list', 'title' => __( 'Browse all diagnostics', 'prepgro-theme' ), 'sub' => __( 'Every exam, one catalogue', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Sample report', 'prepgro-theme' ), 'sub' => __( 'See what you get', 'prepgro-theme' ), 'url' => home_url( '/sample-report/' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'By exam', 'prepgro-theme' ),
+						'note'    => __( 'pick yours', 'prepgro-theme' ),
+						'items'   => $this->exam_menu_items(),
+					),
+					array(
+						'eyebrow' => __( 'Results', 'prepgro-theme' ),
+						'note'    => __( 'after the check', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'line-chart', 'title' => __( 'My readiness report', 'prepgro-theme' ), 'sub' => __( 'Skills to fix, in order', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=results' ) ),
+							array( 'icon' => 'info', 'title' => __( 'How we measure', 'prepgro-theme' ), 'sub' => __( 'What the number means', 'prepgro-theme' ), 'url' => home_url( '/how-we-measure/' ) ),
+							// [pge_parent_portal] (a child's exam-progress stats) had
+							// never had a live page — 'parent-portal' is Excel's
+							// tutoring scheduling portal, a different feature. See
+							// class-activator.php's 'parent-progress' entry.
+							array( 'icon' => 'mail', 'title' => __( 'Parent digest', 'prepgro-theme' ), 'sub' => __( "Your child's progress", 'prepgro-theme' ), 'url' => home_url( '/parent-progress/' ) ),
+						),
+					),
+				),
+			),
+			'elevate'  => array(
+				'tone'   => 'elevate',
+				'aside'  => array(
+					'eyebrow' => __( 'Live support', 'prepgro-theme' ),
+					'title'   => __( '8 live 1:1 classes a month', 'prepgro-theme' ),
+					'body'    => __( 'Your tutor already knows which skills are weak. No hour spent rediscovering them.', 'prepgro-theme' ),
+					'cta'     => __( 'Find a tutor', 'prepgro-theme' ),
+					'url'     => Pricing_Levels::url(),
+				),
+				'groups' => array(
+					array(
+						'eyebrow' => __( 'Learn', 'prepgro-theme' ),
+						'note'    => __( 'LMS', 'prepgro-theme' ),
+						'items'   => array(
+							// "Lesson library" is the signed-in member's own
+							// enrolled courses; "Browse all courses" is the new
+							// public catalogue (/courses/) — free previews for a
+							// visitor who hasn't picked an exam yet.
+							array( 'icon' => 'layers', 'title' => __( 'Browse all courses', 'prepgro-theme' ), 'sub' => __( 'Free lesson previews', 'prepgro-theme' ), 'url' => home_url( '/courses/' ) ),
+							array( 'icon' => 'book-open', 'title' => __( 'Lesson library', 'prepgro-theme' ), 'sub' => __( 'Mapped to every skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
+							array( 'icon' => 'clipboard', 'title' => __( 'My study plan', 'prepgro-theme' ), 'sub' => __( 'What to do this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=plan' ) ),
+							array( 'icon' => 'pencil', 'title' => __( 'Assignments', 'prepgro-theme' ), 'sub' => __( 'Set by your tutor', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=plan&seg=courses' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Tutor on demand', 'prepgro-theme' ),
+						'note'    => __( '8 / month', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
+							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Plans', 'prepgro-theme' ),
+						'note'    => __( 'by level', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'dollar-sign', 'title' => __( 'Live tutor plans', 'prepgro-theme' ), 'sub' => $this->from_price( 'tutor', __( 'From $129/month', 'prepgro-theme' ) ), 'url' => Pricing_Levels::url() ),
+							array( 'icon' => 'circle-plus', 'title' => __( 'Add a second subject', 'prepgro-theme' ), 'sub' => __( 'One subject per plan', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
+							array( 'icon' => 'users', 'title' => __( 'Teach with prepGro', 'prepgro-theme' ), 'sub' => __( 'Tutor applications', 'prepgro-theme' ), 'url' => 'https://dash.prepgro.com/teacher-registration/' ),
+						),
+					),
+				),
+			),
+			'excel'    => array(
+				'tone'   => 'excel',
+				'aside'  => array(
+					'eyebrow' => __( 'Prove it', 'prepgro-theme' ),
+					'title'   => __( 'Practice until it holds', 'prepgro-theme' ),
+					'body'    => __( 'Unlimited attempts for one subject, with explanations and a trend by skill.', 'prepgro-theme' ),
+					'cta'     => __( 'See test packs', 'prepgro-theme' ),
+					'url'     => Pricing_Levels::url(),
+				),
+				'groups' => array(
+					array(
+						'eyebrow' => __( 'Practice', 'prepgro-theme' ),
+						'note'    => __( 'unlimited', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
+							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=bank' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=mock' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Review', 'prepgro-theme' ),
+						'note'    => __( 'every answer', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=explanations' ) ),
+							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=performance' ) ),
+							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=retake' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Test packs', 'prepgro-theme' ),
+						'note'    => __( 'by level', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => $this->from_price( 'monthly', __( 'From $9.99/month', 'prepgro-theme' ) ), 'url' => home_url( '/pricing/' ) ),
+							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
+							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/test-day-checklist/' ) ),
+						),
+					),
+				),
+			),
+			'help'     => array(
+				'tone'   => 'neutral',
+				'aside'  => array(
+					'eyebrow' => __( 'Still stuck?', 'prepgro-theme' ),
+					'title'   => __( 'Talk to a person', 'prepgro-theme' ),
+					'body'    => __( 'We answer parent questions about plans, levels and matching within one working day.', 'prepgro-theme' ),
+					'cta'     => __( 'Contact us', 'prepgro-theme' ),
+					'url'     => home_url( '/contact-us/' ),
+				),
+				'groups' => array(
+					array(
+						'eyebrow' => __( 'Support', 'prepgro-theme' ),
+						'note'    => __( 'we reply', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'mail', 'title' => __( 'Contact us', 'prepgro-theme' ), 'sub' => __( 'Email or call', 'prepgro-theme' ), 'url' => home_url( '/contact-us/' ) ),
+							array( 'icon' => 'help-circle', 'title' => __( 'Parent FAQ', 'prepgro-theme' ), 'sub' => __( 'The common questions', 'prepgro-theme' ), 'url' => home_url( '/#pg-faq' ) ),
+							array( 'icon' => 'credit-card', 'title' => __( 'Billing & refunds', 'prepgro-theme' ), 'sub' => __( 'Cancel anytime', 'prepgro-theme' ), 'url' => home_url( '/refund-policy/' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Learn more', 'prepgro-theme' ),
+						'note'    => __( 'reading', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'book-open', 'title' => __( 'Journal', 'prepgro-theme' ), 'sub' => __( 'Notes on prepping well', 'prepgro-theme' ), 'url' => $this->blog_url() ),
+							array( 'icon' => 'activity', 'title' => __( 'How prepGro works', 'prepgro-theme' ), 'sub' => __( 'The three-part loop', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
+							array( 'icon' => 'users', 'title' => __( 'About prepGro', 'prepgro-theme' ), 'sub' => __( 'Who we are', 'prepgro-theme' ), 'url' => home_url( '/about-us/' ) ),
+						),
+					),
+					array(
+						'eyebrow' => __( 'Trust', 'prepgro-theme' ),
+						'note'    => __( 'the fine print', 'prepgro-theme' ),
+						'items'   => array(
+							array( 'icon' => 'shield', 'title' => __( 'Privacy policy', 'prepgro-theme' ), 'sub' => __( 'Your data stays yours', 'prepgro-theme' ), 'url' => home_url( '/privacy-policy/' ) ),
+							array( 'icon' => 'file-text', 'title' => __( 'Terms of service', 'prepgro-theme' ), 'sub' => __( 'The agreement', 'prepgro-theme' ), 'url' => home_url( '/terms-of-service/' ) ),
+							array( 'icon' => 'alert-triangle', 'title' => __( 'No score guarantees', 'prepgro-theme' ), 'sub' => __( 'What we do promise', 'prepgro-theme' ), 'url' => home_url( '/terms-of-service/' ) ),
+						),
+					),
+				),
+			),
+		);
+
+		return $panels;
+	}
+
+	/**
+	 * Layer the "PrepGro Mega Menu" Customizer overrides (Theme_Options::
+	 * register_mega_menu_controls()) onto the hardcoded defaults, field by
+	 * field. Every override setting defaults to '', and '' is read here as
+	 * "keep the built-in copy" — so an owner editing three rows in one panel
+	 * never has to restate the other six just to avoid blanking them.
+	 *
+	 * Field naming mirrors the array shape exactly: `pgt_mega_{panel}_aside_
+	 * {field}` for the promo card, `pgt_mega_{panel}_g{i}_{field}` for a
+	 * group's own heading/note, `pgt_mega_{panel}_g{i}_i{j}_{field}` for one
+	 * row inside it — `i`/`j` are the zero-based array indexes, so the
+	 * mapping stays correct even though group/row counts differ per panel.
+	 *
+	 * `pgt_mega_{panel}_g{i}_hide` / `..._i{j}_hide` are the one boolean
+	 * field per group/row: checked, that entry is unset outright rather than
+	 * text-overridden. The gap this leaves is harmless — the pillar-gating
+	 * pass in mega_panels() already reindexes every group's items through
+	 * drop_disabled_links(), and iterates `groups` with foreach, which does
+	 * not care about a missing array key.
+	 *
+	 * @param array $panels Default panel map from default_mega_panels().
+	 * @return array
+	 */
+	private function apply_mega_menu_overrides( $panels ) {
+		foreach ( $panels as $key => $panel ) {
+			if ( isset( $panel['aside'] ) ) {
+				foreach ( array( 'eyebrow', 'title', 'body', 'cta', 'url' ) as $field ) {
+					$val = trim( (string) get_theme_mod( "pgt_mega_{$key}_aside_{$field}", '' ) );
+					if ( '' !== $val ) {
+						$panels[ $key ]['aside'][ $field ] = $val;
+					}
+				}
+			}
+
+			foreach ( (array) $panel['groups'] as $gi => $group ) {
+				if ( get_theme_mod( "pgt_mega_{$key}_g{$gi}_hide", false ) ) {
+					unset( $panels[ $key ]['groups'][ $gi ] );
+					continue;
+				}
+
+				foreach ( array( 'eyebrow', 'note' ) as $field ) {
+					$val = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_{$field}", '' ) );
+					if ( '' !== $val ) {
+						$panels[ $key ]['groups'][ $gi ][ $field ] = $val;
+					}
+				}
+
+				foreach ( (array) $group['items'] as $ii => $item ) {
+					if ( get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_hide", false ) ) {
+						unset( $panels[ $key ]['groups'][ $gi ]['items'][ $ii ] );
+						continue;
+					}
+
+					foreach ( array( 'icon', 'title', 'sub', 'url' ) as $field ) {
+						$val = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_{$field}", '' ) );
+						if ( '' !== $val ) {
+							$panels[ $key ]['groups'][ $gi ]['items'][ $ii ][ $field ] = $val;
+						}
+					}
+				}
+
+				// Blank headroom slots past the built-in rows (Theme_Options
+				// renders MEGA_EXTRA_ROWS of these per group). A brand-new row
+				// needs both a title and a link to mean anything — an icon or
+				// subtitle alone is not enough to add one.
+				$base = count( $group['items'] );
+				for ( $ii = $base; $ii < $base + self::MEGA_EXTRA_ROWS; $ii++ ) {
+					$title = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_title", '' ) );
+					$url   = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_url", '' ) );
+					if ( '' === $title || '' === $url ) {
+						continue;
+					}
+					$icon = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_icon", '' ) );
+					$sub  = trim( (string) get_theme_mod( "pgt_mega_{$key}_g{$gi}_i{$ii}_sub", '' ) );
+					$panels[ $key ]['groups'][ $gi ]['items'][] = array(
+						'icon'  => '' !== $icon ? $icon : 'list',
+						'title' => $title,
+						'sub'   => $sub,
+						'url'   => $url,
+					);
+				}
+			}
+		}
+
+		return $panels;
+	}
+
+	/**
 	 * Where "Continue my check" (and any other "start/continue the free
 	 * diagnostic" CTA) should send THIS visitor — signed out → /get-started/;
 	 * signed in with onboarding incomplete → the exact missing step; signed
@@ -510,6 +617,73 @@ final class Chrome {
 	 */
 	private function start_practicing_url() {
 		return \PrepGro\Engine\Core\Onboarding\Destination::start_practicing();
+	}
+
+	/**
+	 * The "By exam" mega-panel entries. A country pack can restate them via
+	 * `content.exam_menu` ({icon,title,sub,path} each, icons from the same
+	 * graduation-cap / list / map-pin set the US entries use); `path` maps
+	 * through home_url() so pack entries stay host-relative. The US entries
+	 * are the fallback.
+	 *
+	 * @return array<int,array{icon:string,title:string,sub:string,url:string}>
+	 */
+	private function exam_menu_items() {
+		$entries = array(
+			array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'path' => '/sat-act-psat/' ),
+			array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'path' => '/practice-tests/ap/' ),
+			// Was /all-exams/ — Excel's practice catalogue, not a diagnostic.
+			// /diagnostic-tests/ is Evaluate's own catalogue now; ?filter=state
+			// pre-selects its "State-test diagnostic" chip (theme.js reads it).
+			array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'path' => '/diagnostic-tests/?filter=state' ),
+		);
+		if ( function_exists( 'pge_content' ) ) {
+			$entries = (array) pge_content( 'exam_menu', $entries );
+		}
+
+		$items = array();
+		foreach ( $entries as $entry ) {
+			if ( ! is_array( $entry ) || empty( $entry['title'] ) || empty( $entry['path'] ) ) {
+				continue;
+			}
+			$items[] = array(
+				'icon'  => isset( $entry['icon'] ) ? (string) $entry['icon'] : 'list',
+				'title' => (string) $entry['title'],
+				'sub'   => isset( $entry['sub'] ) ? (string) $entry['sub'] : '',
+				'url'   => home_url( (string) $entry['path'] ),
+			);
+		}
+		return $items;
+	}
+
+	/**
+	 * "From {symbol}{price}/month" for the cheapest tier of a Pricing_Levels
+	 * line — 'tutor' (Live Tutor plans) or 'monthly' (test packs). Reading
+	 * the resolved levels keeps the mega-menu teaser agreeing with the
+	 * pricing cards; when nothing resolves the US literal survives.
+	 *
+	 * @param string $line     Price line: 'tutor' | 'monthly'.
+	 * @param string $fallback Literal used when no price resolves.
+	 * @return string
+	 */
+	private function from_price( $line, $fallback ) {
+		$min = null;
+		foreach ( Pricing_Levels::levels() as $level ) {
+			$v = 'tutor' === $line
+				? ( isset( $level['tutor'] ) ? (float) $level['tutor'] : 0 )
+				: ( isset( $level['pack']['monthly'] ) ? (float) $level['pack']['monthly'] : 0 );
+			if ( $v > 0 && ( null === $min || $v < $min ) ) {
+				$min = $v;
+			}
+		}
+		if ( null === $min ) {
+			return $fallback;
+		}
+		return sprintf(
+			/* translators: %s: lowest monthly price, e.g. $9.99. */
+			__( 'From %s/month', 'prepgro-theme' ),
+			Pricing_Levels::money( $min )
+		);
 	}
 
 	/**
@@ -646,20 +820,22 @@ final class Chrome {
 	 * @return string[]
 	 */
 	private function search_suggestions() {
+		$chips = array(
+			__( 'SAT math', 'prepgro-theme' ),
+			__( 'data analysis', 'prepgro-theme' ),
+			__( 'AP Biology practice', 'prepgro-theme' ),
+			__( 'billing', 'prepgro-theme' ),
+		);
+		if ( function_exists( 'pge_content' ) ) {
+			$chips = (array) pge_content( 'search_suggestions', $chips );
+		}
+
 		/**
 		 * Filter the search suggestion chips.
 		 *
 		 * @param string[] $chips Suggested search terms.
 		 */
-		return (array) apply_filters(
-			'pgt_search_suggestions',
-			array(
-				__( 'SAT math', 'prepgro-theme' ),
-				__( 'data analysis', 'prepgro-theme' ),
-				__( 'AP Biology practice', 'prepgro-theme' ),
-				__( 'billing', 'prepgro-theme' ),
-			)
-		);
+		return (array) apply_filters( 'pgt_search_suggestions', $chips );
 	}
 
 	/**
@@ -855,7 +1031,7 @@ final class Chrome {
 		<div class="pgt-topbar" data-pgt-topbar>
 			<div class="pgt-topbar__inner">
 				<div class="pgt-topbar__stat">
-					<?php echo $this->topbar_stat(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo $this->topbar_stat( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 				<div class="pgt-topbar__pulse">
 					<?php echo $this->topbar_pulse( $logged_in ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -921,7 +1097,7 @@ final class Chrome {
 	 *
 	 * @return string
 	 */
-	private function topbar_stat() {
+	private function topbar_stat( $logged_in = false ) {
 		$count = 0;
 		$types = array( 'exam' );
 		if ( class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' ) ) {
@@ -939,8 +1115,14 @@ final class Chrome {
 		}
 
 		if ( $count < 1 ) {
-			// Nothing to brag about (fresh install) — hold the slot with the
-			// tagline so the pulse line stays centred.
+			// Nothing to brag about (fresh install). Signed out, the pulse slot
+			// already shows the tagline — leave this slot empty (the flex:1 side
+			// slots keep the pulse centred) rather than printing it twice.
+			// Signed in, the pulse shows the learner instead, so the tagline
+			// can hold this slot without duplicating.
+			if ( ! $logged_in ) {
+				return '';
+			}
 			return '<span class="pgt-topbar__stattext">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
 
@@ -1648,9 +1830,39 @@ final class Chrome {
 	 * @return string
 	 */
 	private function public_footer() {
+		// Pack landmark panorama behind the footer content. Priority: the
+		// Customizer upload (Appearance → Customize → Footer — landmark
+		// skyline), then an engine-shipped image file, then the pack's
+		// generated line-art SVG. Decorative, config-level trust (the pack
+		// profile is executable PHP).
+		$pgt_panorama_img = '';
+		if ( class_exists( __NAMESPACE__ . '\\Image_Slots' ) ) {
+			$pgt_sky_id = Image_Slots::pick( 'pgt_footer_skyline' );
+			if ( $pgt_sky_id ) {
+				$pgt_sky_url = wp_get_attachment_image_url( $pgt_sky_id, 'full' );
+				if ( $pgt_sky_url ) {
+					$pgt_panorama_img = $pgt_sky_url;
+				}
+			}
+		}
+		if ( '' === $pgt_panorama_img && defined( 'PGE_PATH' ) && defined( 'PGE_URL' ) && defined( 'PGE_COUNTRY' ) ) {
+			foreach ( array( 'png', 'webp', 'svg' ) as $pgt_sky_ext ) {
+				$pgt_sky_rel = 'assets/country/' . strtolower( PGE_COUNTRY ) . '/footer-skyline.' . $pgt_sky_ext;
+				if ( file_exists( PGE_PATH . $pgt_sky_rel ) ) {
+					$pgt_panorama_img = PGE_URL . $pgt_sky_rel;
+					break;
+				}
+			}
+		}
+		$pgt_panorama = $pgt_panorama_img ? '' : ( function_exists( 'pge_content' ) ? (string) pge_content( 'footer_skyline_svg', '' ) : '' );
 		ob_start();
 		?>
 		<div class="pgt-footer">
+			<?php if ( $pgt_panorama_img ) : ?>
+				<div class="pgt-footer__skyline pgt-footer__skyline--img" aria-hidden="true"><img src="<?php echo esc_url( $pgt_panorama_img ); ?>" alt="" loading="lazy" /></div>
+			<?php elseif ( $pgt_panorama ) : ?>
+				<div class="pgt-footer__skyline" aria-hidden="true"><?php echo $pgt_panorama; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+			<?php endif; ?>
 			<div class="pgt-footer__inner">
 				<div class="pgt-footer__top">
 					<div class="pgt-footer__about">
@@ -1844,12 +2056,30 @@ final class Chrome {
 			'us' => '<rect width="60" height="42" fill="#B22234"/><g fill="#F5F1E8"><rect y="6" width="60" height="6"/><rect y="18" width="60" height="6"/><rect y="30" width="60" height="6"/></g><rect width="27" height="24" fill="#3C3B6E"/><g fill="#F5F1E8"><circle cx="5.5" cy="5" r="1.7"/><circle cx="13.5" cy="5" r="1.7"/><circle cx="21.5" cy="5" r="1.7"/><circle cx="9.5" cy="11.5" r="1.7"/><circle cx="17.5" cy="11.5" r="1.7"/><circle cx="5.5" cy="18" r="1.7"/><circle cx="13.5" cy="18" r="1.7"/><circle cx="21.5" cy="18" r="1.7"/></g>',
 			'ca' => '<rect width="60" height="42" fill="#F5F1E8"/><rect width="15" height="42" fill="#D52B1E"/><rect x="45" width="15" height="42" fill="#D52B1E"/><path d="M30 9.5l2.1 4.4 4.5-1.1-1.5 4.3 3.6 2.3-3.6 2.3 1.1 3.4-4.2-.7-.4 4.6h-3.2l-.4-4.6-4.2.7 1.1-3.4-3.6-2.3 3.6-2.3-1.5-4.3 4.5 1.1z" fill="#D52B1E"/>',
 			'in' => '<rect width="60" height="14" fill="#FF9933"/><rect y="14" width="60" height="14" fill="#F5F1E8"/><rect y="28" width="60" height="14" fill="#138808"/><circle cx="30" cy="21" r="5.2" fill="none" stroke="#000080" stroke-width="1.3"/><circle cx="30" cy="21" r="1.3" fill="#000080"/>',
+			'ae' => '<rect width="60" height="14" fill="#00732F"/><rect y="14" width="60" height="14" fill="#F5F1E8"/><rect y="28" width="60" height="14" fill="#000000"/><rect width="16" height="42" fill="#CE1126"/>',
+			'au' => '<rect width="60" height="42" fill="#012169"/><rect width="30" height="21" fill="#012169"/><path d="M0 0L30 21M30 0L0 21" stroke="#F5F1E8" stroke-width="4"/><path d="M0 0L30 21M30 0L0 21" stroke="#C8102E" stroke-width="1.8"/><rect x="12" width="6" height="21" fill="#F5F1E8"/><rect y="7.5" width="30" height="6" fill="#F5F1E8"/><rect x="13.5" width="3" height="21" fill="#C8102E"/><rect y="9" width="30" height="3" fill="#C8102E"/><path d="M15 26l1.4 3 3.2.3-2.4 2.1.7 3.1-2.9-1.7-2.9 1.7.7-3.1-2.4-2.1 3.2-.3z" fill="#F5F1E8"/><path d="M45 5l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#F5F1E8"/><path d="M45 29l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#F5F1E8"/><path d="M36 17l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#F5F1E8"/><path d="M54 15l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#F5F1E8"/>',
+			'de' => '<rect width="60" height="14" fill="#000000"/><rect y="14" width="60" height="14" fill="#DD0000"/><rect y="28" width="60" height="14" fill="#FFCE00"/>',
+			'gb' => '<rect width="60" height="42" fill="#012169"/><path d="M0 0L60 42M60 0L0 42" stroke="#F5F1E8" stroke-width="8"/><path d="M0 0L60 42M60 0L0 42" stroke="#C8102E" stroke-width="3.5"/><rect x="24" width="12" height="42" fill="#F5F1E8"/><rect y="15" width="60" height="12" fill="#F5F1E8"/><rect x="26.5" width="7" height="42" fill="#C8102E"/><rect y="17.5" width="60" height="7" fill="#C8102E"/>',
+			'nz' => '<rect width="60" height="42" fill="#012169"/><rect width="30" height="21" fill="#012169"/><path d="M0 0L30 21M30 0L0 21" stroke="#F5F1E8" stroke-width="4"/><path d="M0 0L30 21M30 0L0 21" stroke="#C8102E" stroke-width="1.8"/><rect x="12" width="6" height="21" fill="#F5F1E8"/><rect y="7.5" width="30" height="6" fill="#F5F1E8"/><rect x="13.5" width="3" height="21" fill="#C8102E"/><rect y="9" width="30" height="3" fill="#C8102E"/><path d="M45 6l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#C8102E"/><path d="M38 16l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#C8102E"/><path d="M52 16l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#C8102E"/><path d="M45 30l1 2.2 2.4.2-1.8 1.6.5 2.3-2.1-1.2-2.1 1.2.5-2.3-1.8-1.6 2.4-.2z" fill="#C8102E"/>',
+			'za' => '<rect width="60" height="42" fill="#F5F1E8"/><rect width="60" height="13" fill="#DE3831"/><rect y="29" width="60" height="13" fill="#002395"/><path d="M0 3L25 21L0 39" fill="none" stroke="#007A4D" stroke-width="10"/><rect x="22" y="16" width="38" height="10" fill="#007A4D"/><path d="M0 9L16 21L0 33Z" fill="#FFB612"/><path d="M0 12L12 21L0 30Z" fill="#000000"/>',
+			'my' => '<rect width="60" height="42" fill="#F5F1E8"/><g fill="#CC0001"><rect width="60" height="6"/><rect y="12" width="60" height="6"/><rect y="24" width="60" height="6"/><rect y="36" width="60" height="6"/></g><rect width="30" height="24" fill="#010066"/><circle cx="12" cy="12" r="7" fill="#FFCC00"/><circle cx="15" cy="12" r="6" fill="#010066"/><circle cx="23" cy="12" r="3.5" fill="#FFCC00"/>',
+			'sg' => '<rect width="60" height="21" fill="#EF3340"/><rect y="21" width="60" height="21" fill="#F5F1E8"/><circle cx="13" cy="10.5" r="6.5" fill="#F5F1E8"/><circle cx="16" cy="10.5" r="5.5" fill="#EF3340"/><g fill="#F5F1E8"><circle cx="21" cy="6" r="1.2"/><circle cx="25" cy="9" r="1.2"/><circle cx="23.6" cy="14" r="1.2"/><circle cx="18.4" cy="14" r="1.2"/><circle cx="17" cy="9" r="1.2"/></g>',
+			'mu' => '<rect width="60" height="10.5" fill="#EA2839"/><rect y="10.5" width="60" height="10.5" fill="#1A206D"/><rect y="21" width="60" height="10.5" fill="#FFD500"/><rect y="31.5" width="60" height="10.5" fill="#00A551"/>',
 		);
 
 		$labels = array(
 			'us' => __( 'United States', 'prepgro-theme' ),
 			'ca' => __( 'Canada', 'prepgro-theme' ),
 			'in' => __( 'India', 'prepgro-theme' ),
+			'ae' => __( 'United Arab Emirates', 'prepgro-theme' ),
+			'au' => __( 'Australia', 'prepgro-theme' ),
+			'de' => __( 'Germany', 'prepgro-theme' ),
+			'gb' => __( 'United Kingdom', 'prepgro-theme' ),
+			'nz' => __( 'New Zealand', 'prepgro-theme' ),
+			'za' => __( 'South Africa', 'prepgro-theme' ),
+			'my' => __( 'Malaysia', 'prepgro-theme' ),
+			'sg' => __( 'Singapore', 'prepgro-theme' ),
+			'mu' => __( 'Mauritius', 'prepgro-theme' ),
 		);
 
 		if ( ! isset( $flags[ $code ] ) ) {

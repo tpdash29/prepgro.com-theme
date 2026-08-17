@@ -167,13 +167,10 @@ final class Diagnostics_Page {
 	 * @return string
 	 */
 	private function filters() {
-		$chips = array(
-			'all'        => __( 'All diagnostics', 'prepgro-theme' ),
-			'satact'     => __( 'SAT · ACT diagnostic', 'prepgro-theme' ),
-			'ap'         => __( 'AP diagnostic', 'prepgro-theme' ),
-			'state'      => __( 'State-test diagnostic', 'prepgro-theme' ),
-			'gradschool' => __( 'GRE · GMAT diagnostic', 'prepgro-theme' ),
-		);
+		$chips = array( 'all' => __( 'All diagnostics', 'prepgro-theme' ) );
+		foreach ( $this->filter_chips() as $chip ) {
+			$chips[ $chip['key'] ] = $chip['label'];
+		}
 
 		$out = '';
 		foreach ( $chips as $key => $label ) {
@@ -182,6 +179,36 @@ final class Diagnostics_Page {
 				. esc_html( $label ) . '</button>';
 		}
 		return '<div class="pgx-filters">' . $out . '</div>';
+	}
+
+	/**
+	 * The family chips as a {key,label} list. A country pack can restate the
+	 * families via `content.exam_filter_chips`; the US set is the fallback.
+	 * The 'all' chip stays the consumer's own — packs never declare it.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	private function filter_chips() {
+		$chips = array(
+			array( 'key' => 'satact', 'label' => __( 'SAT · ACT diagnostic', 'prepgro-theme' ) ),
+			array( 'key' => 'ap', 'label' => __( 'AP diagnostic', 'prepgro-theme' ) ),
+			array( 'key' => 'state', 'label' => __( 'State-test diagnostic', 'prepgro-theme' ) ),
+			array( 'key' => 'gradschool', 'label' => __( 'GRE · GMAT diagnostic', 'prepgro-theme' ) ),
+		);
+		if ( function_exists( 'pge_content' ) ) {
+			$chips = (array) pge_content( 'exam_filter_chips', $chips );
+		}
+
+		$out = array();
+		foreach ( $chips as $chip ) {
+			if ( is_array( $chip ) && ! empty( $chip['key'] ) && ! empty( $chip['label'] ) ) {
+				$out[] = array(
+					'key'   => (string) $chip['key'],
+					'label' => (string) $chip['label'],
+				);
+			}
+		}
+		return $out;
 	}
 
 	/**

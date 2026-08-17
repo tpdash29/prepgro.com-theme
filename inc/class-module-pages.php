@@ -173,6 +173,15 @@ final class Module_Pages {
 	 * @return array<string,array<string,mixed>>
 	 */
 	private function modules() {
+		// Currency-bearing figures follow the active country: the resolved
+		// Pricing_Levels ladder (country pack + live packages), cheapest tier
+		// per line, and the pack's proof/score card. The US design literals
+		// survive any failure.
+		$price_free  = Pricing_Levels::money( 0 );
+		$price_tutor = $this->price_from( 'tutor', '$129' );
+		$price_pack  = $this->price_from( 'monthly', '$9.99' );
+		$score_card  = $this->score_card();
+
 		$modules = array(
 			'evaluate' => array(
 				'eyebrow' => __( 'Evaluate', 'prepgro-theme' ),
@@ -189,7 +198,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => __( '~20 min', 'prepgro-theme' ), 'label' => __( 'one adaptive check', 'prepgro-theme' ) ),
 					array( 'value' => __( '4 gaps', 'prepgro-theme' ), 'label' => __( 'named in your report', 'prepgro-theme' ) ),
-					array( 'value' => '$0', 'label' => __( 'no card needed', 'prepgro-theme' ), 'price' => true ),
+					array( 'value' => $price_free, 'label' => __( 'no card needed', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'Your readiness report', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'A diagnostic, a per-skill breakdown, and a report a parent can read in two minutes.', 'prepgro-theme' ),
@@ -236,7 +245,7 @@ final class Module_Pages {
 				),
 				'plan'    => array(
 					'tag'   => __( 'Always free', 'prepgro-theme' ),
-					'price' => '$0',
+					'price' => $price_free,
 					'unit'  => __( 'per check', 'prepgro-theme' ),
 					'body'  => __( 'The diagnostic and the readiness report cost nothing. Retake it monthly to watch the gaps close.', 'prepgro-theme' ),
 				),
@@ -254,7 +263,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => '8', 'label' => __( 'live classes a month', 'prepgro-theme' ) ),
 					array( 'value' => '1:1', 'label' => __( 'never a group call', 'prepgro-theme' ) ),
-					array( 'value' => '$129', 'label' => __( 'per month, one subject', 'prepgro-theme' ), 'price' => true ),
+					array( 'value' => $price_tutor, 'label' => __( 'per month, one subject', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'A week on your plan', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'A study plan you can follow without deciding what to do next, and a tutor for the parts that need a human.', 'prepgro-theme' ),
@@ -301,7 +310,7 @@ final class Module_Pages {
 				),
 				'plan'    => array(
 					'tag'   => __( 'Live tutor plan', 'prepgro-theme' ),
-					'price' => '$129',
+					'price' => $price_tutor,
 					'unit'  => __( '/ month', 'prepgro-theme' ),
 					'body'  => __( 'Eight live 1:1 classes, the full lesson library and unlimited practice for one subject. Cancel anytime.', 'prepgro-theme' ),
 				),
@@ -317,7 +326,7 @@ final class Module_Pages {
 				'stats'   => array(
 					array( 'value' => __( 'Unlimited', 'prepgro-theme' ), 'label' => __( 'attempts, one subject', 'prepgro-theme' ) ),
 					array( 'value' => '38', 'label' => __( 'AP exams covered', 'prepgro-theme' ) ),
-					array( 'value' => '$9.99', 'label' => __( 'per month', 'prepgro-theme' ), 'price' => true ),
+					array( 'value' => $price_pack, 'label' => __( 'per month', 'prepgro-theme' ), 'price' => true ),
 				),
 				'fig'     => array( 'title' => __( 'Score trend, 12 tests', 'prepgro-theme' ), 'note' => __( 'sample', 'prepgro-theme' ) ),
 				'inside'  => __( 'Real exam structure and timing, explanations on every question, and progress tracked per skill.', 'prepgro-theme' ),
@@ -349,12 +358,16 @@ final class Module_Pages {
 				'proof'   => array(
 					'eyebrow' => __( 'What practice moves', 'prepgro-theme' ),
 					'title'   => __( 'Twelve tests in, the weak skills look different.', 'prepgro-theme' ),
-					'body'    => __( 'Sample student, SAT math: the two gaps from the first diagnostic are now the two strongest sections.', 'prepgro-theme' ),
+					'body'    => sprintf(
+						/* translators: %s: exam name, e.g. "SAT math". */
+						__( 'Sample student, %s: the two gaps from the first diagnostic are now the two strongest sections.', 'prepgro-theme' ),
+						$score_card['exam']
+					),
 					'bars'    => array(
 						array( 'label' => __( 'Data analysis', 'prepgro-theme' ), 'value' => '42% → 79%', 'w' => 79, 'c' => 'var(--pgm-l1)' ),
 						array( 'label' => __( 'Word problems', 'prepgro-theme' ), 'value' => '38% → 74%', 'w' => 74, 'c' => 'var(--pgm-l2)' ),
 						array( 'label' => __( 'Linear equations', 'prepgro-theme' ), 'value' => '84% → 91%', 'w' => 91, 'c' => 'var(--pgm-l3)' ),
-						array( 'label' => __( 'Est. score', 'prepgro-theme' ), 'value' => '1260 → 1340', 'w' => 68, 'c' => 'var(--green-600)' ),
+						array( 'label' => __( 'Est. score', 'prepgro-theme' ), 'value' => $score_card['range'], 'w' => $score_card['w'], 'c' => 'var(--green-600)' ),
 					),
 				),
 				'steps'   => array(
@@ -364,7 +377,7 @@ final class Module_Pages {
 				),
 				'plan'    => array(
 					'tag'   => __( 'Unlimited test pack', 'prepgro-theme' ),
-					'price' => '$9.99',
+					'price' => $price_pack,
 					'unit'  => __( '/ month', 'prepgro-theme' ),
 					'body'  => __( 'Unlimited practice and mock tests for one subject, with explanations and progress tracking. Cancel anytime.', 'prepgro-theme' ),
 				),
@@ -378,6 +391,70 @@ final class Module_Pages {
 		 * @param array $modules Module key => content.
 		 */
 		return apply_filters( 'pgt_module_page_content', $modules );
+	}
+
+	/**
+	 * The cheapest resolved price of a Pricing_Levels line — 'tutor' (Live
+	 * Tutor plans) or the pack 'monthly' — formatted with the country's
+	 * currency symbol. When nothing resolves the US design literal survives.
+	 *
+	 * @param string $line     Price line: 'tutor' | 'monthly'.
+	 * @param string $fallback Literal used when no price resolves.
+	 * @return string
+	 */
+	private function price_from( $line, $fallback ) {
+		$min = null;
+		foreach ( Pricing_Levels::levels() as $level ) {
+			$v = 'tutor' === $line
+				? ( isset( $level['tutor'] ) ? (float) $level['tutor'] : 0 )
+				: ( isset( $level['pack']['monthly'] ) ? (float) $level['pack']['monthly'] : 0 );
+			if ( $v > 0 && ( null === $min || $v < $min ) ) {
+				$min = $v;
+			}
+		}
+		return null === $min ? $fallback : Pricing_Levels::money( $min );
+	}
+
+	/**
+	 * The Excel proof figures — a sample student's score movement. A country
+	 * pack can restate them on its own flagship exam and scale via
+	 * `content.homepage.score_card` ({exam_label, score, delta, scale});
+	 * the US SAT-1600 sample is the fallback, byte for byte.
+	 *
+	 * @return array{exam:string,now:string,range:string,delta:string,w:int}
+	 */
+	private function score_card() {
+		$card = array(
+			'exam'  => __( 'SAT math', 'prepgro-theme' ),
+			'now'   => '1340',
+			'range' => '1260 → 1340',
+			'delta' => '+80',
+			'w'     => 68,
+		);
+		if ( ! function_exists( 'pge_content' ) ) {
+			return $card;
+		}
+
+		$pack = pge_content( 'homepage.score_card', null );
+		if ( ! is_array( $pack ) ) {
+			return $card;
+		}
+		$score = isset( $pack['score'] ) ? (int) $pack['score'] : 0;
+		$delta = isset( $pack['delta'] ) ? (int) $pack['delta'] : 0;
+		$scale = isset( $pack['scale'] ) ? (int) $pack['scale'] : 0;
+		if ( $score <= 0 || $delta <= 0 || $delta >= $score ) {
+			return $card;
+		}
+
+		return array(
+			'exam'  => ! empty( $pack['exam_label'] ) ? (string) $pack['exam_label'] : $card['exam'],
+			'now'   => (string) $score,
+			'range' => ( $score - $delta ) . ' → ' . $score,
+			'delta' => '+' . $delta,
+			// The bar width follows the pack's scale when it declares one;
+			// without a scale the US design width stands.
+			'w'     => $scale >= $score ? max( 2, min( 100, (int) round( $score / $scale * 100 ) ) ) : $card['w'],
+		);
 	}
 
 	/**
@@ -605,11 +682,12 @@ final class Module_Pages {
 					)
 				);
 			case 'excel':
+				$score_card = $this->score_card();
 				return $this->trend_figure(
 					array( 116, 104, 88, 66, 52, 34 ),
 					array(
-						array( 'v' => '1340', 'l' => __( 'est. score now', 'prepgro-theme' ), 'up' => false ),
-						array( 'v' => '+80', 'l' => __( 'since diagnostic', 'prepgro-theme' ), 'up' => true ),
+						array( 'v' => $score_card['now'], 'l' => __( 'est. score now', 'prepgro-theme' ), 'up' => false ),
+						array( 'v' => $score_card['delta'], 'l' => __( 'since diagnostic', 'prepgro-theme' ), 'up' => true ),
 						array( 'v' => '12', 'l' => __( 'tests taken', 'prepgro-theme' ), 'up' => false ),
 					)
 				);

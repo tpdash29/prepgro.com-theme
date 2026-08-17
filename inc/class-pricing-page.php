@@ -373,15 +373,16 @@ final class Pricing_Page {
 	 * @return string
 	 */
 	private function chart( $levels, $current, $tutor_on = true ) {
-		$rows = '';
+		$rows      = '';
+		$chart_max = Pricing_Levels::chart_max();
 		foreach ( $levels as $key => $l ) {
 			$pack = (float) $l['pack']['monthly'];
-			$pw   = max( 1, min( 100, round( $pack / Pricing_Levels::CHART_MAX * 100 ) ) );
+			$pw   = max( 1, min( 100, round( $pack / $chart_max * 100 ) ) );
 
 			$tutor_bar = '';
 			if ( $tutor_on ) {
 				$tutor = (float) $l['tutor'];
-				$tw    = max( 1, min( 100, round( $tutor / Pricing_Levels::CHART_MAX * 100 ) ) );
+				$tw    = max( 1, min( 100, round( $tutor / $chart_max * 100 ) ) );
 				$tutor_bar = '<div class="pgp-barline"><span class="pgp-bar pgp-bar--tutor" style="width:' . esc_attr( $tw ) . '%"></span>'
 					. '<span class="pgp-barval pgp-barval--strong">' . esc_html( Pricing_Levels::money( $tutor ) ) . esc_html__( '/mo', 'prepgro-theme' ) . '</span></div>';
 			}

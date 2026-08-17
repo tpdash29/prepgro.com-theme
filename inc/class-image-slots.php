@@ -122,6 +122,17 @@ final class Image_Slots {
 				'alt'     => __( 'A student mid practice test, timer visible.', 'prepgro-theme' ),
 				'subject' => 'a student mid-way through a full-length practice test, a clock or timer visible in the frame, focused and calm',
 			),
+			'pgt_footer_skyline' => array(
+				'label'   => __( 'Footer — landmark skyline', 'prepgro-theme' ),
+				'where'   => __( 'The faint landmark panorama behind the footer of every public page. Upload generated line-art here; until then the country pack\'s built-in sketch is used.', 'prepgro-theme' ),
+				'width'   => 2520,
+				'height'  => 420,
+				'alt'     => '', // Decorative.
+				'subject' => '',
+				// Line art, not a photograph — the full prompt lives here so
+				// prompt() skips its editorial-photo template for this slot.
+				'prompt'  => self::skyline_prompt(),
+			),
 		);
 
 		/**
@@ -158,6 +169,7 @@ final class Image_Slots {
 				'height'  => 960,
 				'alt'     => '',
 				'subject' => '',
+				'prompt'  => '',
 			)
 		);
 	}
@@ -310,6 +322,44 @@ final class Image_Slots {
 	}
 
 	/**
+	 * The complete generation prompt for the footer landmark panorama.
+	 *
+	 * Not the editorial-photo template: this is architectural line art. The
+	 * landmark list comes from the country pack (`landmarks` content key) so
+	 * the same slot yields a Taj Mahal / India Gate brief on the India site
+	 * and a Burj Khalifa one in the UAE; without a pack it stays generic.
+	 *
+	 * @return string
+	 */
+	private static function skyline_prompt() {
+		$c = self::country();
+
+		$landmarks = function_exists( 'pge_content' )
+			? (string) pge_content( 'landmarks', '' )
+			: '';
+		if ( '' === $landmarks ) {
+			/* translators: %s: country name */
+			$landmarks = sprintf( __( 'the most famous landmarks and iconic buildings of %s', 'prepgro-theme' ), $c['name'] );
+		}
+
+		return sprintf(
+			/* translators: 1: country name, 2: comma-separated landmark list */
+			__(
+				'A continuous architectural line-art skyline panorama of %1$s, in the style of a fine-liner pen travel sketch. Featuring, left to right: %2$s.
+
+STYLE: Uniform thin line weight throughout, as if drawn with a single 0.3mm fineliner. One ink colour only: royal blue #2563EB on a pure white background. Outline drawing with sparse hatching for depth — no solid fills, no gradients, no shading washes, no colour accents.
+
+COMPOSITION: All landmarks stand on one continuous shared ground line running the full width, connected by small generic buildings, trees and domes between them so the skyline never breaks. Landmarks drawn to a pleasing shared scale, not true scale. Generous empty white space in the upper third. The drawing must reach both the left and right edges so it can tile-crop.
+
+OUTPUT: wide banner, 2520 × 420 pixels (6:1). No text, no words, no signage, no flags, no people, no vehicles, no watermark, no border or frame.',
+				'prepgro-theme'
+			),
+			$c['name'],
+			$landmarks
+		);
+	}
+
+	/**
 	 * The image-generation prompt for one slot.
 	 *
 	 * Written to be pasted straight into an image model. Everything that varies
@@ -328,6 +378,13 @@ final class Image_Slots {
 		$slot = self::get( $key );
 		if ( ! $slot ) {
 			return '';
+		}
+
+		// A slot may carry its own complete prompt (line art, not a
+		// photograph) — the editorial-photo template below doesn't apply.
+		if ( ! empty( $slot['prompt'] ) ) {
+			/** This filter is documented at the end of this method. */
+			return (string) apply_filters( 'pgt_image_slot_prompt', (string) $slot['prompt'], $key, $slot );
 		}
 
 		$c       = self::country();

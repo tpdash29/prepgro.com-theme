@@ -87,6 +87,16 @@ final class Icons {
 	}
 
 	/**
+	 * The known glyph keys — e.g. for a Customizer <select> that must reject
+	 * anything svg() would silently render as nothing.
+	 *
+	 * @return string[]
+	 */
+	public static function keys() {
+		return array_keys( self::paths() );
+	}
+
+	/**
 	 * Render an inline SVG glyph.
 	 *
 	 * @param string $name   Glyph key.

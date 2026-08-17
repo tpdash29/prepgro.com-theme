@@ -3,7 +3,10 @@
 <!-- wp:group {"tagName":"main","anchor":"pgt-main","layout":{"type":"default"}} -->
 <main id="pgt-main" class="wp-block-group">
 
-  <!-- 1. Hero -->
+  <!-- 1. Hero. The float-card column renders via [pgt_home_floats]
+       (inc/class-homepage-sections.php) so its sample copy can follow the
+       active country pack; with no pack content it emits the original US
+       markup byte for byte. -->
   <!-- wp:html -->
   <section class="pgh-hero" id="pg-hero">
     <div class="pgh-hero__copy">
@@ -16,63 +19,16 @@
       </div>
     </div>
 
-    <div class="pgh-floats" role="group" aria-label="Sample product screens. Illustrative data.">
-      <div class="pgh-fcard pgh-fcard--1">
-        <div class="pgh-fcard__head">
-          <span class="pgh-fcard__label">Readiness</span>
-          <span class="pgh-mono pgh-fcard__pct">68%</span>
-        </div>
-        <div class="pgh-track"><i class="pgh-track__fill pgh-track__fill--brand" style="--w:68%"></i></div>
-        <p class="pgh-fcard__note">On track for the May SAT date.</p>
-      </div>
-
-      <div class="pgh-fcard pgh-fcard--2">
-        <span class="pgh-phase pgh-phase--evaluate">Evaluate</span>
-        <p class="pgh-fcard__title">4 skills to fix</p>
-        <div class="pgh-skills">
-          <div class="pgh-skill"><span>Linear equations</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:84%;--c:var(--blue-600)"></i></div></div>
-          <div class="pgh-skill"><span>Reading evidence</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:71%;--c:var(--blue-600)"></i></div></div>
-          <div class="pgh-skill"><span>Data analysis</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:42%;--c:var(--amber-600)"></i></div></div>
-        </div>
-      </div>
-
-      <div class="pgh-fcard pgh-fcard--3">
-        <span class="pgh-phase pgh-phase--elevate">Elevate</span>
-        <p class="pgh-fcard__title">This week&rsquo;s plan</p>
-        <div class="pgh-tasks">
-          <div class="pgh-task is-done"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>3 lessons &middot; data analysis</div>
-          <div class="pgh-task is-done"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>12-question timed set</div>
-          <div class="pgh-task"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Full practice test</div>
-        </div>
-      </div>
-
-      <div class="pgh-fcard pgh-fcard--4">
-        <span class="pgh-phase pgh-phase--excel">Excel</span>
-        <div class="pgh-tutorline">
-          <span class="pgh-avatar" aria-hidden="true">MR</span>
-          <span class="pgh-tutorline__copy">
-            <span class="pgh-tutorline__name">Maya R. &middot; SAT math</span>
-            <span class="pgh-tutorline__meta">Live class &middot; Thu 4:30pm</span>
-          </span>
-        </div>
-        <div class="pgh-fcard__foot">
-          <span>Practice score</span>
-          <span class="pgh-mono">1340 <span class="pgh-up">+80</span></span>
-        </div>
-      </div>
-    </div>
+    [pgt_home_floats]
+    [pgt_hero_skyline]
   </section>
   <!-- /wp:html -->
 
-  <!-- 2. Trust strip -->
+  <!-- 2. Trust strip. Renders via [pgt_home_trust]: the "50 states covered"
+       item is country-aware, the rest is verbatim. -->
   <!-- wp:html -->
   <section class="pgh-trust">
-    <div class="pgh-trust__row">
-      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">20 min</span><span class="pgh-trust__l">free readiness check</span></div>
-      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">4</span><span class="pgh-trust__l">skills named, in order</span></div>
-      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">8</span><span class="pgh-trust__l">live classes a month</span></div>
-      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">50</span><span class="pgh-trust__l">states covered</span></div>
-    </div>
+    [pgt_home_trust]
   </section>
   <!-- /wp:html -->
 
@@ -186,7 +142,8 @@
   </section>
   <!-- /wp:html -->
 
-  <!-- 6. Tutor band (ink) -->
+  <!-- 6. Tutor band (ink). Rows render via [pgt_home_tutorband] — country-aware
+       when the pack authors front_page.tutor_rows, US sample rows otherwise. -->
   <!-- wp:html -->
   <section class="pgh-tutorband" id="pg-experts">
     <div class="pgh-tutorband__inner">
@@ -196,11 +153,7 @@
         <p class="pgh-tutorband__lead">Eight live 1:1 classes a month with a tutor who already knows which skills are weak. Unlimited practice continues between classes.</p>
         <a class="pgt-btn pgt-btn--on-dark" href="/elevate/">Find a tutor</a>
       </div>
-      <div class="pgh-tutorrows">
-        <div class="pgh-tutorrow"><span class="pgh-avatar pgh-avatar--lg" aria-hidden="true">MR</span><div class="pgh-tutorrow__copy"><p class="pgh-tutorrow__name">Maya R.</p><p class="pgh-tutorrow__detail">SAT math &middot; data analysis, algebra</p></div><span class="pgh-tutorrow__slot">Thu 4:30pm</span></div>
-        <div class="pgh-tutorrow"><span class="pgh-avatar pgh-avatar--lg" aria-hidden="true">DP</span><div class="pgh-tutorrow__copy"><p class="pgh-tutorrow__name">Daniel P.</p><p class="pgh-tutorrow__detail">High school math &middot; geometry</p></div><span class="pgh-tutorrow__slot">Tue 6:00pm</span></div>
-        <div class="pgh-tutorrow"><span class="pgh-avatar pgh-avatar--lg" aria-hidden="true">SL</span><div class="pgh-tutorrow__copy"><p class="pgh-tutorrow__name">Sofia L.</p><p class="pgh-tutorrow__detail">AP statistics &middot; probability</p></div><span class="pgh-tutorrow__slot">Sat 10:00am</span></div>
-      </div>
+      [pgt_home_tutorband]
     </div>
   </section>
   <!-- /wp:html -->

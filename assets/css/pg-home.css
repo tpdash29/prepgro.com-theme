@@ -134,6 +134,16 @@
 	overflow: hidden;
 }
 .pgh-hero__copy { position: relative; z-index: 3; max-width: 820px; margin-inline: auto; text-align: center; }
+/* Pack-authored landmark line-art behind the hero (below copy z3 / floats z2). */
+.pgh-hero__skyline {
+	position: absolute;
+	left: 0; right: 0; bottom: -3px;
+	z-index: 1;
+	color: var(--pge-color-body);
+	opacity: 0.07;
+	pointer-events: none;
+}
+.pgh-hero__skyline svg { display: block; width: max(100%, 900px); height: auto; margin-inline: auto; }
 .pgh-statuschip {
 	display: inline-flex;
 	align-items: center;

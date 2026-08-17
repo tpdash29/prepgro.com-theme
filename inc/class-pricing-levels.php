@@ -42,17 +42,47 @@ final class Pricing_Levels {
 	/** Default level when none is supplied (README §6). */
 	const DEFAULT_LEVEL = 'high';
 
-	/** Widest tutor price in the table; the A4 chart scales bars against it. */
+	/** US design-figure chart ceiling; see chart_max() for the live value. */
 	const CHART_MAX = 249;
+
+	/**
+	 * Widest tutor price across the resolved levels — the A4 chart scales its
+	 * bars against this. The old constant assumed the US ladder's 249; country
+	 * packs whose tutor line runs higher (AE 699, ZA 1199, MU 3499) would clip
+	 * every bar to 100% and flatten the comparison.
+	 *
+	 * @return float
+	 */
+	public static function chart_max() {
+		$max = 0;
+		foreach ( self::levels() as $level ) {
+			if ( ! empty( $level['tutor'] ) ) {
+				$max = max( $max, (float) $level['tutor'] );
+			}
+			if ( ! empty( $level['pack'] ) ) {
+				$max = max( $max, (float) max( $level['pack'] ) );
+			}
+		}
+		return $max > 0 ? $max : self::CHART_MAX;
+	}
 
 	/**
 	 * The four levels, in display order, with the design figures and the
 	 * engine tier each maps onto.
 	 *
+	 * The hardcoded rows are the US §7 design figures — the last-resort
+	 * fallback. When the engine's country pricing pack is loadable, its
+	 * ordered tiers are mapped positionally onto the four levels: every pack
+	 * ships four tiers in the same young-to-old order but renames the first
+	 * three (Grundschule, Junior High, Senior Phase, …) and prices them in
+	 * local currency, so both the live-package tier matching and the design
+	 * fallback must follow the pack or a non-US deployment renders US dollars
+	 * on three of its four levels.
+	 *
 	 * @return array<string,array<string,mixed>>
 	 */
 	private static function definitions() {
-		return array(
+		$levels = array(
 			'elementary' => array(
 				'name'  => __( 'Elementary', 'prepgro-theme' ),
 				'tier'  => 'Elementary',
@@ -78,6 +108,43 @@ final class Pricing_Levels {
 				'tutor' => 249,
 			),
 		);
+
+		// The engine loads its pricing helpers lazily at its own call sites,
+		// so on a theme-first request the function may not exist yet even
+		// though the engine is active — require it rather than silently
+		// falling back to the US design figures.
+		if ( ! function_exists( 'pge_get_country_pricing' ) && defined( 'PGE_PATH' )
+			&& file_exists( PGE_PATH . 'includes/config/pricing-defaults.php' ) ) {
+			require_once PGE_PATH . 'includes/config/pricing-defaults.php';
+		}
+		if ( ! function_exists( 'pge_get_country_pricing' ) ) {
+			return $levels;
+		}
+
+		$code    = function_exists( 'pge_country_code' ) ? pge_country_code() : '';
+		$pricing = pge_get_country_pricing( $code );
+		$tiers   = isset( $pricing['tiers'] ) ? array_values( (array) $pricing['tiers'] ) : array();
+		if ( empty( $tiers ) ) {
+			return $levels;
+		}
+
+		$keys = array_keys( $levels );
+		foreach ( $keys as $i => $key ) {
+			if ( ! isset( $tiers[ $i ]['name'] ) ) {
+				continue;
+			}
+			$tier                     = $tiers[ $i ];
+			$levels[ $key ]['tier']   = (string) $tier['name'];
+			$levels[ $key ]['name']   = (string) $tier['name'];
+			if ( ! empty( $tier['suggested_prices'] ) && is_array( $tier['suggested_prices'] ) ) {
+				$levels[ $key ]['pack'] = array_merge( $levels[ $key ]['pack'], $tier['suggested_prices'] );
+			}
+			if ( isset( $tier['tutor'] ) ) {
+				$levels[ $key ]['tutor'] = $tier['tutor'];
+			}
+		}
+
+		return $levels;
 	}
 
 	/**
@@ -480,6 +547,15 @@ final class Pricing_Levels {
 	public static function money( $amount ) {
 		$amount = (float) $amount;
 		$sym    = self::currency_symbol();
+		// Zero-decimal currencies (INR/AED charm pricing) must never show
+		// fractions — derived figures like quarterly/3 would otherwise print
+		// "₹116.33" on a whole-rupee price list.
+		if ( function_exists( 'pge_currency' ) ) {
+			$cur = pge_currency();
+			if ( is_array( $cur ) && isset( $cur['decimals'] ) && 0 === (int) $cur['decimals'] ) {
+				return $sym . number_format( round( $amount ), 0 );
+			}
+		}
 		if ( abs( $amount - round( $amount ) ) < 0.005 ) {
 			return $sym . number_format( $amount, 0 );
 		}
@@ -489,9 +565,19 @@ final class Pricing_Levels {
 	/**
 	 * Currency symbol for the country of operation, defaulting to USD.
 	 *
+	 * The engine's Regional_Manager already resolves this from the active
+	 * country pack (including the explicit pge_currency_code override), so
+	 * defer to it; the tiny local map only covers the engine being absent.
+	 *
 	 * @return string
 	 */
 	public static function currency_symbol() {
+		if ( class_exists( '\\PrepGro\\Engine\\Regional_Manager' ) ) {
+			$sym = (string) \PrepGro\Engine\Regional_Manager::get()->currency_symbol();
+			if ( '' !== $sym ) {
+				return $sym;
+			}
+		}
 		$map  = array( 'US' => '$', 'CA' => '$', 'IN' => '₹', 'GB' => '£', 'EU' => '€' );
 		$code = defined( 'PGE_COUNTRY' ) ? strtoupper( (string) PGE_COUNTRY ) : 'US';
 		return isset( $map[ $code ] ) ? $map[ $code ] : '$';

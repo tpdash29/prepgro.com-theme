@@ -147,13 +147,10 @@ final class Courses_Page {
 	 * @return string
 	 */
 	private function filters() {
-		$chips = array(
-			'all'        => __( 'All courses', 'prepgro-theme' ),
-			'satact'     => __( 'SAT · ACT', 'prepgro-theme' ),
-			'ap'         => __( 'AP', 'prepgro-theme' ),
-			'state'      => __( 'State & grade', 'prepgro-theme' ),
-			'gradschool' => __( 'GRE · GMAT', 'prepgro-theme' ),
-		);
+		$chips = array( 'all' => __( 'All courses', 'prepgro-theme' ) );
+		foreach ( $this->filter_chips() as $chip ) {
+			$chips[ $chip['key'] ] = $chip['label'];
+		}
 
 		$out = '';
 		foreach ( $chips as $key => $label ) {
@@ -162,6 +159,36 @@ final class Courses_Page {
 				. esc_html( $label ) . '</button>';
 		}
 		return '<div class="pgx-filters">' . $out . '</div>';
+	}
+
+	/**
+	 * The family chips as a {key,label} list. A country pack can restate the
+	 * families via `content.exam_filter_chips`; the US set is the fallback.
+	 * The 'all' chip stays the consumer's own — packs never declare it.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	private function filter_chips() {
+		$chips = array(
+			array( 'key' => 'satact', 'label' => __( 'SAT · ACT', 'prepgro-theme' ) ),
+			array( 'key' => 'ap', 'label' => __( 'AP', 'prepgro-theme' ) ),
+			array( 'key' => 'state', 'label' => __( 'State & grade', 'prepgro-theme' ) ),
+			array( 'key' => 'gradschool', 'label' => __( 'GRE · GMAT', 'prepgro-theme' ) ),
+		);
+		if ( function_exists( 'pge_content' ) ) {
+			$chips = (array) pge_content( 'exam_filter_chips', $chips );
+		}
+
+		$out = array();
+		foreach ( $chips as $chip ) {
+			if ( is_array( $chip ) && ! empty( $chip['key'] ) && ! empty( $chip['label'] ) ) {
+				$out[] = array(
+					'key'   => (string) $chip['key'],
+					'label' => (string) $chip['label'],
+				);
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -337,13 +364,16 @@ final class Courses_Page {
 	 * @return string
 	 */
 	private function family_label( $key ) {
-		$labels = array(
-			'ap'         => __( 'AP', 'prepgro-theme' ),
-			'satact'     => __( 'SAT · ACT', 'prepgro-theme' ),
-			'gradschool' => __( 'GRE · GMAT', 'prepgro-theme' ),
-			'state'      => __( 'State & grade', 'prepgro-theme' ),
-		);
-		return isset( $labels[ $key ] ) ? $labels[ $key ] : $labels['state'];
+		$labels = array();
+		foreach ( $this->filter_chips() as $chip ) {
+			$labels[ $chip['key'] ] = $chip['label'];
+		}
+		if ( isset( $labels[ $key ] ) ) {
+			return $labels[ $key ];
+		}
+		// family_key() coins 'state' for anything unrecognised; a pack whose
+		// chips drop that key still needs a string here.
+		return isset( $labels['state'] ) ? $labels['state'] : __( 'State & grade', 'prepgro-theme' );
 	}
 
 	/**

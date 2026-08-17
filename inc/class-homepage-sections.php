@@ -46,6 +46,10 @@ final class Homepage_Sections {
 		add_shortcode( 'pgt_latest_tests', array( $this, 'render_latest_tests' ) );
 		add_shortcode( 'pgt_testimonials', array( $this, 'render_testimonials' ) );
 		add_shortcode( 'pgt_photo_band', array( $this, 'render_photo_band' ) );
+		add_shortcode( 'pgt_home_floats', array( $this, 'render_home_floats' ) );
+		add_shortcode( 'pgt_hero_skyline', array( $this, 'render_hero_skyline' ) );
+		add_shortcode( 'pgt_home_trust', array( $this, 'render_home_trust' ) );
+		add_shortcode( 'pgt_home_tutorband', array( $this, 'render_home_tutorband' ) );
 
 		// Badge the "Three parts. One loop." cards for switched-off pillars.
 		add_filter( 'render_block', array( $this, 'gate_loop_cards' ), 10, 2 );
@@ -137,6 +141,319 @@ final class Homepage_Sections {
 		);
 	}
 
+
+	/**
+	 * Hero float cards ([pgt_home_floats]) — the four sample product screens
+	 * beside the hero copy, moved out of templates/front-page.html so the
+	 * marked strings can follow the active country pack. Everything else is
+	 * the template's original markup byte for byte, and every fallback below
+	 * reproduces it exactly — a site with no pack content (or no engine at
+	 * all) renders today's US bytes unchanged.
+	 *
+	 * @return string
+	 */
+	/**
+	 * [pgt_hero_skyline] — the pack's small landmark line-art, pinned to the
+	 * hero floor behind the copy and float cards. Empty output when the
+	 * active pack draws nothing, so pack-less installs render unchanged.
+	 *
+	 * @return string
+	 */
+	public function render_hero_skyline() {
+		$svg = function_exists( 'pge_content' ) ? (string) pge_content( 'skyline_svg', '' ) : '';
+		if ( '' === $svg ) {
+			return '';
+		}
+		return '<div class="pgh-hero__skyline" aria-hidden="true">' . $svg . '</div>';
+	}
+
+	public function render_home_floats() {
+		$note  = 'On track for the May SAT date.';
+		$tutor = 'Maya R. · SAT math';
+		$score = '1340';
+		$delta = '+80';
+
+		if ( function_exists( 'pge_content' ) ) {
+			$note  = (string) pge_content( 'front_page.float_card', $note );
+			$tutor = (string) pge_content( 'front_page.tutor_line', $tutor );
+
+			$card = pge_content( 'homepage.score_card', array() );
+			if ( is_array( $card ) ) {
+				if ( isset( $card['score'] ) && '' !== trim( (string) $card['score'] ) ) {
+					$score = (string) $card['score'];
+				}
+				if ( isset( $card['delta'] ) && '' !== trim( (string) $card['delta'] ) ) {
+					$delta = (string) $card['delta'];
+				}
+			}
+		}
+
+		$html  = '<div class="pgh-floats" role="group" aria-label="Sample product screens. Illustrative data.">' . "\n";
+		$html .= '      <div class="pgh-fcard pgh-fcard--1">' . "\n";
+		$html .= '        <div class="pgh-fcard__head">' . "\n";
+		$html .= '          <span class="pgh-fcard__label">Readiness</span>' . "\n";
+		$html .= '          <span class="pgh-mono pgh-fcard__pct">68%</span>' . "\n";
+		$html .= '        </div>' . "\n";
+		$html .= '        <div class="pgh-track"><i class="pgh-track__fill pgh-track__fill--brand" style="--w:68%"></i></div>' . "\n";
+		$html .= '        <p class="pgh-fcard__note">' . esc_html( $note ) . '</p>' . "\n";
+		$html .= '      </div>' . "\n";
+		$html .= "\n";
+		$html .= '      <div class="pgh-fcard pgh-fcard--2">' . "\n";
+		$html .= '        <span class="pgh-phase pgh-phase--evaluate">Evaluate</span>' . "\n";
+		$html .= '        <p class="pgh-fcard__title">4 skills to fix</p>' . "\n";
+		$html .= '        <div class="pgh-skills">' . "\n";
+		$html .= '          <div class="pgh-skill"><span>Linear equations</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:84%;--c:var(--blue-600)"></i></div></div>' . "\n";
+		$html .= '          <div class="pgh-skill"><span>Reading evidence</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:71%;--c:var(--blue-600)"></i></div></div>' . "\n";
+		$html .= '          <div class="pgh-skill"><span>Data analysis</span><div class="pgh-track pgh-track--sm"><i class="pgh-track__fill" style="--w:42%;--c:var(--amber-600)"></i></div></div>' . "\n";
+		$html .= '        </div>' . "\n";
+		$html .= '      </div>' . "\n";
+		$html .= "\n";
+		$html .= '      <div class="pgh-fcard pgh-fcard--3">' . "\n";
+		$html .= '        <span class="pgh-phase pgh-phase--elevate">Elevate</span>' . "\n";
+		$html .= '        <p class="pgh-fcard__title">This week&rsquo;s plan</p>' . "\n";
+		$html .= '        <div class="pgh-tasks">' . "\n";
+		$html .= '          <div class="pgh-task is-done"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>3 lessons &middot; data analysis</div>' . "\n";
+		$html .= '          <div class="pgh-task is-done"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>12-question timed set</div>' . "\n";
+		$html .= '          <div class="pgh-task"><span class="pgh-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Full practice test</div>' . "\n";
+		$html .= '        </div>' . "\n";
+		$html .= '      </div>' . "\n";
+		$html .= "\n";
+		$html .= '      <div class="pgh-fcard pgh-fcard--4">' . "\n";
+		$html .= '        <span class="pgh-phase pgh-phase--excel">Excel</span>' . "\n";
+		$html .= '        <div class="pgh-tutorline">' . "\n";
+		$html .= '          <span class="pgh-avatar" aria-hidden="true">' . esc_html( $this->initials_from( $tutor ) ) . '</span>' . "\n";
+		$html .= '          <span class="pgh-tutorline__copy">' . "\n";
+		$html .= '            <span class="pgh-tutorline__name">' . $this->middot_html( $tutor ) . '</span>' . "\n";
+		$html .= '            <span class="pgh-tutorline__meta">Live class &middot; Thu 4:30pm</span>' . "\n";
+		$html .= '          </span>' . "\n";
+		$html .= '        </div>' . "\n";
+		$html .= '        <div class="pgh-fcard__foot">' . "\n";
+		$html .= '          <span>Practice score</span>' . "\n";
+		$html .= '          <span class="pgh-mono">' . esc_html( $score ) . ' <span class="pgh-up">' . esc_html( $delta ) . '</span></span>' . "\n";
+		$html .= '        </div>' . "\n";
+		$html .= '      </div>' . "\n";
+		$html .= '    </div>';
+
+		return $html;
+	}
+
+	/**
+	 * Trust strip row ([pgt_home_trust]). The first three items are universal
+	 * product facts and stay verbatim; the fourth ("50 / states covered") is a
+	 * US claim, so on a non-US deployment it becomes the live count of that
+	 * country's regions under the pack's own vocabulary ("7 emirates covered").
+	 *
+	 * @return string
+	 */
+	public function render_home_trust() {
+		$html  = '<div class="pgh-trust__row">' . "\n";
+		$html .= '      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">20 min</span><span class="pgh-trust__l">free readiness check</span></div>' . "\n";
+		$html .= '      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">4</span><span class="pgh-trust__l">skills named, in order</span></div>' . "\n";
+		$html .= '      <div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">8</span><span class="pgh-trust__l">live classes a month</span></div>' . "\n";
+		$html .= '      ' . $this->trust_states_item() . "\n";
+		$html .= '    </div>';
+
+		return $html;
+	}
+
+	/**
+	 * The country-aware fourth trust item.
+	 *
+	 * The US keeps its authored bytes on purpose: Geo_Data lists 51 rows (DC
+	 * rides along for the signup dropdown) while "50 states" is the marketing
+	 * truth this markup was written around — recomputing would change copy on
+	 * the very install the verbatim item belongs to. A country with no
+	 * sub-national data at all (e.g. Singapore) also keeps the US item, per
+	 * the fall-back-to-verbatim rule.
+	 *
+	 * @return string
+	 */
+	private function trust_states_item() {
+		$default = '<div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">50</span><span class="pgh-trust__l">states covered</span></div>';
+
+		if ( ! function_exists( 'pge_content' ) || ! function_exists( 'pge_country_code' )
+			|| ! function_exists( 'pge_country_val' ) || ! class_exists( '\PrepGro\Engine\Geo_Data' ) ) {
+			return $default;
+		}
+
+		$code = pge_country_code();
+		if ( 'US' === $code ) {
+			return $default;
+		}
+
+		$states = \PrepGro\Engine\Geo_Data::get_states( $code );
+		if ( empty( $states ) ) {
+			return $default;
+		}
+
+		$regional = pge_country_val( 'regional', array() );
+		$label    = ( is_array( $regional ) && ! empty( $regional['state_label'] ) ) ? (string) $regional['state_label'] : 'State';
+
+		return '<div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">' . esc_html( (string) count( $states ) ) . '</span><span class="pgh-trust__l">' . esc_html( $this->plural_region_word( $label ) . ' covered' ) . '</span></div>';
+	}
+
+	/**
+	 * Tutor band rows ([pgt_home_tutorband]). With no pack content the three
+	 * US sample rows render byte for byte. When the pack authors
+	 * front_page.tutor_rows ("Subject · skills" strings) the pack only names
+	 * ONE real person (front_page.tutor_line), so row 1 carries that name and
+	 * rows 2–3 lead with the subject instead — no invented people. The slot
+	 * chips are generic illustrative times, not people or places, so they stay.
+	 *
+	 * @return string
+	 */
+	public function render_home_tutorband() {
+		$html = '<div class="pgh-tutorrows">' . "\n";
+		foreach ( $this->tutorband_rows() as $row ) {
+			$html .= '        <div class="pgh-tutorrow"><span class="pgh-avatar pgh-avatar--lg" aria-hidden="true">' . $row['initials'] . '</span><div class="pgh-tutorrow__copy"><p class="pgh-tutorrow__name">' . $row['name'] . '</p>' . ( '' !== $row['detail'] ? '<p class="pgh-tutorrow__detail">' . $row['detail'] . '</p>' : '' ) . '</div><span class="pgh-tutorrow__slot">' . $row['slot'] . '</span></div>' . "\n";
+		}
+		$html .= '      </div>';
+
+		return $html;
+	}
+
+	/**
+	 * The tutor band's row data — US defaults, or rows derived from the pack.
+	 * Values are returned escaped/entity-ready for direct concatenation.
+	 *
+	 * @return array<int,array{initials:string,name:string,detail:string,slot:string}>
+	 */
+	private function tutorband_rows() {
+		$defaults = array(
+			array(
+				'initials' => 'MR',
+				'name'     => 'Maya R.',
+				'detail'   => 'SAT math &middot; data analysis, algebra',
+				'slot'     => 'Thu 4:30pm',
+			),
+			array(
+				'initials' => 'DP',
+				'name'     => 'Daniel P.',
+				'detail'   => 'High school math &middot; geometry',
+				'slot'     => 'Tue 6:00pm',
+			),
+			array(
+				'initials' => 'SL',
+				'name'     => 'Sofia L.',
+				'detail'   => 'AP statistics &middot; probability',
+				'slot'     => 'Sat 10:00am',
+			),
+		);
+
+		if ( ! function_exists( 'pge_content' ) ) {
+			return $defaults;
+		}
+
+		$pack_rows = pge_content( 'front_page.tutor_rows', array() );
+		if ( ! is_array( $pack_rows ) || empty( $pack_rows ) ) {
+			return $defaults;
+		}
+
+		$tutor_line = (string) pge_content( 'front_page.tutor_line', '' );
+		$tutor_name = '' !== $tutor_line ? trim( explode( '·', $tutor_line, 2 )[0] ) : '';
+
+		$slots = array( 'Thu 4:30pm', 'Tue 6:00pm', 'Sat 10:00am' );
+		$rows  = array();
+
+		foreach ( array_slice( array_values( $pack_rows ), 0, 3 ) as $i => $pack_row ) {
+			$parts   = array_map( 'trim', explode( '·', (string) $pack_row, 2 ) );
+			$subject = $parts[0];
+			$skills  = isset( $parts[1] ) ? $parts[1] : '';
+
+			if ( 0 === $i && '' !== $tutor_name ) {
+				// The one authored person: name up top, full subject · skills line under it.
+				$name   = $tutor_name;
+				$detail = (string) $pack_row;
+			} else {
+				$name   = $subject;
+				$detail = $skills;
+			}
+
+			$rows[] = array(
+				'initials' => esc_html( $this->initials_from( 0 === $i && '' !== $tutor_name ? $tutor_name : $subject ) ),
+				'name'     => $this->middot_html( $name ),
+				'detail'   => $this->middot_html( $detail ),
+				'slot'     => esc_html( isset( $slots[ $i ] ) ? $slots[ $i ] : '' ),
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * "Maya R. · SAT math" → "MR": the first letters of the first two words,
+	 * middots stripped first so the separator never contributes an initial.
+	 *
+	 * @param string $text Source text.
+	 * @return string
+	 */
+	private function initials_from( $text ) {
+		$text     = str_replace( array( '·', '&middot;' ), ' ', $text );
+		$initials = '';
+		foreach ( preg_split( '/\s+/u', trim( $text ) ) as $part ) {
+			if ( '' === $part || ! preg_match( '/\p{L}/u', $part, $m ) ) {
+				continue;
+			}
+			$initials .= mb_strtoupper( $m[0] );
+			if ( mb_strlen( $initials ) >= 2 ) {
+				break;
+			}
+		}
+		return $initials;
+	}
+
+	/**
+	 * Escape pack text for output, then render any middots as the &middot;
+	 * entity the surrounding template markup already uses.
+	 *
+	 * @param string $text Plain text (may contain "·").
+	 * @return string
+	 */
+	private function middot_html( $text ) {
+		return str_replace( '·', '&middot;', esc_html( $text ) );
+	}
+
+	/**
+	 * The pack's sub-national word, lowercased ("state", "emirate",
+	 * "bundesland"), for prose like "Browse by state". Falls back to "state"
+	 * so a pack-less install keeps its current strings exactly.
+	 *
+	 * @return string
+	 */
+	private function region_word() {
+		if ( function_exists( 'pge_country_val' ) ) {
+			$regional = pge_country_val( 'regional', array() );
+			if ( is_array( $regional ) && ! empty( $regional['state_label'] ) ) {
+				return mb_strtolower( (string) $regional['state_label'] );
+			}
+		}
+		return 'state';
+	}
+
+	/**
+	 * Lowercase plural of a region label: State → states, Emirate → emirates,
+	 * County → counties. Bundesland gets its real plural rather than an
+	 * English -s bolted onto a German noun.
+	 *
+	 * @param string $label Region label from the pack.
+	 * @return string
+	 */
+	private function plural_region_word( $label ) {
+		$word      = mb_strtolower( $label );
+		$irregular = array(
+			'bundesland' => 'bundesländer',
+		);
+		if ( isset( $irregular[ $word ] ) ) {
+			return $irregular[ $word ];
+		}
+		if ( preg_match( '/[^aeiou]y$/u', $word ) ) {
+			return mb_substr( $word, 0, -1 ) . 'ies';
+		}
+		if ( preg_match( '/(s|x|z|ch|sh)$/u', $word ) ) {
+			return $word . 'es';
+		}
+		return $word . 's';
+	}
 
 	/**
 	 * Homepage photo band (README addendum A5) — a 2/1 split of two real
@@ -461,10 +778,14 @@ final class Homepage_Sections {
 			}
 		);
 
+		$word = $this->region_word();
+
 		$html  = '<section class="pgt-section pgt-section--tint"><div class="pgt-container">';
 		$html .= '<p class="pgt-eyebrow">' . esc_html__( 'By location', 'prepgro-theme' ) . '</p>';
-		$html .= '<h2 class="pgt-section__title">' . esc_html__( 'Browse by state', 'prepgro-theme' ) . '</h2>';
-		$html .= '<p class="pgt-lead" style="max-width:56ch;margin:.25rem 0 2rem;">' . esc_html__( 'Practice tests aligned to each state&rsquo;s assessments and standards.', 'prepgro-theme' ) . '</p>';
+		/* translators: %s: the country pack's sub-national word, e.g. "state" or "emirate". */
+		$html .= '<h2 class="pgt-section__title">' . esc_html( sprintf( __( 'Browse by %s', 'prepgro-theme' ), $word ) ) . '</h2>';
+		/* translators: %s: the country pack's sub-national word, e.g. "state" or "emirate". */
+		$html .= '<p class="pgt-lead" style="max-width:56ch;margin:.25rem 0 2rem;">' . esc_html( sprintf( __( 'Practice tests aligned to each %s&rsquo;s assessments and standards.', 'prepgro-theme' ), $word ) ) . '</p>';
 		$html .= '<div class="pgt-categories">';
 		foreach ( $rows as $row ) {
 			$html .= sprintf(

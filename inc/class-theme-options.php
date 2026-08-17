@@ -345,6 +345,7 @@ final class Theme_Options {
 		$this->register_footer_controls( $wp_customize );
 		$this->register_pillar_colours( $wp_customize );
 		$this->register_image_slots( $wp_customize );
+		$this->register_mega_menu_controls( $wp_customize );
 	}
 
 	/**
@@ -750,5 +751,283 @@ final class Theme_Options {
 				$n++;
 			}
 		}
+	}
+
+	/**
+	 * Build the mega-menu panel from Chrome::default_mega_panels(). One
+	 * SECTION per pillar panel (Evaluate/Elevate/Excel/Help), each holding
+	 * the promo aside followed by every group and row exactly as
+	 * Chrome::apply_mega_menu_overrides() reads them back — the layout is
+	 * generated from that same defaults array rather than hand-restated, so
+	 * the two can never drift out of sync.
+	 *
+	 * Every field defaults to '' and shows the built-in copy in its own
+	 * description — leaving a field blank keeps the default, per
+	 * Chrome::apply_mega_menu_overrides().
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @return void
+	 */
+	private function register_mega_menu_controls( $wp_customize ) {
+		$defaults = Chrome::instance()->default_mega_panels();
+		if ( ! $defaults ) {
+			return;
+		}
+
+		$wp_customize->add_panel(
+			'pgt_mega_menu',
+			array(
+				'title'       => __( 'PrepGro Mega Menu', 'prepgro-theme' ),
+				'description' => __( 'Every row in the dropdown that opens under Evaluate / Elevate / Excel / Help. Leave a field empty to keep its built-in copy — only the fields you fill in override the default.', 'prepgro-theme' ),
+				'priority'    => 35,
+			)
+		);
+
+		$labels = array(
+			'evaluate' => __( 'Evaluate panel', 'prepgro-theme' ),
+			'elevate'  => __( 'Elevate panel', 'prepgro-theme' ),
+			'excel'    => __( 'Excel panel', 'prepgro-theme' ),
+			'help'     => __( 'Help panel', 'prepgro-theme' ),
+		);
+
+		$section_priority = 10;
+
+		foreach ( $defaults as $key => $panel ) {
+			$section_id = 'pgt_mega_' . $key;
+
+			$wp_customize->add_section(
+				$section_id,
+				array(
+					'title'    => isset( $labels[ $key ] ) ? $labels[ $key ] : ucfirst( $key ),
+					'panel'    => 'pgt_mega_menu',
+					'priority' => $section_priority,
+				)
+			);
+			$section_priority += 10;
+
+			$priority = 10;
+
+			if ( ! empty( $panel['aside'] ) ) {
+				$wp_customize->add_control(
+					new Customize_Note_Control(
+						$wp_customize,
+						$section_id . '_aside_note',
+						array(
+							'section'  => $section_id,
+							'settings' => array(),
+							'priority' => $priority,
+							'note'     => __( 'Promo card on the right of the panel.', 'prepgro-theme' ),
+						)
+					)
+				);
+				$priority += 1;
+
+				$aside_fields = array(
+					'eyebrow' => array( __( 'Eyebrow', 'prepgro-theme' ), 'text' ),
+					'title'   => array( __( 'Title', 'prepgro-theme' ), 'text' ),
+					'body'    => array( __( 'Body', 'prepgro-theme' ), 'textarea' ),
+					'cta'     => array( __( 'Button text', 'prepgro-theme' ), 'text' ),
+					'url'     => array( __( 'Button link', 'prepgro-theme' ), 'url' ),
+				);
+
+				foreach ( $aside_fields as $field => $meta ) {
+					$priority = $this->add_mega_field(
+						$wp_customize,
+						$section_id,
+						"pgt_mega_{$key}_aside_{$field}",
+						$meta[0],
+						$meta[1],
+						isset( $panel['aside'][ $field ] ) ? (string) $panel['aside'][ $field ] : '',
+						$priority
+					);
+				}
+			}
+
+			foreach ( (array) $panel['groups'] as $gi => $group ) {
+				$wp_customize->add_control(
+					new Customize_Note_Control(
+						$wp_customize,
+						"{$section_id}_g{$gi}_note",
+						array(
+							'section'  => $section_id,
+							'settings' => array(),
+							'priority' => $priority,
+							/* translators: %s: the column's current heading, e.g. "Diagnostic" */
+							'note'     => sprintf( __( 'Column: %s', 'prepgro-theme' ), isset( $group['eyebrow'] ) && '' !== $group['eyebrow'] ? $group['eyebrow'] : ( $gi + 1 ) ),
+						)
+					)
+				);
+				$priority += 1;
+
+				$priority = $this->add_mega_checkbox_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_hide", __( 'Hide this column', 'prepgro-theme' ), $priority );
+				$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_eyebrow", __( 'Column heading', 'prepgro-theme' ), 'text', isset( $group['eyebrow'] ) ? (string) $group['eyebrow'] : '', $priority );
+				$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_note", __( 'Column note', 'prepgro-theme' ), 'text', isset( $group['note'] ) ? (string) $group['note'] : '', $priority );
+
+				foreach ( (array) $group['items'] as $ii => $item ) {
+					$priority = $this->add_mega_checkbox_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_hide", __( 'Hide this row', 'prepgro-theme' ), $priority );
+					$priority = $this->add_mega_icon_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_icon", isset( $item['icon'] ) ? (string) $item['icon'] : '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_title", __( 'Row title', 'prepgro-theme' ), 'text', isset( $item['title'] ) ? (string) $item['title'] : '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_sub", __( 'Row subtitle', 'prepgro-theme' ), 'text', isset( $item['sub'] ) ? (string) $item['sub'] : '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_url", __( 'Row link', 'prepgro-theme' ), 'url', isset( $item['url'] ) ? (string) $item['url'] : '', $priority );
+				}
+
+				// Blank headroom rows past the built-in ones — fill in a title
+				// and a link and Chrome::apply_mega_menu_overrides() adds the
+				// row; leave either empty and nothing renders. No "hide"
+				// checkbox here: an empty title/link already means "skip it."
+				$base = count( (array) $group['items'] );
+				for ( $ii = $base; $ii < $base + Chrome::MEGA_EXTRA_ROWS; $ii++ ) {
+					$wp_customize->add_control(
+						new Customize_Note_Control(
+							$wp_customize,
+							"{$section_id}_g{$gi}_i{$ii}_note",
+							array(
+								'section'  => $section_id,
+								'settings' => array(),
+								'priority' => $priority,
+								'note'     => __( 'New row — fill in a title and a link to add it.', 'prepgro-theme' ),
+							)
+						)
+					);
+					$priority += 1;
+
+					$priority = $this->add_mega_icon_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_icon", '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_title", __( 'Row title', 'prepgro-theme' ), 'text', '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_sub", __( 'Row subtitle', 'prepgro-theme' ), 'text', '', $priority );
+					$priority = $this->add_mega_field( $wp_customize, $section_id, "pgt_mega_{$key}_g{$gi}_i{$ii}_url", __( 'Row link', 'prepgro-theme' ), 'url', '', $priority );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Register a "Hide this row/column" checkbox. Unlike the text fields, an
+	 * unchecked box (false) is itself the meaningful default — there is no
+	 * "leave blank to keep the default" reading of a boolean — so this stays
+	 * a separate helper from add_mega_field() rather than a third $type.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @param string                $section      Section id.
+	 * @param string                $setting_id   Setting/control id.
+	 * @param string                $label        Control label.
+	 * @param int                   $priority     Control priority.
+	 * @return int Next priority.
+	 */
+	private function add_mega_checkbox_field( $wp_customize, $section, $setting_id, $label, $priority ) {
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => false,
+				'sanitize_callback' => function ( $value ) {
+					return (bool) $value;
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			$setting_id,
+			array(
+				'label'    => $label,
+				'section'  => $section,
+				'type'     => 'checkbox',
+				'priority' => $priority,
+			)
+		);
+
+		return $priority + 1;
+	}
+
+	/**
+	 * Register one text/textarea/url mega-menu override setting + control.
+	 * The setting's OWN default is the live built-in copy, so the field opens
+	 * already showing it — same convention every other control in this file
+	 * uses (pgt_logo_height shows 38, not a blank box). Customizer only
+	 * writes a setting to theme_mods on Publish if its value was actually
+	 * changed from that starting point, so leaving the field untouched still
+	 * results in no stored override; Chrome::apply_mega_menu_overrides()
+	 * reads '' — an intentionally cleared field — as "keep the built-in
+	 * copy" too, so clearing a field back to empty also reverts it cleanly.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @param string                $section      Section id.
+	 * @param string                $setting_id   Setting/control id.
+	 * @param string                $label        Control label.
+	 * @param string                $type         'text' | 'textarea' | 'url'.
+	 * @param string                $default_text The built-in copy, pre-filled into the field.
+	 * @param int                   $priority     Control priority.
+	 * @return int Next priority.
+	 */
+	private function add_mega_field( $wp_customize, $section, $setting_id, $label, $type, $default_text, $priority ) {
+		$sanitize = 'url' === $type ? 'esc_url_raw' : ( 'textarea' === $type ? 'sanitize_textarea_field' : 'sanitize_text_field' );
+
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => $default_text,
+				'sanitize_callback' => $sanitize,
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			$setting_id,
+			array(
+				'label'    => $label,
+				'section'  => $section,
+				'type'     => 'textarea' === $type ? 'textarea' : ( 'url' === $type ? 'url' : 'text' ),
+				'priority' => $priority,
+			)
+		);
+
+		return $priority + 1;
+	}
+
+	/**
+	 * Register a row's icon override as a <select> limited to the theme's
+	 * known Lucide glyph set (Icons::keys()) rather than free text — an
+	 * unrecognised icon name renders nothing, not a fallback glyph.
+	 *
+	 * The setting's own default is the built-in icon key, so the select
+	 * opens already showing it (see add_mega_field()'s note on why); the
+	 * "— default —" choice stays available as the explicit way back to no
+	 * override once something else has been picked.
+	 *
+	 * @param \WP_Customize_Manager $wp_customize Customizer manager.
+	 * @param string                $section      Section id.
+	 * @param string                $setting_id   Setting/control id.
+	 * @param string                $default_icon The built-in icon key.
+	 * @param int                   $priority     Control priority.
+	 * @return int Next priority.
+	 */
+	private function add_mega_icon_field( $wp_customize, $section, $setting_id, $default_icon, $priority ) {
+		$choices = array( '' => __( '— default —', 'prepgro-theme' ) );
+		foreach ( Icons::keys() as $icon_key ) {
+			$choices[ $icon_key ] = $icon_key;
+		}
+
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => isset( $choices[ $default_icon ] ) ? $default_icon : '',
+				'sanitize_callback' => function ( $value ) use ( $choices ) {
+					return isset( $choices[ $value ] ) ? $value : '';
+				},
+				'transport'         => 'refresh',
+			)
+		);
+
+		$wp_customize->add_control(
+			$setting_id,
+			array(
+				'label'    => __( 'Row icon', 'prepgro-theme' ),
+				'section'  => $section,
+				'type'     => 'select',
+				'choices'  => $choices,
+				'priority' => $priority,
+			)
+		);
+
+		return $priority + 1;
 	}
 }

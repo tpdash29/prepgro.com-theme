@@ -373,7 +373,11 @@ add_action(
 		if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || defined( 'AIOSEO_VERSION' ) ) {
 			return;
 		}
-		echo '<meta name="description" content="' . esc_attr__( 'Free online practice tests for grades 3–12, SAT, ACT and AP — full-length mocks aligned to state standards, instant AI scoring, and a parent dashboard that tracks real progress. Start free, no credit card required.', 'prepgro-theme' ) . '">' . "\n";
+		$description = __( 'Free online practice tests for grades 3–12, SAT, ACT and AP — full-length mocks aligned to state standards, instant AI scoring, and a parent dashboard that tracks real progress. Start free, no credit card required.', 'prepgro-theme' );
+		if ( function_exists( 'pge_content' ) ) {
+			$description = (string) pge_content( 'front_page.meta_description', $description );
+		}
+		echo '<meta name="description" content="' . esc_attr( $description ) . '">' . "\n";
 	},
 	2
 );

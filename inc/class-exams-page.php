@@ -510,13 +510,10 @@ final class Exams_Page {
 	 * @return string
 	 */
 	private function filters() {
-		$chips = array(
-			'all'        => __( 'All practice tests', 'prepgro-theme' ),
-			'satact'     => __( 'SAT · ACT · PSAT', 'prepgro-theme' ),
-			'ap'         => __( 'AP subjects', 'prepgro-theme' ),
-			'state'      => __( 'State tests (3–12)', 'prepgro-theme' ),
-			'gradschool' => __( 'GRE · GMAT', 'prepgro-theme' ),
-		);
+		$chips = array( 'all' => __( 'All practice tests', 'prepgro-theme' ) );
+		foreach ( $this->filter_chips() as $chip ) {
+			$chips[ $chip['key'] ] = $chip['label'];
+		}
 
 		$out = '';
 		foreach ( $chips as $key => $label ) {
@@ -525,6 +522,36 @@ final class Exams_Page {
 				. esc_html( $label ) . '</button>';
 		}
 		return '<div class="pgx-filters">' . $out . '</div>';
+	}
+
+	/**
+	 * The family chips as a {key,label} list. A country pack can restate the
+	 * families via `content.exam_filter_chips`; the US set is the fallback.
+	 * The 'all' chip stays the consumer's own — packs never declare it.
+	 *
+	 * @return array<int,array{key:string,label:string}>
+	 */
+	private function filter_chips() {
+		$chips = array(
+			array( 'key' => 'satact', 'label' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ) ),
+			array( 'key' => 'ap', 'label' => __( 'AP subjects', 'prepgro-theme' ) ),
+			array( 'key' => 'state', 'label' => __( 'State tests (3–12)', 'prepgro-theme' ) ),
+			array( 'key' => 'gradschool', 'label' => __( 'GRE · GMAT', 'prepgro-theme' ) ),
+		);
+		if ( function_exists( 'pge_content' ) ) {
+			$chips = (array) pge_content( 'exam_filter_chips', $chips );
+		}
+
+		$out = array();
+		foreach ( $chips as $chip ) {
+			if ( is_array( $chip ) && ! empty( $chip['key'] ) && ! empty( $chip['label'] ) ) {
+				$out[] = array(
+					'key'   => (string) $chip['key'],
+					'label' => (string) $chip['label'],
+				);
+			}
+		}
+		return $out;
 	}
 
 	/** @var \WP_Post[]|null Memoized — cards() and schema_jsonld() share it. */
@@ -583,10 +610,23 @@ final class Exams_Page {
 		$check  = Icons::svg( 'check', array( 'size' => 14, 'stroke' => 2.4 ) );
 		$out    = '<div class="pgx-grid" id="pgx-grid">';
 
+		// The perk badge below must reflect this student's real access, not a
+		// blanket "every exam is unlimited" claim — check_package_access() is
+		// the same gate the exam page itself enforces (Traits\Package_Access),
+		// so the two can never disagree again.
+		$access_api = class_exists( '\\PrepGro\\Engine\\API\\Student_API' )
+			? new \PrepGro\Engine\API\Student_API()
+			: null;
+		$user_id = get_current_user_id();
+
 		foreach ( $exams as $exam ) {
 			$level = Pricing_Levels::for_exam( $exam );
 			$name  = get_the_title( $exam );
 			$sub   = $this->exam_sub( $exam );
+
+			$has_full_access = $access_api
+				? ! empty( $access_api->check_package_access( $user_id, $exam->ID )['has_access'] )
+				: false;
 
 			$exam_grade = (string) get_post_meta( $exam->ID, '_exam_grade', true );
 			$exam_state = (string) get_post_meta( $exam->ID, '_exam_state', true );
@@ -612,7 +652,9 @@ final class Exams_Page {
 				. '<div class="pgx-card__rule" aria-hidden="true"></div>'
 				. '<div class="pgx-card__meta">'
 				. '<span class="pgx-card__level">' . esc_html( $levels[ $level ]['name'] ) . '</span>'
-				. '<span class="pgx-card__perk">' . $check . esc_html__( 'Unlimited practice', 'prepgro-theme' ) . '</span>'
+				. ( $has_full_access
+					? '<span class="pgx-card__perk">' . $check . esc_html__( 'Unlimited practice', 'prepgro-theme' ) . '</span>'
+					: '<span class="pgx-card__perk pgx-card__perk--locked">' . esc_html__( 'Free preview', 'prepgro-theme' ) . '</span>' )
 				. '</div></a>';
 		}
 
@@ -833,6 +875,29 @@ final class Exams_Page {
 			'gregmat'  => array( 'label' => __( 'GRE · GMAT', 'prepgro-theme' ), 'note' => __( 'Quant, verbal and writing', 'prepgro-theme' ), 'c' => '#EFC493' ),
 		);
 
+		// When the active country pack declares its own families
+		// (content.exam_filter_chips), the legend follows them instead of
+		// the US mix above: the chip label carries the whole line (a pack
+		// chip has no sub-line, so 'note' stays empty and is skipped below),
+		// colours reuse the existing ramp in order, and bank_counts() keys
+		// the pack does not share simply render as "Coming soon" rows.
+		$pack_legend = false;
+		if ( function_exists( 'pge_content' ) && is_array( pge_content( 'exam_filter_chips', null ) ) ) {
+			$ramp   = array( 'var(--amber-700)', 'var(--amber-600)', 'var(--amber-500)', 'var(--amber-400)', '#EFC493' );
+			$packed = array();
+			foreach ( $this->filter_chips() as $i => $chip ) {
+				$packed[ $chip['key'] ] = array(
+					'label' => $chip['label'],
+					'note'  => '',
+					'c'     => $ramp[ $i % count( $ramp ) ],
+				);
+			}
+			if ( $packed ) {
+				$meta        = $packed;
+				$pack_legend = true;
+			}
+		}
+
 		$bars = '';
 		$soon = '';
 		foreach ( $meta as $key => $m ) {
@@ -853,14 +918,14 @@ final class Exams_Page {
 					. '<div class="pgx-bar__head"><span>' . esc_html( $m['label'] ) . '</span>'
 					. '<span class="pgx-bar__v pgx-bar__v--soon">' . esc_html__( 'Coming soon', 'prepgro-theme' ) . '</span></div>'
 					. '<div class="pgx-bar__track"><span style="width:100%"></span></div>'
-					. '<p class="pgx-bar__note">' . esc_html( $m['note'] ) . '</p>'
+					. ( '' === $m['note'] ? '' : '<p class="pgx-bar__note">' . esc_html( $m['note'] ) . '</p>' )
 					. '</div>';
 				continue;
 			}
 			$count = (int) $bank[ $key ];
 			$w     = max( 2, min( 100, (int) round( $count / $max * 100 ) ) );
 			$label = $m['label'];
-			if ( 'ap' === $key && ! empty( $bank['ap_exams'] ) ) {
+			if ( ! $pack_legend && 'ap' === $key && ! empty( $bank['ap_exams'] ) ) {
 				$label = sprintf(
 					/* translators: %d: number of AP exams */
 					__( 'AP subjects (%d exams)', 'prepgro-theme' ),
@@ -871,7 +936,7 @@ final class Exams_Page {
 				. '<div class="pgx-bar__head"><span>' . esc_html( $label ) . '</span>'
 				. '<span class="pgx-bar__v">' . esc_html( number_format_i18n( $count ) ) . '</span></div>'
 				. '<div class="pgx-bar__track"><span style="width:' . esc_attr( $w ) . '%;background:' . esc_attr( $m['c'] ) . '"></span></div>'
-				. '<p class="pgx-bar__note">' . esc_html( $m['note'] ) . '</p>'
+				. ( '' === $m['note'] ? '' : '<p class="pgx-bar__note">' . esc_html( $m['note'] ) . '</p>' )
 				. '</div>';
 		}
 
