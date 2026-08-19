@@ -47,7 +47,7 @@ body.pge-portal-competitive {
    That distinction matters: the rules below carry !important (they have to,
    to beat the bundle's own inline styles), and an !important declaration
    beats a non-!important one no matter how specific the latter is. So the
-   old approach — a more-specific `html[data-pge-admin-theme="dark"] …` rule
+   old approach — a more-specific `html[data-pge-admin-theme="dark"][data-pge-dark-scope] …` rule
    without !important — could never win, which is why dark mode rendered
    light text on white cards. Flipping the custom properties sidesteps the
    cascade fight entirely. */
@@ -64,14 +64,15 @@ body.pge-portal-competitive {
 	   dark mode — see the note on --pge-color-primary below. */
 	--pgp-accent-fill: var(--pge-color-primary, #1b3beb);
 }
-/* Scoped to the portal, not to the body class — `pge-portal-testprep` is on
- * EVERY page, so flipping these globally would drag the marketing pages into
- * a dark mode they have no design for (dark canvas, light body text, but
- * white section grounds and light cards throughout). Dark mode is a portal
- * feature: its toggle lives in the portal, and `.pge-pro-app` is rendered
- * only there. */
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep:has(.pge-pro-app),
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive:has(.pge-pro-app) {
+/* Scoped by [data-pge-dark-scope], not the body class alone —
+ * `pge-portal-testprep` is on EVERY page, so flipping these globally would
+ * drag the marketing pages into a dark mode they have no design for. The
+ * scope attribute is stamped pre-paint (App_Shell::theme_boot / the React
+ * shells) only on surfaces whose components actually support dark: the
+ * dashboard, lesson/microlesson player, exam + diagnostic runners and the
+ * result screens. */
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive {
 	--pgp-canvas: #0f131c;
 	--pgp-surface: #1c2230;
 	--pgp-surface-2: #232c3d;
@@ -1035,41 +1036,41 @@ body.pge-portal-testprep .pge-neu-stat:hover .pge-neu-stat-icon { transform: non
  * rule near the top skips `.pg-app` bodies (they paint their own module
  * ground), which left the portal inheriting the UA default black — invisible
  * once the surfaces went dark. */
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive:has(.pge-pro-app),
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep:has(.pge-pro-app) { background: #0f131c; color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pge-pro-app,
-html[data-pge-admin-theme="dark"] .pge-pro-app .pge-card,
-html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash,
-html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-content { color: var(--pgp-ink, #eef2f9); }
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-dash-sidebar,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-dash-sidebar,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-card,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-card,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-empty-state,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-empty-state {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep { background: #0f131c; color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .pge-card,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .pge-dash,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .pge-dash-content { color: var(--pgp-ink, #eef2f9); }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-dash-sidebar,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-dash-sidebar,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-card,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-card,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-neu-stat,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-neu-stat,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-empty-state,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-empty-state {
 	background: #1c2230;
 	border-color: #2a3345;
 }
-html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header h2,
-html[data-pge-admin-theme="dark"] .pge-dash-nav-item,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat-value,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat-value { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header p,
-html[data-pge-admin-theme="dark"] .pge-dash-nav-item--quiet,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-neu-stat-label,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-neu-stat-label { color: #93a0b5; }
-html[data-pge-admin-theme="dark"] .pge-dash-nav-item:hover { background: #232c3d; color: #fff; }
-html[data-pge-admin-theme="dark"] .pge-dash-nav-item.active { background: #232c3d; color: #6ba4ff; }
-html[data-pge-admin-theme="dark"] .pge-dash-nav-divider,
-html[data-pge-admin-theme="dark"] .pge-dash-sidebar-header,
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-card-header { border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pge-dash-mobile-bar,
-html[data-pge-admin-theme="dark"] .pge-dash-mobile-dropdown { background: #1c2230; border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pge-dash-mobile-item { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pge-dash-mobile-item:hover,
-html[data-pge-admin-theme="dark"] .pge-dash-mobile-item.active { background: #232c3d; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-sidebar-header h2,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-nav-item,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-neu-stat-value,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-neu-stat-value { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-sidebar-header p,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-nav-item--quiet,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-neu-stat-label,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-neu-stat-label { color: #93a0b5; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-nav-item:hover { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-nav-item.active { background: #232c3d; color: #6ba4ff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-nav-divider,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-sidebar-header,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-card-header { border-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-mobile-bar,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-mobile-dropdown { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-mobile-item { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-mobile-item:hover,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-dash-mobile-item.active { background: #232c3d; }
 
 /* Score bands (README §11) — the badge classes every portal surface already
    uses are restyled in place, so RecentActivityList, ResultsHistoryTable and
@@ -1100,7 +1101,7 @@ body.pge-portal-testprep .pge-badge-red     { color: #b91c1c; background: #fef2f
    These live at the END of the file on purpose. Several of the light rules
    above are `body.pge-portal-x.pge-portal-x .thing.state { … !important }`,
    which is specificity (0,4,1) WITH !important — identical weight to a
-   `html[data-pge-admin-theme="dark"] .pge-pro-app .thing.state` rule. When
+   `html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .thing.state` rule. When
    two !important declarations tie on specificity, source order decides, so
    a dark rule placed above the light one silently loses. Keeping the whole
    dark layer last removes that trap for anything added later.
@@ -1111,37 +1112,37 @@ body.pge-portal-testprep .pge-badge-red     { color: #b91c1c; background: #fef2f
    pattern this file already uses for the proficiency bar. Both belong to the
    amber "do this next" treatment: a light peach plate with dark orange text,
    which inverts to a dark amber plate with light amber text. */
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="253, 238, 229"] {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="253, 238, 229"] {
 	background: #2b2118 !important;
 	border-color: #4a3a24 !important;
 }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="154, 52, 18"] { color: #fbbf24 !important; }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="29, 78, 216"] { color: #6ba4ff !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="154, 52, 18"] { color: #fbbf24 !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="29, 78, 216"] { color: #6ba4ff !important; }
 
 /* The engine's status tints are also inline literals, and unlike its
    --pge-adm-* tokens (which it does flip for dark) they stay light — leaving
    pale chips scattered over the dark cards, and in one case dark-mode muted
    text on a light-mode blue plate. Mapped here to the same hue at dark
    luminance so the status still reads at a glance. */
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="254, 242, 242"] { background: #2b1a1a !important; }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="255, 251, 235"] { background: #2b2418 !important; }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="240, 253, 244"] { background: #16281d !important; }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="239, 246, 255"] { background: #18202e !important; }
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="226, 232, 240"] { background: #232c3d !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="254, 242, 242"] { background: #2b1a1a !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="255, 251, 235"] { background: #2b2418 !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="240, 253, 244"] { background: #16281d !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="239, 246, 255"] { background: #18202e !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="226, 232, 240"] { background: #232c3d !important; }
 
 /* Headings. The engine forces every h1–h4 to its ink with !important
    (`body.pge-portal-*:not(:has(.pge-gje-v5)) h1..h4`), which in dark mode
    paints them near-black on the dark cards — "Profile Information" and
    "In progress" were invisible. Same fight as the marketing page's on-dark
    headings in theme.css, so it needs !important to win. */
-html[data-pge-admin-theme="dark"] .pge-pro-app :is(h1, h2, h3, h4, h5, h6) {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app :is(h1, h2, h3, h4, h5, h6) {
 	color: var(--pgp-ink) !important;
 }
 
 /* The active sidebar item is a soft-blue plate with brand-blue text; on a
    dark rail that plate has to darken and the text lighten together, or one
    of the two goes unreadable. */
-html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-nav-item.active {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .pge-dash-nav-item.active {
 	background: #1b2740 !important;
 	color: #6ba4ff !important;
 }
@@ -1152,32 +1153,32 @@ html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-nav-item.active {
    "Free check" button is a primary FILL and sits outside the app, so a
    body-level flip would wash it out. Fills inside the app use
    --pgp-accent-fill, which stays brand blue. */
-html[data-pge-admin-theme="dark"] .pge-pro-app {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app {
 	--pge-color-primary: #6ba4ff;
 }
 
 /* Blue-800 body copy the bundle sets inline, on the darkened blue plate. */
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="30, 64, 175"] { color: #93c5fd !important; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="30, 64, 175"] { color: #93c5fd !important; }
 
 /* --pge-ui-primary does double duty in the bundle: `background: var(--pge-ui-primary)`
    on filled buttons (white text, fine at #1b3beb) and `color: var(--pge-ui-primary)`
    on text buttons like "All results →" (2.2:1 on a dark card). The inline
    style itself is what separates the two, so match on it — this reaches only
    the text usages and leaves every fill at brand blue. */
-html[data-pge-admin-theme="dark"] .pge-pro-app [style*="color: var(--pge-ui-primary"] {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app [style*="color: var(--pge-ui-primary"] {
 	color: #6ba4ff !important;
 }
 
 /* Mobile nav, same pairing as the sidebar item above. Hidden at this width,
    but it is the whole navigation on a phone. */
-html[data-pge-admin-theme="dark"] .pge-pro-app .pge-dash-mobile-item.active {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pge-pro-app .pge-dash-mobile-item.active {
 	background: #1b2740 !important;
 	color: #6ba4ff !important;
 }
 
 /* Surfaces the engine paints that this file does not otherwise own. */
-html[data-pge-admin-theme="dark"] body.pge-portal-testprep .pge-po-card,
-html[data-pge-admin-theme="dark"] body.pge-portal-competitive .pge-po-card {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-testprep .pge-po-card,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] body.pge-portal-competitive .pge-po-card {
 	background: var(--pgp-surface) !important;
 	border-color: var(--pgp-line) !important;
 	color: var(--pgp-ink) !important;

@@ -983,10 +983,16 @@ final class Chrome {
 			return true;
 		}
 
-		// Learning-player CPT singles (course / lesson / assignment).
+		// Learning-player + assessment CPT singles (course / lesson /
+		// assignment / diagnostic) and the exam runner. Exam + diagnostic
+		// joined the list in the 2026-08 dark-parity pass so the topbar's
+		// theme toggle is reachable from those surfaces too.
+		if ( is_singular( 'exam' ) ) {
+			return true;
+		}
 		if ( class_exists( '\\PrepGro\\Engine\\Storage\\Storage_Map' ) ) {
 			$types = array();
-			foreach ( array( 'course', 'lesson', 'assignment' ) as $key ) {
+			foreach ( array( 'course', 'lesson', 'assignment', 'diagnostic' ) as $key ) {
 				$slug = \PrepGro\Engine\Storage\Storage_Map::post_type( $key );
 				if ( $slug ) {
 					$types[] = $slug;

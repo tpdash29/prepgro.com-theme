@@ -42,8 +42,10 @@
 	   Customizer's pillar colour pickers (which override these at :root) move
 	   the nav and the module page together instead of drifting apart.
 	   All three clear 4.5:1 on white, which nav links at 14.5px require:
-	   blue 7.31, teal 5.47, amber 5.02. */
-	--pgt-pillar-evaluate: #0a84ff;
+	   blue 7.31, teal 5.47, amber 5.02. (Evaluate had drifted to azure
+	   #0a84ff — 3.65:1, failing normal-size text — restored to the kit's
+	   royal blue 2026-08.) */
+	--pgt-pillar-evaluate: var(--blue-600, #1b3beb);
 	--pgt-pillar-elevate:  var(--teal-700);
 	--pgt-pillar-excel:    var(--amber-700);
 	/* The non-pillar tone, shared by Home and Help in the nav and by the Help
@@ -72,6 +74,28 @@ h1, h2, h3, h4, .pgt-logo__word {
 }
 
 a { color: var(--pge-color-primary); text-decoration: none; }
+/* Core's block-theme skip link hides via clip-path, which its own :focus
+   reset (old `clip` only) never undoes — so keyboard users never saw it.
+   Solid ground so it reads on light and dark pages alike. */
+.skip-link.screen-reader-text:focus {
+	clip-path: none !important;
+	clip: auto !important;
+	width: auto !important;
+	height: auto !important;
+	position: fixed;
+	top: 8px;
+	left: 8px;
+	z-index: 100100;
+	padding: 10px 16px;
+	border-radius: 10px;
+	background: #ffffff;
+	color: #1b3beb;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, .35);
+}
+/* Generic links lift to the on-dark accent on dark-capable surfaces — the
+   fill primary is only 2.2:1 as text there. Element-level, so any
+   component's own link color still wins. */
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] a:not([class]) { color: var(--pge-color-on-dark, #6ba4ff); }
 a:hover { text-decoration: underline; }
 :focus-visible { outline: none; box-shadow: var(--pge-focus-ring); border-radius: 4px; }
 
@@ -1631,11 +1655,11 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 @media (max-width: 640px) {
 	.pgt-countrychip { display: none; }
 }
-html[data-pge-admin-theme="dark"] .pgt-countrychip {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-countrychip {
 	background: transparent;
 	border-color: #2a3345;
 }
-html[data-pge-admin-theme="dark"] .pgt-countrychip__code { color: #c8d2e4; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-countrychip__code { color: #c8d2e4; }
 
 /* ---------- Archive / search / content pages ---------- */
 .pgt-archive, .pgt-page { margin-top: 2.75rem; margin-bottom: 4rem; }
@@ -2179,76 +2203,84 @@ body.pge-portal-competitive .pgt2-duo__panel--dark h3 {
 
 /* ---------- Dark theme (Acorn Next) — header + drawer only ----------
    Same toggle/attribute as the React dashboard, the plugin's admin surfaces,
-   and the app-shell journey bar (html[data-pge-admin-theme="dark"],
-   localStorage pge_admin_theme). The engine's App_Shell::theme_boot() only
-   ever stamps this attribute on app-context pages (dashboard/portals), so
-   marketing pages never see it — these rules are component-scoped (never
-   redefine the shared --pge-color-* tokens at :root) so a dark header can
-   never leak onto a light marketing body even if that assumption changes. */
-html[data-pge-admin-theme="dark"] .pgt-headerwrap,
-html[data-pge-admin-theme="dark"] .pgt-header {
+   and the app-shell journey bar (html[data-pge-admin-theme="dark"][data-pge-dark-scope],
+   localStorage pge_admin_theme). The theme attribute itself is stamped on
+   EVERY front-end page (theme_boot), so these rules are additionally gated
+   on [data-pge-dark-scope] — stamped pre-paint only on dark-capable
+   surfaces (dashboard, lesson/exam/diagnostic players, results). A dark
+   header therefore can never sit on a light marketing body. */
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] {
+	/* Pillar hues are tuned for white; lift them to their on-dark twins
+	   (same values portal-reskin uses) for anything reading them directly. */
+	--pgt-pillar-evaluate: #6ba4ff;
+	--pgt-pillar-elevate:  #2dd4bf;
+	--pgt-pillar-excel:    #fbbf24;
+	--pgt-pillar-neutral:  #93a0b5;
+}
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-headerwrap,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header {
 	background: #03050f;
 	border-bottom-color: #2a3345;
 }
-html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__prep { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-header .pgt-brandlogo__gro { color: #0a84ff; }
-html[data-pge-admin-theme="dark"] .pgt-nav__link,
-html[data-pge-admin-theme="dark"] .pgt-burger span,
-html[data-pge-admin-theme="dark"] .pgt-account__id strong,
-html[data-pge-admin-theme="dark"] .pgt-account__item,
-html[data-pge-admin-theme="dark"] .pgt-drawer__link,
-html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__prep {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header .pgt-brandlogo__prep { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header .pgt-brandlogo__gro { color: #0a84ff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-burger span,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__id strong,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__item,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__link,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__brand .pgt-brandlogo__prep {
 	color: #eef2f9;
 }
-html[data-pge-admin-theme="dark"] .pgt-drawer__brand .pgt-brandlogo__gro { color: #0a84ff; }
-html[data-pge-admin-theme="dark"] .pgt-brandlogo__r { color: #2dd4bf; }
-html[data-pge-admin-theme="dark"] .pgt-brandlogo__o { color: #fbbf24; }
-html[data-pge-admin-theme="dark"] .pgt-nav__link:hover,
-html[data-pge-admin-theme="dark"] .pgt-nav__link[aria-expanded="true"] { background: #2a3345; color: #fff; }
-html[data-pge-admin-theme="dark"] .pgt-nav__link.is-current { background: #232c3d; color: #fff; }
-html[data-pge-admin-theme="dark"] .pgt-account__id span,
-html[data-pge-admin-theme="dark"] .pgt-account__btn,
-html[data-pge-admin-theme="dark"] .pgt-iconbtn,
-html[data-pge-admin-theme="dark"] .pgt-drawer__sublink,
-html[data-pge-admin-theme="dark"] .pgt-drawer__auth .pgt-drawer__link {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__brand .pgt-brandlogo__gro { color: #0a84ff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-brandlogo__r { color: #2dd4bf; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-brandlogo__o { color: #fbbf24; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link:hover,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link[aria-expanded="true"] { background: #2a3345; color: #fff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link.is-current { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__id span,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__btn,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-iconbtn,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__sublink,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__auth .pgt-drawer__link {
 	color: #93a0b5;
 }
-html[data-pge-admin-theme="dark"] .pgt-iconbtn,
-html[data-pge-admin-theme="dark"] .pgt-account__btn { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-iconbtn,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__btn { background: #1c2230; border-color: #2a3345; }
 
 /* Light/dark switch: both glyphs are in the DOM, CSS picks one per mode, so
    the right icon paints immediately with no JS swap and no flash. */
 .pgt-iconbtn--theme .pgt-icon-moon,
 .pgt-iconbtn--theme .pgt-icon-sun { display: inline-flex; align-items: center; }
 .pgt-iconbtn--theme .pgt-icon-sun { display: none; }
-html[data-pge-admin-theme="dark"] .pgt-iconbtn--theme .pgt-icon-sun { display: inline-flex; }
-html[data-pge-admin-theme="dark"] .pgt-iconbtn--theme .pgt-icon-moon { display: none; }
-html[data-pge-admin-theme="dark"] .pgt-btn--ghost { color: #eef2f9; border-color: #2a3345; background: #1c2230; }
-html[data-pge-admin-theme="dark"] .pgt-btn--ghost:hover { border-color: #eef2f9; color: #fff; }
-html[data-pge-admin-theme="dark"] .pgt-account__menu,
-html[data-pge-admin-theme="dark"] .pgt-mega {
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-iconbtn--theme .pgt-icon-sun { display: inline-flex; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-iconbtn--theme .pgt-icon-moon { display: none; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-btn--ghost { color: #eef2f9; border-color: #2a3345; background: #1c2230; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-btn--ghost:hover { border-color: #eef2f9; color: #fff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__menu,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega {
 	background: #1c2230;
 	border-color: #2a3345;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, .35), 0 24px 48px -16px rgba(0, 0, 0, .55);
 }
-html[data-pge-admin-theme="dark"] .pgt-account__id,
-html[data-pge-admin-theme="dark"] .pgt-mega__grouphead { border-bottom-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-account__item:hover,
-html[data-pge-admin-theme="dark"] .pgt-mega__row:hover { background: #232c3d; color: #fff; }
-html[data-pge-admin-theme="dark"] .pgt-mega__title { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-mega__aside { background: #232c3d; border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-mega__asidetitle { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-account__item--signout:hover { background: #331717; color: #f87171; }
-html[data-pge-admin-theme="dark"] .pgt-search { background: #1c2230; border-bottom-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-search__form { background: #232c3d; }
-html[data-pge-admin-theme="dark"] .pgt-search__input { color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-search__chip { background: #232c3d; border-color: #2a3345; color: #eef2f9; }
-html[data-pge-admin-theme="dark"] .pgt-burger { background: #1c2230; border-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-drawer { background: #0f131c; }
-html[data-pge-admin-theme="dark"] .pgt-drawer__head { border-bottom-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-drawer__link,
-html[data-pge-admin-theme="dark"] .pgt-drawer__grouphead { border-bottom-color: #2a3345; }
-html[data-pge-admin-theme="dark"] .pgt-drawer__close { background: #1c2230; border-color: #2a3345; color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__id,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__grouphead { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__item:hover,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__row:hover { background: #232c3d; color: #fff; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__title { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__aside { background: #232c3d; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__asidetitle { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__item--signout:hover { background: #331717; color: #f87171; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search { background: #1c2230; border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search__form { background: #232c3d; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search__input { color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search__chip { background: #232c3d; border-color: #2a3345; color: #eef2f9; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-burger { background: #1c2230; border-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer { background: #0f131c; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__head { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__link,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__grouphead { border-bottom-color: #2a3345; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__close { background: #1c2230; border-color: #2a3345; color: #eef2f9; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    Shared marketing primitives (2026-08 redesign)

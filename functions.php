@@ -229,6 +229,38 @@ add_action(
 				--pge-ui-radius-lg: 16px;
 				--pge-ui-radius-xl: var(--pge-radius-lg);
 			}
+			/*
+			 * Dark flip for the kit ramp (2026-08 dark-parity pass). The body
+			 * bridge above resolves everything through --pge-color-* / --pge-*
+			 * names, so re-declaring THOSE here flips the whole bridge without
+			 * repeating it. Body-level and gated on the same attribute pair as
+			 * every other dark rule ([data-pge-dark-scope] is stamped pre-paint
+			 * only on dark-capable surfaces): un-scoped pages keep the light
+			 * kit even when the stored preference is dark.
+			 */
+			html[data-pge-admin-theme="dark"][data-pge-dark-scope] body {
+				--pge-color-ink:     #eef2f9;
+				--pge-color-ink-2:   #dae1ed;
+				--pge-color-body:    #c6cfdd;
+				--pge-color-muted:   #93a0b5;
+				--pge-color-line:    #2a3345;
+				--pge-color-surface: #0f131c;
+				--pge-color-base:    #1c2230;
+				--pge-card-bg:       #1c2230;
+				--pge-gray-50:       #141a23;
+				--pge-gray-75:       #0f131c;
+				--pge-gray-100:      #141a23;
+				--pge-gray-200:      #2a3345;
+				--pge-white:         #1c2230; /* card surface role, not "white" */
+				--pge-ink-400:       #6b7890;
+				--pge-hairline:      1px solid #2a3345;
+				--pge-ui-neu-border-strong: rgba(255,255,255,.17);
+				--pge-ui-neu-shl: 0,0,0;
+				--pge-ui-neu-shd: 0,0,0;
+				--pge-shadow-sm: 0 1px 2px rgba(0,0,0,.40);
+				--pge-shadow-md: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px -12px rgba(0,0,0,.55);
+				--pge-shadow-lg: 0 2px 4px rgba(0,0,0,.40), 0 24px 48px -16px rgba(0,0,0,.60);
+			}
 		</style>
 		<?php
 	},
