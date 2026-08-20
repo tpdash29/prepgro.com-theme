@@ -252,7 +252,7 @@ add_action(
 				--pge-gray-100:      #141a23;
 				--pge-gray-200:      #2a3345;
 				--pge-white:         #1c2230; /* card surface role, not "white" */
-				--pge-ink-400:       #6b7890;
+				--pge-ink-400:       #93a0b5; /* "faint" must still clear 4.5:1 on the #1c2230 menu panels */
 				--pge-hairline:      1px solid #2a3345;
 				--pge-ui-neu-border-strong: rgba(255,255,255,.17);
 				--pge-ui-neu-shl: 0,0,0;

@@ -566,7 +566,7 @@ a:hover { text-decoration: underline; }
 	margin-bottom: 6px;
 }
 .pgt-account__id strong { color: var(--pge-color-ink); font-size: 14.5px; font-weight: 600; }
-.pgt-account__id span { color: var(--pge-ink-400); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+.pgt-account__id span { color: var(--pge-color-muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
 .pgt-account__item {
 	display: flex; align-items: center; gap: 10px;
 	min-height: 42px;
@@ -581,7 +581,7 @@ a:hover { text-decoration: underline; }
 .pgt-account__item:hover { background: var(--pge-gray-50); color: var(--pge-color-ink); text-decoration: none; }
 .pgt-account__item--primary { color: var(--pge-color-primary); }
 .pgt-account__item--primary:hover { color: var(--pge-color-primary); }
-.pgt-account__item--signout { color: var(--pge-ink-400); }
+.pgt-account__item--signout { color: var(--pge-color-muted); }
 
 /* ---------- Mega menu panel ---------- */
 .pgt-mega {
@@ -618,7 +618,7 @@ a:hover { text-decoration: underline; }
 	font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
 	color: var(--pgt-tone-fg, var(--pge-color-primary));
 }
-.pgt-mega__note { font-size: 12.5px; color: var(--pge-ink-400); }
+.pgt-mega__note { font-size: 12.5px; color: var(--pge-color-muted); }
 .pgt-mega__row {
 	display: flex; gap: 11px;
 	padding: 9px 8px;
@@ -636,7 +636,7 @@ a:hover { text-decoration: underline; }
 }
 .pgt-mega__label { display: flex; flex-direction: column; min-width: 0; }
 .pgt-mega__title { font-size: 14.5px; font-weight: 600; color: var(--pge-color-ink); }
-.pgt-mega__sub { font-size: 12.5px; line-height: 1.45; color: var(--pge-ink-400); margin-top: 2px; }
+.pgt-mega__sub { font-size: 12.5px; line-height: 1.45; color: var(--pge-color-muted); margin-top: 2px; }
 .pgt-mega__aside {
 	background: var(--pge-gray-50);
 	border: 1px solid var(--pge-color-line);
@@ -650,7 +650,7 @@ a:hover { text-decoration: underline; }
 	color: var(--pgt-tone-fg, var(--pge-color-primary));
 }
 .pgt-mega__asidetitle { margin: 10px 0 0; font-size: 16px; font-weight: 600; letter-spacing: -.015em; color: var(--pge-color-ink); }
-.pgt-mega__asidebody { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--pge-ink-400); }
+.pgt-mega__asidebody { margin: 8px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--pge-color-muted); }
 .pgt-mega__asidecta {
 	display: inline-flex; align-items: center; gap: 7px;
 	margin-top: 16px;
@@ -706,11 +706,11 @@ a:hover { text-decoration: underline; }
 	color: var(--pge-color-ink);
 	background: transparent;
 }
-.pgt-search__input::placeholder { color: var(--pge-ink-400); }
+.pgt-search__input::placeholder { color: var(--pge-color-muted); }
 .pgt-search__esc {
 	font-family: var(--pge-font-mono);
 	font-size: 11.5px;
-	color: var(--pge-ink-400);
+	color: var(--pge-color-muted);
 	border: 1px solid var(--pge-color-line);
 	border-radius: 6px;
 	padding: 3px 7px;
@@ -718,7 +718,7 @@ a:hover { text-decoration: underline; }
 	flex: none;
 }
 .pgt-search__chips { display: flex; align-items: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-.pgt-search__try { font-size: 12.5px; color: var(--pge-ink-400); }
+.pgt-search__try { font-size: 12.5px; color: var(--pge-color-muted); }
 .pgt-search__chip {
 	background: var(--pge-white);
 	border: 1px solid var(--pge-color-line);
@@ -833,7 +833,7 @@ html.pgt-no-scroll { overflow: hidden; }
 .pgt-drawer__sublink:hover { color: var(--pge-color-primary); text-decoration: none; }
 .pgt-drawer__auth { display: flex; flex-direction: column; margin-top: .25rem; }
 .pgt-drawer__auth .pgt-drawer__link { font-weight: 500; color: var(--pge-color-body); }
-.pgt-drawer__link--signout { color: var(--pge-ink-400); }
+.pgt-drawer__link--signout { color: var(--pge-color-muted); }
 
 @media (max-width: 860px) {
 	.pgt-nav { display: none; }
@@ -2270,6 +2270,11 @@ html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__row:hover { ba
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__title { color: #eef2f9; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__aside { background: #232c3d; border-color: #2a3345; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__asidetitle { color: #eef2f9; }
+/* The tone fills LIFT in dark (pale pillar accents), so white-on-fill drops to
+   ~2.5:1 — flip the CTA label to dark ink instead (≥7:1 on every lifted tone). */
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__asidecta,
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__asidecta:hover { color: #0f131c; }
+html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-mega__asidecta:hover { filter: brightness(1.08); }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__item--signout:hover { background: #331717; color: #f87171; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search { background: #1c2230; border-bottom-color: #2a3345; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-search__form { background: #232c3d; }
