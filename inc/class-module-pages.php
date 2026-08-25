@@ -256,9 +256,10 @@ final class Module_Pages {
 				'icon'    => 'book-open',
 				'title'   => __( 'Learn the fix, with a tutor who already knows the gap.', 'prepgro-theme' ),
 				'body'    => __( 'Lessons mapped to every sub-skill, plus eight live 1:1 classes a month with a tutor who read your report before the first session.', 'prepgro-theme' ),
-				// A2 routing: Elevate's primary CTA goes to Pricing at the
-				// visitor's level, never an all-SKU page.
-				'cta'     => array( 'label' => __( 'Find a tutor', 'prepgro-theme' ), 'url' => '', 'pricing' => true ),
+				// The tutoring PORTAL, not the price list — a learner who already
+				// holds a live-tutoring package must not be sold it again. The
+				// portal expresses every state (no package / no tutor / booked).
+				'cta'     => array( 'label' => __( 'Find a tutor', 'prepgro-theme' ), 'url' => home_url( '/live-tutoring/' ) ),
 				'alt'     => array( 'label' => __( 'Browse the lesson library', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/' ) ),
 				'stats'   => array(
 					array( 'value' => '8', 'label' => __( 'live classes a month', 'prepgro-theme' ) ),

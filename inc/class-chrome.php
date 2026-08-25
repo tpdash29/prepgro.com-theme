@@ -352,7 +352,7 @@ final class Chrome {
 					'title'   => __( 'One free check, four named gaps', 'prepgro-theme' ),
 					'body'    => __( 'About 20 minutes, no card. The report is ready the same day.', 'prepgro-theme' ),
 					'cta'     => __( 'Take the free check', 'prepgro-theme' ),
-					'url'     => home_url( '/get-started/' ),
+					'url'     => $this->start_practicing_url(),
 				),
 				'groups' => array(
 					array(
@@ -400,7 +400,7 @@ final class Chrome {
 					'title'   => __( '8 live 1:1 classes a month', 'prepgro-theme' ),
 					'body'    => __( 'Your tutor already knows which skills are weak. No hour spent rediscovering them.', 'prepgro-theme' ),
 					'cta'     => __( 'Find a tutor', 'prepgro-theme' ),
-					'url'     => Pricing_Levels::url(),
+					'url'     => $this->find_a_tutor_url(),
 				),
 				'groups' => array(
 					array(
@@ -421,8 +421,8 @@ final class Chrome {
 						'eyebrow' => __( 'Tutor on demand', 'prepgro-theme' ),
 						'note'    => __( '8 / month', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => Pricing_Levels::url() ),
-							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=tutoring' ) ),
+							array( 'icon' => 'user-check', 'title' => __( 'Find a tutor', 'prepgro-theme' ), 'sub' => __( 'Matched to your gaps', 'prepgro-theme' ), 'url' => $this->find_a_tutor_url() ),
+							array( 'icon' => 'calendar', 'title' => __( 'Book a live class', 'prepgro-theme' ), 'sub' => __( 'Pick a slot this week', 'prepgro-theme' ), 'url' => $this->book_a_class_url() ),
 						),
 					),
 					array(
@@ -450,18 +450,32 @@ final class Chrome {
 						'eyebrow' => __( 'Practice', 'prepgro-theme' ),
 						'note'    => __( 'unlimited', 'prepgro-theme' ),
 						'items'   => array(
+							// 'Question banks' (?kind=bank) and 'Full mock exams'
+							// (?kind=mock) both pointed here too: `kind` is read
+							// nowhere on the front end, so all three rows opened the
+							// same page. Replaced by the one destination that is real
+							// and distinct — the learner's own missed questions.
 							array( 'icon' => 'clock', 'title' => __( 'Practice tests', 'prepgro-theme' ), 'sub' => __( 'Timed and untimed', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
-							array( 'icon' => 'layers', 'title' => __( 'Question banks', 'prepgro-theme' ), 'sub' => __( 'By skill, by difficulty', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=bank' ) ),
-							array( 'icon' => 'file-text', 'title' => __( 'Full mock exams', 'prepgro-theme' ), 'sub' => __( 'Real structure and timing', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/?kind=mock' ) ),
+							array( 'icon' => 'layers', 'title' => __( 'Missed questions', 'prepgro-theme' ), 'sub' => __( 'Retry what you got wrong', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=missed' ) ),
 						),
 					),
 					array(
 						'eyebrow' => __( 'Review', 'prepgro-theme' ),
 						'note'    => __( 'every answer', 'prepgro-theme' ),
 						'items'   => array(
-							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Why the right one is right', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=explanations' ) ),
+							// 'seg=explanations' and 'seg=retake' were both invented
+							// here — the dashboard has no such segments, so each fell
+							// back to the tab's default view. Point them at the screen
+							// that actually shows an answer with its explanation.
+							// 'Answer explanations' (seg=explanations) and 'Retake weak
+							// sets' (seg=retake) were both invented here — the dashboard
+							// has no such segments, so each fell back to the tab's
+							// default view. Only ONE row keeps the missed-questions
+							// destination; duplicating it under three labels would
+							// repeat the fault this group is being fixed for. The
+							// remaining row's copy describes what that screen does.
+							array( 'icon' => 'help-circle', 'title' => __( 'Answer explanations', 'prepgro-theme' ), 'sub' => __( 'Retry a miss and see why', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=missed' ) ),
 							array( 'icon' => 'line-chart', 'title' => __( 'Progress & trend', 'prepgro-theme' ), 'sub' => __( 'Score movement by skill', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=readiness&seg=performance' ) ),
-							array( 'icon' => 'refresh-cw', 'title' => __( 'Retake weak sets', 'prepgro-theme' ), 'sub' => __( 'Until the skill holds', 'prepgro-theme' ), 'url' => home_url( '/my-dashboard/?tab=mocks&seg=retake' ) ),
 						),
 					),
 					array(
@@ -617,6 +631,45 @@ final class Chrome {
 	 */
 	private function start_practicing_url() {
 		return \PrepGro\Engine\Core\Onboarding\Destination::start_practicing();
+	}
+
+	/**
+	 * Where "Find a tutor" should send this visitor.
+	 *
+	 * NOT the price list. This CTA promises the matching flow ("Matched to
+	 * your gaps"), and a learner who already holds a live-tutoring package is
+	 * being sold something they own — the leak the owner reported. The Elevate
+	 * portal at /live-tutoring/ is the page the engine seeds for exactly this
+	 * purpose (Activator installs it with the [pge_excel_portal] shortcode), and
+	 * it expresses every state: signed out gets the pitch and the price, a
+	 * holder gets their sessions.
+	 *
+	 * Falls back to the price list only if that page has been deleted.
+	 *
+	 * @return string
+	 */
+	private function find_a_tutor_url() {
+		$portal = get_page_by_path( 'live-tutoring' );
+		return ( $portal && 'publish' === $portal->post_status )
+			? get_permalink( $portal )
+			: Pricing_Levels::url();
+	}
+
+	/**
+	 * Where "Book a live class" should send this visitor.
+	 *
+	 * The booking WIZARD, not the dashboard's tutoring agenda tab. The tab
+	 * lists sessions you already have and is gated on a live-teacher flag, so
+	 * a learner with a package but no booking yet was silently dropped back on
+	 * the dashboard front page — "pick a slot this week" that picked nothing.
+	 *
+	 * @return string
+	 */
+	private function book_a_class_url() {
+		$booking = get_page_by_path( 'book-a-session' );
+		return ( $booking && 'publish' === $booking->post_status )
+			? get_permalink( $booking )
+			: $this->find_a_tutor_url();
 	}
 
 	/**
@@ -1450,7 +1503,7 @@ final class Chrome {
 						// this one is markup, so it needs its own gate.
 						if ( $this->pillar_on( 'evaluate' ) ) :
 							?>
-							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
+							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( $this->start_practicing_url() ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
 							<?php
 						endif;
 						?>
@@ -1701,7 +1754,7 @@ final class Chrome {
 			</div>
 			<div class="pgt-drawer__body">
 				<?php if ( $this->pillar_on( 'evaluate' ) ) : // Same gate as the desktop header CTA above. ?>
-					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( home_url( '/get-started/' ) ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
+					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->start_practicing_url() ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
 				<?php endif; ?>
 				<nav class="pgt-drawer__nav" aria-label="<?php esc_attr_e( 'Menu', 'prepgro-theme' ); ?>">
 					<?php
