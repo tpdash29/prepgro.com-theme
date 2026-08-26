@@ -161,7 +161,7 @@ final class Pricing_Page {
 			. '<br><span class="pgp-h1__quiet">' . esc_html__( 'Feel ready.', 'prepgro-theme' ) . '</span></h1>'
 			. '<p class="pgp-lede">' . ( $tutor_on
 				? esc_html__( 'Choose the support that fits your child: independent unlimited test practice, or live 1:1 tutoring with practice included.', 'prepgro-theme' )
-				: esc_html__( 'Independent, unlimited test practice for one subject — practice as often as you need.', 'prepgro-theme' )
+				: esc_html__( 'Independent, unlimited test practice across every subject at your child’s level — practice as often as you need.', 'prepgro-theme' )
 			) . '</p>'
 			. '</div>'
 			. '<div class="pgp-levels">'
@@ -170,7 +170,7 @@ final class Pricing_Page {
 			. '</div>'
 			. '<p class="pgp-showing">'
 			. esc_html__( 'Showing prices for', 'prepgro-theme' ) . ' ' . $names . ' '
-			. esc_html__( '· one subject per subscription', 'prepgro-theme' )
+			. esc_html__( '· every subject at this level', 'prepgro-theme' )
 			. '</p>'
 			. '</section>';
 	}
@@ -226,7 +226,7 @@ final class Pricing_Page {
 	 */
 	private function plans( $levels, $current, $tutor_on = true ) {
 		$pack_includes = array(
-			__( 'Unlimited mock practice tests for one selected subject', 'prepgro-theme' ),
+			__( 'Unlimited mock practice tests across every subject at this level', 'prepgro-theme' ),
 			__( 'Timed and untimed practice', 'prepgro-theme' ),
 			__( 'Answer explanations and review', 'prepgro-theme' ),
 			__( 'Skill-level progress tracking', 'prepgro-theme' ),
@@ -235,7 +235,7 @@ final class Pricing_Page {
 		);
 		$tutor_includes = array(
 			__( '8 live 1:1 classes per month', 'prepgro-theme' ),
-			__( 'Unlimited Test Pack for the enrolled subject', 'prepgro-theme' ),
+			__( 'Unlimited Test Pack covering every subject at this level', 'prepgro-theme' ),
 			__( 'A personalised learning plan', 'prepgro-theme' ),
 			__( 'Tutor-led support on difficult topics', 'prepgro-theme' ),
 			__( 'Parent and student progress tracking', 'prepgro-theme' ),
@@ -295,7 +295,7 @@ final class Pricing_Page {
 								strtolower( $t['label'] )
 							)
 						) . '</a>'
-						. '<p class="pgp-reassure">' . esc_html__( 'Cancel anytime. One subject per subscription.', 'prepgro-theme' ) . '</p>'
+						. '<p class="pgp-reassure">' . esc_html__( 'Cancel anytime. Every subject at this level is included.', 'prepgro-theme' ) . '</p>'
 					// No purchasable SKU: say so, and keep the lead. Silently
 					// bouncing this click to the readiness funnel is what sent
 					// buyers to an exam page (see Pricing_Levels::enquiry_url).
@@ -321,11 +321,11 @@ final class Pricing_Page {
 
 		$out .= '<div class="pgp-card pgp-card--quiet">'
 			. '<span class="pgp-tag">' . esc_html__( 'Unlimited test pack', 'prepgro-theme' ) . '</span>'
-			. '<h2 class="pgp-card__h">' . esc_html__( 'Unlimited practice for one subject', 'prepgro-theme' ) . '</h2>'
+			. '<h2 class="pgp-card__h">' . esc_html__( 'Unlimited practice for every subject at this level', 'prepgro-theme' ) . '</h2>'
 			. '<p class="pgp-card__b">' . esc_html__( 'Take practice tests as often as you need, review every answer, and see which skills to improve next.', 'prepgro-theme' ) . '</p>'
 			. '<div class="pgp-priceblock">' . $prices . '</div>'
 			. '<ul class="pgp-includes">' . $list( $pack_includes ) . '</ul>'
-			. '<p class="pgp-note">' . esc_html__( 'One subject is included in each subscription. Add another subject whenever you need it.', 'prepgro-theme' ) . '</p>'
+			. '<p class="pgp-note">' . esc_html__( 'Every subject at the level you choose is included — move between them whenever you like.', 'prepgro-theme' ) . '</p>'
 			. '</div>';
 
 		// ── Right: Live Tutor + Test Pack (featured) — Elevate only ──
@@ -357,7 +357,7 @@ final class Pricing_Page {
 			. '<p class="pgp-card__b pgp-card__b--onblue">' . esc_html__( 'Get live help from a tutor while continuing to practice independently between classes.', 'prepgro-theme' ) . '</p>'
 			. '<div class="pgp-priceblock pgp-priceblock--onblue">' . $tprices . '</div>'
 			. '<ul class="pgp-includes pgp-includes--onblue">' . $list( $tutor_includes ) . '</ul>'
-			. '<p class="pgp-note pgp-note--onblue">' . esc_html__( 'One subject is included in each Live Tutor plan. Need another subject? Add a second subject plan.', 'prepgro-theme' ) . '</p>'
+			. '<p class="pgp-note pgp-note--onblue">' . esc_html__( 'The eight monthly classes can be spent on any subject at this level, and the included Test Pack covers every subject at that level too.', 'prepgro-theme' ) . '</p>'
 			. '</div>';
 
 		return $out . '</div>';
@@ -475,7 +475,7 @@ final class Pricing_Page {
 	private function small_print( $tutor_on = true ) {
 		$items = array(
 			__( 'Subscriptions renew automatically unless cancelled before the next billing date.', 'prepgro-theme' ),
-			__( 'Quarterly and annual plans provide the same unlimited practice access for the selected subject.', 'prepgro-theme' ),
+			__( 'Quarterly and annual plans provide the same unlimited practice access to every subject at the chosen level.', 'prepgro-theme' ),
 		);
 		if ( $tutor_on ) {
 			$items[] = __( 'Live Tutor plans include up to eight 1:1 live classes each month.', 'prepgro-theme' );
