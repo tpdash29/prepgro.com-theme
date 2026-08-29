@@ -53,6 +53,8 @@ final class Homepage_Sections {
 
 		// Badge the "Three parts. One loop." cards for switched-off pillars.
 		add_filter( 'render_block', array( $this, 'gate_loop_cards' ), 10, 2 );
+		// Strip the live-tutor promise from the Elevate card while plans are dormant.
+		add_filter( 'render_block', array( $this, 'gate_tutor_promise' ), 11, 2 );
 	}
 
 	/**
@@ -139,6 +141,56 @@ final class Homepage_Sections {
 			},
 			$content
 		);
+	}
+
+	/**
+	 * The Elevate loop card promises "8 live 1:1 classes a month" — true only
+	 * once the Live Tutor plans are ARMED (tutor-seed-packages.php `arm`
+	 * populates `live_teacher_package_ids`). Pre-launch, that promise on the
+	 * front page is a lie about a product nobody can buy, so while the plans
+	 * are dormant this rewrites the card to the lessons-only truth with a
+	 * waitlist line. Same render_block mechanism as gate_loop_cards, and the
+	 * armed check is the engine's own — the SAME source the booking gate
+	 * reads, so the front page and the checkout can never disagree.
+	 *
+	 * @param string              $content Rendered block HTML.
+	 * @param array<string,mixed> $block   Parsed block.
+	 * @return string
+	 */
+	public function gate_tutor_promise( $content, $block ) {
+		if ( empty( $block['blockName'] ) || 'core/html' !== $block['blockName'] ) {
+			return $content;
+		}
+		if ( false === strpos( $content, 'Lessons + tutor on demand' ) ) {
+			return $content;
+		}
+		// Elevate off entirely → gate_loop_cards already badged the card.
+		if ( ! function_exists( 'pge_feature' ) || ! \pge_feature( 'elevate' ) ) {
+			return $content;
+		}
+		// Armed = plans on sale = the promise is true. Leave it.
+		if ( class_exists( '\\PrepGro\\Engine\\Core\\Package_Bundles' )
+			&& ! empty( \PrepGro\Engine\Core\Package_Bundles::live_teacher_package_ids() ) ) {
+			return $content;
+		}
+
+		$content = str_replace(
+			'<h3>Lessons + tutor on demand</h3>',
+			'<h3>' . esc_html__( 'Lessons that close the gaps', 'prepgro-theme' ) . '</h3>',
+			$content
+		);
+		$content = str_replace(
+			'<p>A weekly plan of short lessons, plus 8 live 1:1 classes a month if you want them.</p>',
+			'<p>' . esc_html__( 'A weekly plan of short lessons mapped to your diagnostic. Live 1:1 tutoring opens soon — join the waitlist from the study portal.', 'prepgro-theme' ) . '</p>',
+			$content
+		);
+		$content = str_replace(
+			'<div class="pgh-statrow"><span>Live classes</span><span class="pgh-mono">8 / month</span></div>',
+			'<div class="pgh-statrow"><span>' . esc_html__( 'Live 1:1 tutoring', 'prepgro-theme' ) . '</span><span class="pgh-mono">' . esc_html__( 'Waitlist', 'prepgro-theme' ) . '</span></div>',
+			$content
+		);
+
+		return $content;
 	}
 
 

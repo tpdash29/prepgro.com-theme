@@ -246,8 +246,11 @@ final class Module_Pages {
 				'plan'    => array(
 					'tag'   => __( 'Always free', 'prepgro-theme' ),
 					'price' => $price_free,
-					'unit'  => __( 'per check', 'prepgro-theme' ),
-					'body'  => __( 'The diagnostic and the readiness report cost nothing. Retake it monthly to watch the gaps close.', 'prepgro-theme' ),
+					'unit'  => __( 'two free checks a month', 'prepgro-theme' ),
+					// Two free per grade per calendar month (owner decision
+					// 2026-08-29, enforced by Learner_Grade_Policy) — the copy
+					// must promise exactly what the gate allows, no more.
+					'body'  => __( 'Two free checks every month, report included — measure, practice, then retake to prove the gaps closed. Grade plans remove the wait with unlimited checks.', 'prepgro-theme' ),
 				),
 				'next'    => array( 'elevate', 'excel' ),
 			),
@@ -255,7 +258,12 @@ final class Module_Pages {
 				'eyebrow' => __( 'Elevate', 'prepgro-theme' ),
 				'icon'    => 'book-open',
 				'title'   => __( 'Learn the fix, with a tutor who already knows the gap.', 'prepgro-theme' ),
-				'body'    => __( 'Lessons mapped to every sub-skill, plus eight live 1:1 classes a month with a tutor who read your report before the first session.', 'prepgro-theme' ),
+				'body'    => ( class_exists( '\\PrepGro\\Engine\\Core\\Package_Bundles' )
+					&& ! empty( \PrepGro\Engine\Core\Package_Bundles::live_teacher_package_ids() ) )
+					? __( 'Lessons mapped to every sub-skill, plus eight live 1:1 classes a month with a tutor who read your report before the first session.', 'prepgro-theme' )
+					// Pre-launch truth: the plans are dormant, so the page may
+					// promise the lessons and the waitlist, never the classes.
+					: __( 'Lessons mapped to every sub-skill. Live 1:1 tutoring opens soon — join the waitlist and your tutor will have read your report before the first session.', 'prepgro-theme' ),
 				// The tutoring PORTAL, not the price list — a learner who already
 				// holds a live-tutoring package must not be sold it again. The
 				// portal expresses every state (no package / no tutor / booked).
