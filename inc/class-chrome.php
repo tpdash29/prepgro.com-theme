@@ -2086,10 +2086,19 @@ final class Chrome {
 		$code   = defined( 'PGE_COUNTRY' ) ? $this->normalize_country_code( PGE_COUNTRY ) : '';
 		$engine = defined( 'PGE_VERSION' ) ? (string) PGE_VERSION : '';
 		$stamp  = self::COUNTRY_CONTENT_SCHEMA . '.' . (int) @filesize( __FILE__ );
-		// The engine's version rides along because half of the bundle is
-		// read FROM the engine at seed time (flag strip, pack locale, the
-		// global landing URL): a plugin-only deploy must re-seed as well.
-		return $code . '@' . PGT_VERSION . '+' . $engine . ':' . $stamp;
+		// Three persisted values are read FROM the engine at seed time — the
+		// global landing URL behind "Change country", the pack locale behind
+		// the language name, the flag strip behind the CSS variables — so a
+		// fingerprint of those inputs rides in the key: change the option,
+		// edit the pack, bump the engine, and the bundle re-seeds. All three
+		// are in-memory reads (one autoloaded option); no rebuilding here.
+		$inputs = '';
+		if ( function_exists( 'pge_content' ) ) {
+			$inputs = ( function_exists( 'pge_global_home_url' ) ? (string) pge_global_home_url() : '' )
+				. '|' . ( function_exists( 'pge_pack_locale' ) ? (string) pge_pack_locale() : '' )
+				. '|' . wp_json_encode( pge_content( 'flag_strip', array() ) );
+		}
+		return $code . '@' . PGT_VERSION . '+' . $engine . ':' . $stamp . '#' . substr( md5( $inputs ), 0, 8 );
 	}
 
 	/**
@@ -2267,7 +2276,7 @@ final class Chrome {
 			$usable[] = $rgb;
 		}
 		$tint1 = isset( $usable[0] ) ? $usable[0] : $bands[0];
-		$tint2 = isset( $usable[1] ) ? $usable[1] : ( isset( $bands[1] ) ? $bands[1] : $tint1 );
+		$tint2 = isset( $usable[1] ) ? $usable[1] : $tint1; // never the white/black band the filter just rejected
 		$vars .= '--pgt-flag-tint-1-rgb:' . implode( ',', $tint1 ) . ';--pgt-flag-tint-2-rgb:' . implode( ',', $tint2 ) . ';';
 		return ':root{' . $vars . '--pgt-flag-bands:' . $i . ';}';
 	}
@@ -2369,10 +2378,13 @@ final class Chrome {
 
 		$switch = function_exists( 'pge_global_home_url' ) ? (string) pge_global_home_url() : '';
 		if ( '' !== $switch ) {
-			// No whitespace between the two: minify() eats bare text nodes
-			// between tags; the bottom row is a flex container whose gap
-			// spaces them.
-			$html .= '<a class="pgt-footer__locale-switch" href="' . esc_url( $switch ) . '" data-nav="footer:country-switch">' . esc_html__( 'Change country', 'prepgro-theme' ) . '</a>';
+			// The pair is ONE flex item of the bottom row (it wraps as a unit
+			// on phones, and the link reads as the locale's companion, not a
+			// fourth footer link). No whitespace between the tags: minify()
+			// eats bare text nodes; the group's own gap spaces them.
+			$html = '<span class="pgt-footer__localegroup">' . $html
+				. '<a class="pgt-footer__locale-switch" href="' . esc_url( $switch ) . '" data-nav="footer:country-switch">' . esc_html__( 'Change country', 'prepgro-theme' ) . '</a>'
+				. '</span>';
 		}
 
 		return $html;

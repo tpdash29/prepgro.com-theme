@@ -1579,6 +1579,7 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 /* "Change country" beside the locale line — only printed when the engine
    knows the global landing (pge_global_home_url()). Underlined on purpose:
    it is the one bottom-row link that leaves this site. */
+.pgt-footer__localegroup { display: inline-flex; align-items: baseline; gap: 10px; }
 .pgt-footer__bottomlinks a.pgt-footer__locale-switch { color: var(--neutral-400); text-decoration: underline; text-underline-offset: 3px; }
 .pgt-footer__bottomlinks a.pgt-footer__locale-switch:hover { color: var(--pge-color-ink); text-decoration: underline; }
 

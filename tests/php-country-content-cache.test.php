@@ -25,7 +25,7 @@ $scenario = isset( $argv[1] ) ? $argv[1] : 'main';
 
 if ( 'main' === $scenario ) {
 	$fail = 0;
-	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'us', 'xx', 'kicker-us', 'kicker-ca' ) as $s ) {
+	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca' ) as $s ) {
 		$o = array(); $rc = 0;
 		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' ' . $s . ' 2>&1', $o, $rc );
 		echo implode( "\n", $o ), "\n";
@@ -56,6 +56,7 @@ function esc_html__( $s, $d = null ) { return htmlspecialchars( $s, ENT_QUOTES )
 function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_url( $s ) { return (string) $s; }
+function wp_json_encode( $v ) { return json_encode( $v ); }
 if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its helpers loaded
 	function pge_content( $key, $default = null ) { return array_key_exists( $key, $GLOBALS['t_pack'] ) ? $GLOBALS['t_pack'][ $key ] : $default; }
 	function pge_country_val( $key, $default = null ) { return array_key_exists( $key, $GLOBALS['t_country'] ) ? $GLOBALS['t_country'][ $key ] : $default; }
@@ -88,7 +89,7 @@ $stamp = \PrepGro\Theme\Chrome::COUNTRY_CONTENT_SCHEMA . '.' . (int) filesize( d
 switch ( $scenario ) {
 
 	case 'blank':
-		check( 'key has an empty code (and no engine version in this harness)', "@9.9.9-test+:$stamp" === $key );
+		check( 'key has an empty code (and no engine version in this harness)', 0 === strpos( $key, "@9.9.9-test+:$stamp#" ) );
 		$b = $read->invoke( $chrome );
 		check( 'blank code → empty chip', '' === $b['country_chip_html'] );
 		check( 'blank code → empty locale line', '' === $b['locale_line_html'] );
@@ -102,6 +103,9 @@ switch ( $scenario ) {
 		$GLOBALS['t_pack']    = array( 'flag_strip' => array( '#d52b1e', '#FFF', '#d52b1e', 'not-a-colour' ) );
 		$GLOBALS['t_country'] = array( 'locale' => 'en_CA' );
 		$GLOBALS['t_home']    = 'https://prepgro.com/';
+		// The key fingerprints these engine inputs — recompute it now that
+		// the scenario has set them (the top-of-file value saw them empty).
+		$key = $keyfn->invoke( $chrome );
 
 		// 1. The production poison: a bundle seeded with no country, no key.
 		$GLOBALS['t_options']['pgt_country_content'] = array(
@@ -130,7 +134,7 @@ switch ( $scenario ) {
 
 		// 3. Another country's key (cloned DB) re-seeds.
 		fresh( $chrome, $memo );
-		$GLOBALS['t_options']['pgt_country_content'] = array( 'key' => "us@9.9.9-test+:$stamp", 'code' => 'us', 'country_chip_html' => 'USA' );
+		$GLOBALS['t_options']['pgt_country_content'] = array( 'key' => str_replace( 'ca@', 'us@', $key ), 'code' => 'us', 'country_chip_html' => 'USA' );
 		$b = $read->invoke( $chrome );
 		check( 'cloned-from-US bundle re-seeds to CA', false !== strpos( $b['country_chip_html'], 'Canada' ) );
 
@@ -139,6 +143,15 @@ switch ( $scenario ) {
 		$GLOBALS['t_options']['pgt_country_content'] = array( 'key' => $key, 'code' => 'ca', 'country_chip_html' => 'TRUSTED' );
 		$b = $read->invoke( $chrome );
 		check( 'current key is trusted, not rebuilt', 'TRUSTED' === $b['country_chip_html'] );
+
+		// 4b. Engine-side inputs are part of the key: change the landing URL
+		// and the trusted bundle is stale.
+		fresh( $chrome, $memo );
+		$GLOBALS['t_home'] = 'https://picker.example/';
+		$b = $read->invoke( $chrome );
+		check( 'changing the global landing re-seeds', 'TRUSTED' !== $b['country_chip_html'] && false !== strpos( $b['locale_line_html'], 'href="https://picker.example/"' ) );
+		check( 'locale + link wrap as one group', false !== strpos( $b['locale_line_html'], '<span class="pgt-footer__localegroup"><span class="pgt-footer__locale">Canada · English</span><a class="pgt-footer__locale-switch"' ) );
+		$GLOBALS['t_home'] = 'https://prepgro.com/';
 
 		// 5. Flag vars: no strip → nothing (no accent), still persisted.
 		fresh( $chrome, $memo );
@@ -183,6 +196,12 @@ switch ( $scenario ) {
 			check( 'CA: kicker carries the eyebrow, escaped', false !== strpos( $out, '<span class="pgh-hero__kicker-text">Provincial exam prep for Canadian students</span>' ) );
 			check( 'CA: the status chip still follows, unchanged', substr( $out, -strlen( $literal ) ) === $literal );
 		}
+		break;
+
+	case 'sg':
+		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#ED2939', '#FFFFFF' ) );
+		$b = $read->invoke( $chrome );
+		check( 'one usable band: tint 2 repeats it, never the rejected white', false !== strpos( $b['flag_vars_css'], '--pgt-flag-tint-1-rgb:237,41,57;--pgt-flag-tint-2-rgb:237,41,57;' ) );
 		break;
 
 	case 'us':

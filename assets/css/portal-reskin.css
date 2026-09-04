@@ -408,13 +408,18 @@ body.pge-portal-competitive.pge-portal-competitive [data-retake-nudge="dismiss"]
 		radial-gradient(720px 480px at 82% -10%, rgba(10, 132, 255, .28), transparent 60%),
 		linear-gradient(160deg, var(--pge-color-ink, #03050f), var(--pge-color-ink-2, #151c42)) !important;
 }
-/* Flag tricolor stays flag-true — the country-of-operation cue. */
-.pge-lg-theme-us-school .pge-lg-tricolor { height: 4px !important; }
-.pge-lg-theme-us-school .pge-lg-tri-saffron { background: #B22234 !important; }
-.pge-lg-theme-us-school .pge-lg-tri-white   { background: #F5F1E8 !important; display: block !important; }
-.pge-lg-theme-us-school .pge-lg-tri-green   { background: #3C3B6E !important; }
+/* Flag tricolor stays flag-true — the country-of-operation cue.
+   Scoped to the US install: the us-school LAYOUT is shared by every pack
+   with hero copy (the engine picks it whenever content.hero exists), so an
+   unscoped rule painted US red/navy and a US star on the Canadian login
+   panel. Non-US packs render their own content.flag_strip from login.php
+   and get no watermark until one is authored for them. */
+body.brand-region-usa .pge-lg-theme-us-school .pge-lg-tricolor { height: 4px !important; }
+body.brand-region-usa .pge-lg-theme-us-school .pge-lg-tri-saffron { background: #B22234 !important; }
+body.brand-region-usa .pge-lg-theme-us-school .pge-lg-tri-white   { background: #F5F1E8 !important; display: block !important; }
+body.brand-region-usa .pge-lg-theme-us-school .pge-lg-tri-green   { background: #3C3B6E !important; }
 /* Star watermark — USA counterpart of the India chakra */
-.pge-lg-theme-us-school .pge-lg-brand::after {
+body.brand-region-usa .pge-lg-theme-us-school .pge-lg-brand::after {
 	content: "";
 	position: absolute;
 	top: 28px; right: 20px;
