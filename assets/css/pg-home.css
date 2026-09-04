@@ -134,6 +134,19 @@
 	overflow: hidden;
 }
 .pgh-hero__copy { position: relative; z-index: 3; max-width: 820px; margin-inline: auto; text-align: center; }
+/* Country accent layer — flag-colour ambient tint on the hero, from the
+   --pgt-flag-* custom properties Chrome::print_flag_vars() emits for the
+   active pack (see docs/country-theming.md in the engine). The engine stamps
+   body.brand-region-{cc} for every country; the US keeps its own authored
+   accents in theme.css, every other pack shares this one rule. Opacities
+   match the US block so each country feels like the same design. */
+body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
+	background:
+		radial-gradient(1100px 520px at 108% -12%, rgba(var(--pgt-flag-tint-1-rgb, 37, 99, 235), .07), transparent 62%),
+		radial-gradient(900px 520px at -12% 14%, rgba(var(--pgt-flag-tint-2-rgb, var(--pgt-flag-tint-1-rgb, 37, 99, 235)), .05), transparent 55%),
+		radial-gradient(var(--pge-gray-200) 1px, transparent 1px) 0 0 / 22px 22px,
+		linear-gradient(180deg, var(--pge-gray-50) 0%, #fff 88%);
+}
 /* Pack-authored landmark line-art behind the hero (below copy z3 / floats z2). */
 .pgh-hero__skyline {
 	position: absolute;
@@ -159,6 +172,29 @@
 	box-shadow: var(--pge-shadow-sm);
 }
 .pgh-statuschip__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-600); }
+/* Country kicker ([pgt_home_kicker]): the topbar's flag chip + the pack's
+   homepage.eyebrow, above the status chip. Only a pack that authors an
+   eyebrow gets it; the US front page renders byte for byte without. */
+.pgh-hero__kicker {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	margin: 0 0 14px;
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: .02em;
+	color: var(--pge-ink-500);
+}
+/* The chip hides itself under 640px for the topbar's sake; in the hero the
+   flag is the point, so keep it and drop only the country name. */
+.pgh-hero .pgh-hero__kicker .pgt-countrychip { display: inline-flex; padding: 5px 10px 5px 6px; }
+.pgh-hero .pgh-hero__kicker .pgt-countrychip__code { display: inline; }
+@media (max-width: 640px) {
+	.pgh-hero .pgh-hero__kicker .pgt-countrychip { padding: 5px 6px; }
+	.pgh-hero .pgh-hero__kicker .pgt-countrychip__code { display: none; }
+}
 .pgh-hero__title {
 	font-size: clamp(34px, 6.4vw, 64px);
 	line-height: 1.04;

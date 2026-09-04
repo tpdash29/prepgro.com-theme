@@ -3,14 +3,16 @@
 <!-- wp:group {"tagName":"main","anchor":"pgt-main","layout":{"type":"default"}} -->
 <main id="pgt-main" class="wp-block-group">
 
-  <!-- 1. Hero. The float-card column renders via [pgt_home_floats]
+  <!-- 1. Hero. The opening line renders via [pgt_home_kicker] (US status
+       chip byte for byte; packs with homepage.eyebrow get a flag + country
+       line above it). The float-card column renders via [pgt_home_floats]
        (inc/class-homepage-sections.php) so its sample copy can follow the
        active country pack; with no pack content it emits the original US
        markup byte for byte. -->
   <!-- wp:html -->
   <section class="pgh-hero" id="pg-hero">
     <div class="pgh-hero__copy">
-      <span class="pgh-statuschip"><span class="pgh-statuschip__dot" aria-hidden="true"></span>Free readiness check &middot; no card</span>
+      [pgt_home_kicker]
       <h1 class="pgh-hero__title">Know the gaps.<br><span class="pgh-hero__quiet">Close them by test day.</span></h1>
       <p class="pgh-hero__sub">One free check shows exactly which skills are weak. Then unlimited practice &mdash; and a live tutor when you want one &mdash; works on those, and nothing else.</p>
       <div class="pgh-hero__cta">

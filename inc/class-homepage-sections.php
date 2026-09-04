@@ -50,6 +50,7 @@ final class Homepage_Sections {
 		add_shortcode( 'pgt_hero_skyline', array( $this, 'render_hero_skyline' ) );
 		add_shortcode( 'pgt_home_trust', array( $this, 'render_home_trust' ) );
 		add_shortcode( 'pgt_home_tutorband', array( $this, 'render_home_tutorband' ) );
+		add_shortcode( 'pgt_home_kicker', array( $this, 'render_home_kicker' ) );
 
 		// Badge the "Three parts. One loop." cards for switched-off pillars.
 		add_filter( 'render_block', array( $this, 'gate_loop_cards' ), 10, 2 );
@@ -217,6 +218,34 @@ final class Homepage_Sections {
 			return '';
 		}
 		return '<div class="pgh-hero__skyline" aria-hidden="true">' . $svg . '</div>';
+	}
+
+	/**
+	 * The hero's opening line ([pgt_home_kicker]). With no pack content the
+	 * US status chip renders byte for byte. A pack that authors
+	 * content.homepage.eyebrow ("Provincial exam prep for Canadian
+	 * students") gets a country line ABOVE that chip — the flag chip the
+	 * topbar already caches, plus the eyebrow — so the first thing a
+	 * visitor reads on the front page names the country, not only the
+	 * product. Until this existed, /ca/ and /us/ opened with identical
+	 * words.
+	 *
+	 * @return string
+	 */
+	public function render_home_kicker() {
+		$chip = '<span class="pgh-statuschip"><span class="pgh-statuschip__dot" aria-hidden="true"></span>Free readiness check &middot; no card</span>';
+
+		if ( ! function_exists( 'pge_content' ) ) {
+			return $chip;
+		}
+		$eyebrow = trim( (string) pge_content( 'homepage.eyebrow', '' ) );
+		if ( '' === $eyebrow ) {
+			return $chip;
+		}
+
+		$flag = class_exists( __NAMESPACE__ . '\Chrome' ) ? Chrome::instance()->country_chip_html() : '';
+
+		return '<p class="pgh-hero__kicker">' . $flag . '<span class="pgh-hero__kicker-text">' . esc_html( $eyebrow ) . '</span></p>' . "\n      " . $chip;
 	}
 
 	public function render_home_floats() {

@@ -83,6 +83,14 @@ final class Chrome {
 		// activation seed; an already-active install self-heals via
 		// country_content()'s lazy path on its next render instead.
 		add_action( 'after_switch_theme', array( $this, 'seed_country_content' ) );
+		// The pack's flag colours as CSS custom properties, so the accent layer
+		// in the stylesheet is one generic rule for every country (see
+		// print_flag_vars()). Priority 3 prints it BEFORE every stylesheet
+		// link (wp_print_styles runs at 8); custom properties resolve at
+		// computed-value time so order does not matter — but for that same
+		// reason never declare :root defaults for --pgt-flag-* in a
+		// stylesheet, a later same-specificity :root would win over the pack.
+		add_action( 'wp_head', array( $this, 'print_flag_vars' ), 3 );
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
@@ -2032,18 +2040,86 @@ final class Chrome {
 	const COUNTRY_CONTENT_OPTION = 'pgt_country_content';
 
 	/**
-	 * The cached country-content bundle. Self-heals exactly once: if the
-	 * option is missing (fresh install before `after_switch_theme` has
-	 * fired, or this code just shipped to an already-active install that
-	 * therefore never fires that hook), it resolves and persists the bundle
-	 * right here, then every call after this one — same request or any
-	 * later one — is the plain `get_option()` branch above.
+	 * Bump when a build_* resolver or the bundle's shape changes. The cache
+	 * key also carries this file's byte size, which catches almost every
+	 * edit on its own; this constant is the belt for the rare same-size
+	 * edit. (Not mtime: on a multi-node host with divergent mtimes an
+	 * mtime key would re-seed and write wp_options on every request.)
+	 */
+	const COUNTRY_CONTENT_SCHEMA = 2;
+
+	/**
+	 * Per-request memo of the resolved bundle, so a request that had to
+	 * re-seed — or that could not persist, see seed_country_content() —
+	 * still resolves the country exactly once.
 	 *
-	 * @return array{code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string}
+	 * @var array|null
+	 */
+	private $country_content_memo = null;
+
+	/**
+	 * The cache key a persisted bundle must carry to be trusted: the
+	 * install's country code plus this file's build stamp.
+	 *
+	 * Two things make a cached bundle wrong, and both were silent:
+	 *   1. It was seeded for a different country than the site now runs.
+	 *      Concretely: seeded while PGE_COUNTRY was still undefined (theme
+	 *      activated before the engine, engine deactivated mid zip-swap, a
+	 *      DB cloned from another country's install). That cached an EMPTY
+	 *      flag chip and locale line, and the old read path only re-seeded
+	 *      when the option was missing altogether — so it never healed.
+	 *      That is exactly how prepgro.com/ca/ shipped without its flag
+	 *      while /us/ had one.
+	 *   2. This file changed (a new flag, a new field) and the bundle
+	 *      predates it.
+	 * Keying on the code, the engine's version and this file's own size
+	 * plus COUNTRY_CONTENT_SCHEMA — not on PGT_VERSION alone, the one
+	 * constant everybody forgets to bump — makes both cases re-seed on the
+	 * next render with no manual step.
+	 *
+	 * This is the one comparison the read path is allowed: a cache-
+	 * freshness check, not a country branch. Nothing here rebuilds content.
+	 *
+	 * @return string
+	 */
+	private function country_content_key() {
+		$code   = defined( 'PGE_COUNTRY' ) ? $this->normalize_country_code( PGE_COUNTRY ) : '';
+		$engine = defined( 'PGE_VERSION' ) ? (string) PGE_VERSION : '';
+		$stamp  = self::COUNTRY_CONTENT_SCHEMA . '.' . (int) @filesize( __FILE__ );
+		// The engine's version rides along because half of the bundle is
+		// read FROM the engine at seed time (flag strip, pack locale, the
+		// global landing URL): a plugin-only deploy must re-seed as well.
+		return $code . '@' . PGT_VERSION . '+' . $engine . ':' . $stamp;
+	}
+
+	/**
+	 * PGE_COUNTRY the way the engine reads it: lowercase, letters only.
+	 * Country::read_file() and Pack_Sync strip everything else, so "CA " or
+	 * "ca-en" loads the Canadian pack there — the theme must land on the
+	 * same key or the flag table misses while the content is Canadian.
+	 *
+	 * @param mixed $raw The constant's value.
+	 * @return string
+	 */
+	private function normalize_country_code( $raw ) {
+		return (string) preg_replace( '/[^a-z]/', '', strtolower( (string) $raw ) );
+	}
+
+	/**
+	 * The cached country-content bundle. A plain get_option() when the
+	 * persisted bundle carries the current cache key; otherwise it is
+	 * re-resolved and persisted right here, once, and every later call —
+	 * same request or any later one — is the cheap branch again.
+	 *
+	 * @return array{key:string,code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string,flag_vars_css:string}
 	 */
 	private function country_content() {
+		if ( is_array( $this->country_content_memo ) ) {
+			return $this->country_content_memo;
+		}
 		$content = get_option( self::COUNTRY_CONTENT_OPTION );
-		if ( is_array( $content ) && $content ) {
+		if ( is_array( $content ) && isset( $content['key'] ) && $content['key'] === $this->country_content_key() ) {
+			$this->country_content_memo = $content;
 			return $content;
 		}
 		return $this->seed_country_content();
@@ -2052,30 +2128,39 @@ final class Chrome {
 	/**
 	 * Resolve every country-dependent value and persist the bundle. Hooked
 	 * to `after_switch_theme` (fresh activation); also the self-heal target
-	 * of `country_content()` above for an install that was already active
-	 * when this caching layer shipped. This is the ONLY place `PGE_COUNTRY`
-	 * / `pgt_header_country_code` gets read — no render path touches either
-	 * again after the first successful call.
+	 * of `country_content()` above whenever the persisted bundle's key no
+	 * longer matches. This is the ONLY place `PGE_COUNTRY` /
+	 * `pgt_header_country_code` gets read for content.
+	 *
+	 * A bundle resolved while the engine is not fully running — no
+	 * country declared (code ''), or PGE_COUNTRY defined but the engine
+	 * bailed before loading its helpers (its country-conflict guard does
+	 * exactly that on a DB cloned from another country) — is returned for
+	 * this request but NOT persisted: it could only ever be blank or
+	 * half-built, and persisting blank is the bug this replaces. The first
+	 * render after the engine is fully active seeds the real thing.
 	 *
 	 * @return array Same shape as country_content().
 	 */
 	public function seed_country_content() {
-		$code = defined( 'PGE_COUNTRY' ) ? strtolower( (string) PGE_COUNTRY ) : '';
+		$code = defined( 'PGE_COUNTRY' ) ? $this->normalize_country_code( PGE_COUNTRY ) : '';
 
 		/**
 		 * Filter the country code the seeded content is resolved for. Runs
-		 * once per seed (activation, or the one-time upgrade bootstrap),
-		 * never per page view.
+		 * once per seed (activation, or a cache-key miss), never per page
+		 * view.
 		 *
 		 * @param string $code Two-letter country code.
 		 */
-		$code = (string) apply_filters( 'pgt_header_country_code', $code );
+		$code = $this->normalize_country_code( apply_filters( 'pgt_header_country_code', $code ) );
 
 		$content = array(
+			'key'               => $this->country_content_key(),
 			'code'              => $code,
 			'topbar_phrases'    => $this->build_topbar_phrases( $code ),
 			'country_chip_html' => $this->build_country_chip_html( $code ),
 			'locale_line_html'  => $this->build_locale_line_html( $code ),
+			'flag_vars_css'     => $this->build_flag_vars_css( $code ),
 		);
 
 		/**
@@ -2086,10 +2171,128 @@ final class Chrome {
 		 * @param string $code    Two-letter country code (may be '').
 		 */
 		$content = (array) apply_filters( 'pgt_country_content', $content, $code );
+		// The key is the cache contract, not content: a filter that dropped
+		// it would re-seed on every request.
+		$content['key'] = $this->country_content_key();
 
-		update_option( self::COUNTRY_CONTENT_OPTION, $content, true );
+		$this->country_content_memo = $content;
+
+		if ( '' !== $code && function_exists( 'pge_content' ) ) {
+			update_option( self::COUNTRY_CONTENT_OPTION, $content, true );
+		}
 
 		return $content;
+	}
+
+	/**
+	 * The topbar's country chip for callers outside the chrome (the
+	 * front-page hero kicker): the same cached markup the topbar prints.
+	 *
+	 * @return string '' when the country has no flag on file.
+	 */
+	public function country_chip_html() {
+		$content = $this->country_content();
+		return isset( $content['country_chip_html'] ) ? (string) $content['country_chip_html'] : '';
+	}
+
+	/**
+	 * Print the pack's flag colours as CSS custom properties, so the
+	 * stylesheet's country accent layer (the front-page hero tint) is ONE
+	 * generic rule instead of a hand-written block per country. Empty for
+	 * a pack that declares no flag strip — then nothing prints and no
+	 * accent shows. Runs on wp_head; the string is read from the cache.
+	 *
+	 * @return void
+	 */
+	public function print_flag_vars() {
+		$content = $this->country_content();
+		if ( ! empty( $content['flag_vars_css'] ) ) {
+			echo '<style id="pgt-flag-vars">' . $content['flag_vars_css'] . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from validated hex at seed time.
+		}
+	}
+
+	/**
+	 * `:root{--pgt-flag-a:#d52b1e;--pgt-flag-a-rgb:213,43,30;…}` from the
+	 * pack's content.flag_strip hexes (config/countries/{cc}.php). Up to
+	 * four bands a–d; the rgb triplets exist so the tint rules can alpha
+	 * them; --pgt-flag-bands says how many are real.
+	 *
+	 * SEED-TIME ONLY. Render path reads country_content()['flag_vars_css'].
+	 *
+	 * @param string $code Two-letter country code (may be '').
+	 * @return string '' when the pack has no usable strip.
+	 */
+	private function build_flag_vars_css( $code ) {
+		if ( '' === $code || ! function_exists( 'pge_content' ) ) {
+			return '';
+		}
+		$strip = pge_content( 'flag_strip', array() );
+		if ( ! is_array( $strip ) || ! $strip ) {
+			return '';
+		}
+		$names = array( 'a', 'b', 'c', 'd' );
+		$vars  = '';
+		$bands = array();
+		$i     = 0;
+		foreach ( $strip as $hex ) {
+			if ( $i >= count( $names ) ) {
+				break;
+			}
+			$hex = strtolower( trim( (string) $hex ) );
+			if ( ! preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{6})$/', $hex ) ) {
+				continue;
+			}
+			$h = substr( $hex, 1 );
+			if ( 3 === strlen( $h ) ) {
+				$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+			}
+			$rgb     = array( hexdec( substr( $h, 0, 2 ) ), hexdec( substr( $h, 2, 2 ) ), hexdec( substr( $h, 4, 2 ) ) );
+			$bands[] = $rgb;
+			$vars   .= '--pgt-flag-' . $names[ $i ] . ':#' . $h . ';--pgt-flag-' . $names[ $i ] . '-rgb:' . implode( ',', $rgb ) . ';';
+			$i++;
+		}
+		if ( '' === $vars ) {
+			return '';
+		}
+		// Tint slots: the first two bands that are neither near-white nor
+		// near-black, so a white band never tints invisibly and Germany's
+		// black band never washes the hero grey. Falls back to a, then b.
+		$usable = array();
+		foreach ( $bands as $rgb ) {
+			$max = max( $rgb );
+			$min = min( $rgb );
+			if ( $min >= 225 || $max <= 40 ) {
+				continue;
+			}
+			$usable[] = $rgb;
+		}
+		$tint1 = isset( $usable[0] ) ? $usable[0] : $bands[0];
+		$tint2 = isset( $usable[1] ) ? $usable[1] : ( isset( $bands[1] ) ? $bands[1] : $tint1 );
+		$vars .= '--pgt-flag-tint-1-rgb:' . implode( ',', $tint1 ) . ';--pgt-flag-tint-2-rgb:' . implode( ',', $tint2 ) . ';';
+		return ':root{' . $vars . '--pgt-flag-bands:' . $i . ';}';
+	}
+
+	/**
+	 * Country name per code — shared by the chip and the locale line so the
+	 * two can never disagree. SEED-TIME ONLY.
+	 *
+	 * @return array<string,string>
+	 */
+	private function country_labels() {
+		return array(
+			'us' => __( 'United States', 'prepgro-theme' ),
+			'ca' => __( 'Canada', 'prepgro-theme' ),
+			'in' => __( 'India', 'prepgro-theme' ),
+			'ae' => __( 'United Arab Emirates', 'prepgro-theme' ),
+			'au' => __( 'Australia', 'prepgro-theme' ),
+			'de' => __( 'Germany', 'prepgro-theme' ),
+			'gb' => __( 'United Kingdom', 'prepgro-theme' ),
+			'nz' => __( 'New Zealand', 'prepgro-theme' ),
+			'za' => __( 'South Africa', 'prepgro-theme' ),
+			'my' => __( 'Malaysia', 'prepgro-theme' ),
+			'sg' => __( 'Singapore', 'prepgro-theme' ),
+			'mu' => __( 'Mauritius', 'prepgro-theme' ),
+		);
 	}
 
 	/**
@@ -2126,20 +2329,7 @@ final class Chrome {
 			'mu' => '<rect width="60" height="10.5" fill="#EA2839"/><rect y="10.5" width="60" height="10.5" fill="#1A206D"/><rect y="21" width="60" height="10.5" fill="#FFD500"/><rect y="31.5" width="60" height="10.5" fill="#00A551"/>',
 		);
 
-		$labels = array(
-			'us' => __( 'United States', 'prepgro-theme' ),
-			'ca' => __( 'Canada', 'prepgro-theme' ),
-			'in' => __( 'India', 'prepgro-theme' ),
-			'ae' => __( 'United Arab Emirates', 'prepgro-theme' ),
-			'au' => __( 'Australia', 'prepgro-theme' ),
-			'de' => __( 'Germany', 'prepgro-theme' ),
-			'gb' => __( 'United Kingdom', 'prepgro-theme' ),
-			'nz' => __( 'New Zealand', 'prepgro-theme' ),
-			'za' => __( 'South Africa', 'prepgro-theme' ),
-			'my' => __( 'Malaysia', 'prepgro-theme' ),
-			'sg' => __( 'Singapore', 'prepgro-theme' ),
-			'mu' => __( 'Mauritius', 'prepgro-theme' ),
-		);
+		$labels = $this->country_labels();
 
 		if ( ! isset( $flags[ $code ] ) ) {
 			return '';
@@ -2156,7 +2346,13 @@ final class Chrome {
 	/**
 	 * Locale indicator markup — text, footer bottom row. Complements the
 	 * header's country chip: the chip is the glance, this is the full
-	 * statement.
+	 * statement. "Canada · English", plus a "Change country" link when the
+	 * engine knows where the global landing is (pge_global_home_url()).
+	 *
+	 * Built from the shared country_labels() table and the pack's own
+	 * 'locale' (config/countries/{cc}.php), so every pack gets a line —
+	 * the old three-entry table left nine of the twelve countries with an
+	 * empty footer slot. The US line is byte-identical to before.
 	 *
 	 * SEED-TIME ONLY. Render path reads country_content()['locale_line_html'].
 	 *
@@ -2164,17 +2360,50 @@ final class Chrome {
 	 * @return string
 	 */
 	private function build_locale_line_html( $code ) {
-		$locales = array(
-			'us' => __( 'United States · English', 'prepgro-theme' ),
-			'ca' => __( 'Canada · English', 'prepgro-theme' ),
-			'in' => __( 'India · English', 'prepgro-theme' ),
-		);
-
-		if ( ! isset( $locales[ $code ] ) ) {
+		$labels = $this->country_labels();
+		if ( ! isset( $labels[ $code ] ) ) {
 			return '';
 		}
 
-		return '<span class="pgt-footer__locale">' . esc_html( $locales[ $code ] ) . '</span>';
+		$html = '<span class="pgt-footer__locale">' . esc_html( $labels[ $code ] . ' · ' . $this->build_language_name() ) . '</span>';
+
+		$switch = function_exists( 'pge_global_home_url' ) ? (string) pge_global_home_url() : '';
+		if ( '' !== $switch ) {
+			// No whitespace between the two: minify() eats bare text nodes
+			// between tags; the bottom row is a flex container whose gap
+			// spaces them.
+			$html .= '<a class="pgt-footer__locale-switch" href="' . esc_url( $switch ) . '" data-nav="footer:country-switch">' . esc_html__( 'Change country', 'prepgro-theme' ) . '</a>';
+		}
+
+		return $html;
+	}
+
+	/**
+	 * The language the active pack publishes in, from its 'locale' key
+	 * (en_CA → English, de_DE → Deutsch). Falls back to English, which is
+	 * what every pack ships today. SEED-TIME ONLY.
+	 *
+	 * @return string
+	 */
+	private function build_language_name() {
+		// The engine applies the "English content, pack region" rule
+		// (de_DE → en_DE); the raw profile key is the fallback for an older
+		// engine that lacks the helper.
+		$locale = function_exists( 'pge_pack_locale' ) ? (string) pge_pack_locale() : '';
+		if ( '' === $locale && function_exists( 'pge_country_val' ) ) {
+			$locale = (string) pge_country_val( 'locale', '' );
+		}
+		$lang   = strtolower( substr( $locale, 0, 2 ) );
+		$names  = array(
+			'en' => __( 'English', 'prepgro-theme' ),
+			'de' => 'Deutsch',
+			'fr' => 'Français',
+			'ms' => 'Bahasa Melayu',
+			'ar' => 'العربية',
+			'hi' => 'हिन्दी',
+			'zh' => '中文',
+		);
+		return isset( $names[ $lang ] ) ? $names[ $lang ] : __( 'English', 'prepgro-theme' );
 	}
 
 	/**
