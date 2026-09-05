@@ -25,7 +25,7 @@ $scenario = isset( $argv[1] ) ? $argv[1] : 'main';
 
 if ( 'main' === $scenario ) {
 	$fail = 0;
-	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca' ) as $s ) {
+	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us' ) as $s ) {
 		$o = array(); $rc = 0;
 		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' ' . $s . ' 2>&1', $o, $rc );
 		echo implode( "\n", $o ), "\n";
@@ -62,10 +62,11 @@ if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its
 	function pge_country_val( $key, $default = null ) { return array_key_exists( $key, $GLOBALS['t_country'] ) ? $GLOBALS['t_country'][ $key ] : $default; }
 	function pge_global_home_url() { return $GLOBALS['t_home']; }
 	function pge_pack_locale() { return isset( $GLOBALS['t_pack_locale'] ) ? $GLOBALS['t_pack_locale'] : ''; }
+	function pge_country_code() { return strtoupper( defined( 'PGE_COUNTRY' ) ? PGE_COUNTRY : 'us' ); }
 }
 
 if ( 'blank' !== $scenario ) {
-	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca' )[ $scenario ] ?? $scenario );
+	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us' )[ $scenario ] ?? $scenario );
 }
 
 require dirname( __DIR__ ) . '/inc/class-chrome.php';
@@ -180,6 +181,29 @@ switch ( $scenario ) {
 		check( 'black band is not a tint', false !== strpos( $b['flag_vars_css'], '--pgt-flag-tint-1-rgb:221,0,0;--pgt-flag-tint-2-rgb:255,206,0;' ) );
 		check( 'band a is still black for anyone who wants it', false !== strpos( $b['flag_vars_css'], '--pgt-flag-a:#000000;' ) );
 		check( 'Germany · English (content language, not the locale tag)', false !== strpos( $b['locale_line_html'], 'Germany · English' ) );
+		break;
+
+	case 'trust-ca':
+	case 'trust-au':
+	case 'trust-us':
+		require dirname( __DIR__ ) . '/inc/class-homepage-sections.php';
+		$rows = array(
+			'trust-ca' => array( 'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan', 'Northwest Territories', 'Nunavut', 'Yukon' ),
+			'trust-au' => array( 'Australian Capital Territory', 'New South Wales', 'Northern Territory', 'Queensland', 'South Australia', 'Tasmania', 'Victoria', 'Western Australia' ),
+			'trust-us' => array_fill( 0, 51, 'x' ),
+		);
+		$GLOBALS['t_geo'] = $rows[ $scenario ];
+		eval( 'namespace PrepGro\Engine; class Geo_Data { public static function get_states( $c ) { return $GLOBALS["t_geo"]; } }' );
+		$GLOBALS['t_country'] = array( 'regional' => array( 'state_label' => 'trust-au' === $scenario ? 'State' : 'Province' ) );
+		$hs  = \PrepGro\Theme\Homepage_Sections::instance();
+		$out = $hs->render_home_trust();
+		if ( 'trust-us' === $scenario ) {
+			check( 'US keeps the authored "50 states covered" literal', false !== strpos( $out, '<span class="pgh-mono pgh-trust__n">50</span><span class="pgh-trust__l">states covered</span>' ) );
+		} elseif ( 'trust-ca' === $scenario ) {
+			check( 'Canada: 13 provinces & territories, not "13 provinces"', false !== strpos( $out, '<span class="pgh-mono pgh-trust__n">13</span><span class="pgh-trust__l">provinces &amp; territories covered</span>' ) );
+		} else {
+			check( 'Australia: 8 states & territories', false !== strpos( $out, '<span class="pgh-mono pgh-trust__n">8</span><span class="pgh-trust__l">states &amp; territories covered</span>' ) );
+		}
 		break;
 
 	case 'kicker-us':

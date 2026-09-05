@@ -369,8 +369,26 @@ final class Homepage_Sections {
 
 		$regional = pge_country_val( 'regional', array() );
 		$label    = ( is_array( $regional ) && ! empty( $regional['state_label'] ) ) ? (string) $regional['state_label'] : 'State';
+		$plural   = $this->plural_region_word( $label );
 
-		return '<div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">' . esc_html( (string) count( $states ) ) . '</span><span class="pgh-trust__l">' . esc_html( $this->plural_region_word( $label ) . ' covered' ) . '</span></div>';
+		// Geo_Data lists every sub-national row the signup dropdown needs,
+		// territories included: Canada's 13 are 10 provinces + Yukon, NWT,
+		// Nunavut; Australia's 8 are 6 states + ACT + NT. "13 provinces
+		// covered" is simply false to a Canadian, so when the list carries
+		// territories the label says so.
+		$has_territories = false;
+		foreach ( $states as $row ) {
+			$name = is_array( $row ) ? (string) ( $row['name'] ?? '' ) : (string) $row;
+			if ( preg_match( '/territor|yukon|nunavut/i', $name ) ) {
+				$has_territories = true;
+				break;
+			}
+		}
+		if ( $has_territories ) {
+			$plural .= ' & territories';
+		}
+
+		return '<div class="pgh-trust__item"><span class="pgh-mono pgh-trust__n">' . esc_html( (string) count( $states ) ) . '</span><span class="pgh-trust__l">' . esc_html( $plural . ' covered' ) . '</span></div>';
 	}
 
 	/**
