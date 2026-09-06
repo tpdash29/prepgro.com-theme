@@ -638,7 +638,15 @@ final class Chrome {
 	 * @return string
 	 */
 	private function start_practicing_url() {
-		return \PrepGro\Engine\Core\Onboarding\Destination::start_practicing();
+		// The theme has to stand on its own with the engine deactivated or
+		// not yet installed (a restored backup, a host move): this was the
+		// one engine call in the chrome without a guard, and it took every
+		// page of us.prepgro.com down with a fatal in the header. The
+		// signup funnel is the engine-less answer.
+		if ( class_exists( '\\PrepGro\\Engine\\Core\\Onboarding\\Destination' ) ) {
+			return (string) \PrepGro\Engine\Core\Onboarding\Destination::start_practicing();
+		}
+		return home_url( '/get-started/' );
 	}
 
 	/**
