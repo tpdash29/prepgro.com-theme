@@ -1886,7 +1886,7 @@ final class Chrome {
 		?>
 		<div class="pgt-appfooter">
 			<div class="pgt-container pgt-appfooter__inner">
-				<span class="pgt-appfooter__copy">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> prepGro</span>
+				<span class="pgt-appfooter__copy">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( $this->copyright_brand() ); ?></span>
 				<nav class="pgt-appfooter__nav" aria-label="<?php esc_attr_e( 'Legal and support', 'prepgro-theme' ); ?>">
 					<a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>" data-nav="footer:help"><?php esc_html_e( 'Help & support', 'prepgro-theme' ); ?></a>
 					<a href="<?php echo esc_url( home_url( '/privacy-policy/' ) ); ?>" data-nav="footer:privacy"><?php esc_html_e( 'Privacy', 'prepgro-theme' ); ?></a>
@@ -2002,9 +2002,10 @@ final class Chrome {
 					<span class="pgt-footer__copy">
 						<?php
 						printf(
-							/* translators: %s: current year */
-							esc_html__( '© %s prepGro. All rights reserved.', 'prepgro-theme' ),
-							esc_html( gmdate( 'Y' ) )
+							/* translators: 1: current year, 2: brand line, e.g. "prepGro - USA" */
+							esc_html__( '© %1$s %2$s. All rights reserved.', 'prepgro-theme' ),
+							esc_html( gmdate( 'Y' ) ),
+							esc_html( $this->copyright_brand() )
 						);
 						?>
 					</span>
@@ -2054,7 +2055,7 @@ final class Chrome {
 	 * edit. (Not mtime: on a multi-node host with divergent mtimes an
 	 * mtime key would re-seed and write wp_options on every request.)
 	 */
-	const COUNTRY_CONTENT_SCHEMA = 2;
+	const COUNTRY_CONTENT_SCHEMA = 3;
 
 	/**
 	 * Per-request memo of the resolved bundle, so a request that had to
@@ -2128,7 +2129,7 @@ final class Chrome {
 	 * re-resolved and persisted right here, once, and every later call —
 	 * same request or any later one — is the cheap branch again.
 	 *
-	 * @return array{key:string,code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string,flag_vars_css:string}
+	 * @return array{key:string,code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string,flag_vars_css:string,copy_suffix:string}
 	 */
 	private function country_content() {
 		if ( is_array( $this->country_content_memo ) ) {
@@ -2178,6 +2179,7 @@ final class Chrome {
 			'country_chip_html' => $this->build_country_chip_html( $code ),
 			'locale_line_html'  => $this->build_locale_line_html( $code ),
 			'flag_vars_css'     => $this->build_flag_vars_css( $code ),
+			'copy_suffix'       => $this->build_copy_suffix( $code ),
 		);
 
 		/**
@@ -2287,6 +2289,46 @@ final class Chrome {
 		$tint2 = isset( $usable[1] ) ? $usable[1] : $tint1; // never the white/black band the filter just rejected
 		$vars .= '--pgt-flag-tint-1-rgb:' . implode( ',', $tint1 ) . ';--pgt-flag-tint-2-rgb:' . implode( ',', $tint2 ) . ';';
 		return ':root{' . $vars . '--pgt-flag-bands:' . $i . ';}';
+	}
+
+	/**
+	 * The brand line the footers print after the year: "prepGro - USA" on
+	 * the US install, "prepGro - Canada" on the Canadian one, plain
+	 * "prepGro" when no country is declared or the code has no short name
+	 * on file. Read path: one cached-bundle lookup, no country branch.
+	 *
+	 * @return string
+	 */
+	private function copyright_brand() {
+		$content = $this->country_content();
+		$suffix  = isset( $content['copy_suffix'] ) ? (string) $content['copy_suffix'] : '';
+		return '' === $suffix ? 'prepGro' : 'prepGro - ' . $suffix;
+	}
+
+	/**
+	 * Short country name for the copyright line. Deliberately the everyday
+	 * short form (USA, UK, UAE), not the formal one the chip uses — the
+	 * footer has a few characters, the chip has a whole row. SEED-TIME ONLY.
+	 *
+	 * @param string $code Two-letter country code (may be '').
+	 * @return string '' when unknown.
+	 */
+	private function build_copy_suffix( $code ) {
+		$short = array(
+			'us' => __( 'USA', 'prepgro-theme' ),
+			'ca' => __( 'Canada', 'prepgro-theme' ),
+			'in' => __( 'India', 'prepgro-theme' ),
+			'ae' => __( 'UAE', 'prepgro-theme' ),
+			'au' => __( 'Australia', 'prepgro-theme' ),
+			'de' => __( 'Germany', 'prepgro-theme' ),
+			'gb' => __( 'UK', 'prepgro-theme' ),
+			'nz' => __( 'New Zealand', 'prepgro-theme' ),
+			'za' => __( 'South Africa', 'prepgro-theme' ),
+			'my' => __( 'Malaysia', 'prepgro-theme' ),
+			'sg' => __( 'Singapore', 'prepgro-theme' ),
+			'mu' => __( 'Mauritius', 'prepgro-theme' ),
+		);
+		return isset( $short[ $code ] ) ? $short[ $code ] : '';
 	}
 
 	/**
@@ -2451,6 +2493,31 @@ final class Chrome {
 	 * @param bool   $with_tagline Include the tagline line under the wordmark.
 	 * @return string
 	 */
+	/**
+	 * The site logo for surfaces the engine renders inside the theme (the
+	 * login/signup brand panel): the Customizer logo when one is set, else
+	 * the bundled brand-kit lockup — the same rule the header applies, so
+	 * the two can never show different marks.
+	 *
+	 * A custom logo arrives as core's own <a class="custom-logo-link"> and
+	 * must not be nested in another anchor; the brand-kit lockup is a bare
+	 * <span> the caller may wrap. The caller tells them apart with
+	 * `strpos( $html, '<a ' ) === 0`.
+	 *
+	 * @param string $grad_id      Unique SVG gradient id for this render.
+	 * @param bool   $with_tagline Include the tagline under the wordmark.
+	 * @return string
+	 */
+	public function brand_logo_html( $grad_id = 'pgtLogoChipGrad', $with_tagline = false ) {
+		if ( function_exists( 'has_custom_logo' ) && has_custom_logo() ) {
+			$logo = trim( (string) get_custom_logo() );
+			if ( '' !== $logo ) {
+				return $logo;
+			}
+		}
+		return $this->brand_kit_logo( $grad_id, $with_tagline );
+	}
+
 	private function brand_kit_logo( $grad_id = 'pgtLogoChipGrad', $with_tagline = true ) {
 		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r</span><span class="pgt-brandlogo__o">o</span></span></span>';
 

@@ -94,6 +94,7 @@ switch ( $scenario ) {
 		$b = $read->invoke( $chrome );
 		check( 'blank code → empty chip', '' === $b['country_chip_html'] );
 		check( 'blank code → empty locale line', '' === $b['locale_line_html'] );
+		check( 'blank code → no copyright suffix', '' === $b['copy_suffix'] );
 		check( 'blank code is NOT persisted', ! array_key_exists( 'pgt_country_content', $GLOBALS['t_options'] ) );
 		check( 'bundle still carries the key', $key === $b['key'] );
 		$b2 = $read->invoke( $chrome );
@@ -126,6 +127,7 @@ switch ( $scenario ) {
 		check( 'flag vars wrapped in :root', 0 === strpos( $b['flag_vars_css'], ':root{' ) );
 		check( 'tint slots skip the white band', false !== strpos( $b['flag_vars_css'], '--pgt-flag-tint-1-rgb:213,43,30;--pgt-flag-tint-2-rgb:213,43,30;' ) );
 		check( 'public accessor matches the bundle', $chrome->country_chip_html() === $b['country_chip_html'] );
+		check( 'copyright suffix: Canada', 'Canada' === $b['copy_suffix'] );
 
 		// 2. A stale key (older build) re-seeds too.
 		fresh( $chrome, $memo );
@@ -236,12 +238,14 @@ switch ( $scenario ) {
 		check( 'US chip', false !== strpos( $b['country_chip_html'], 'title="United States"' ) );
 		check( 'US phrases are the US set', in_array( 'You’ve got this.', $b['topbar_phrases'], true ) );
 		check( 'no pack content → no flag vars', '' === $b['flag_vars_css'] );
+		check( 'copyright suffix: USA (short form, not the chip name)', 'USA' === $b['copy_suffix'] );
 		break;
 
 	case 'xx':
 		$b = $read->invoke( $chrome );
 		check( 'unknown country → empty chip', '' === $b['country_chip_html'] );
 		check( 'unknown country → empty locale line', '' === $b['locale_line_html'] );
+		check( 'unknown country → no copyright suffix', '' === $b['copy_suffix'] );
 		check( 'unknown country IS persisted (keyed, re-seeds when a flag ships)', isset( $GLOBALS['t_options']['pgt_country_content']['key'] ) && 0 === strpos( $GLOBALS['t_options']['pgt_country_content']['key'], 'xx@' ) );
 		check( 'unknown country gets the idiom-light phrase set', ! in_array( 'You’ve got this.', $b['topbar_phrases'], true ) );
 		break;
