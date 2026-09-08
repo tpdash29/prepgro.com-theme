@@ -2476,10 +2476,35 @@ final class Chrome {
 	 * @return string 'evaluate' | 'elevate' | 'excel' | ''
 	 */
 	private function current_module_key() {
-		if ( ! class_exists( __NAMESPACE__ . '\Module_Pages' ) ) {
+		$module = '';
+		if ( class_exists( __NAMESPACE__ . '\Module_Pages' ) ) {
+			$module = (string) Module_Pages::instance()->current_module();
+		}
+		return '' !== $module ? $module : $this->engine_module_key();
+	}
+
+	/**
+	 * The pillar the ENGINE says this page belongs to. Its App_Shell tags
+	 * every shortcode page — the practice-test catalogue and all the
+	 * per-exam landings are Excel's, /lms/ and booking are Elevate's, the
+	 * diagnostic catalogue is Evaluate's — while the theme's own
+	 * Module_Pages only knows the three landing slugs. Without this,
+	 * /practice-tests/ carried Excel's amber accent but nothing under the
+	 * wordmark, while /evaluate/ and /elevate/ had their names (owner's
+	 * report, 2026-09-07; this install has no /excel/ page at all).
+	 *
+	 * Only the three pillar keys count: App_Shell's 'core' (dashboard,
+	 * parent portal) is not a sub-brand and falls through to the country.
+	 *
+	 * @return string Pillar key or ''.
+	 */
+	private function engine_module_key() {
+		$shell = '\\PrepGro\\Engine\\Public_Side\\App_Shell';
+		if ( ! class_exists( $shell ) || ! method_exists( $shell, 'current_module' ) ) {
 			return '';
 		}
-		return (string) Module_Pages::instance()->current_module();
+		$module = (string) $shell::current_module();
+		return in_array( $module, array( 'evaluate', 'elevate', 'excel' ), true ) ? $module : '';
 	}
 
 	/**
@@ -2562,7 +2587,11 @@ final class Chrome {
 				'excel'    => __( 'Excel', 'prepgro-theme' ),
 			);
 			if ( isset( $names[ $module ] ) ) {
-				$copy .= '<span class="pgt-brandlogo__module">' . esc_html( $names[ $module ] ) . '</span>';
+				$copy    .= '<span class="pgt-brandlogo__module">' . esc_html( $names[ $module ] ) . '</span>';
+				// Positions the slot (pg-module.css). Engine-tagged pillar
+				// pages carry pg-module-{key} but not the theme's bare
+				// pg-module class, so the lockup owns its own hook.
+				$modifier = ' pgt-brandlogo--module';
 			}
 		} elseif ( '' !== ( $country = $this->app_country_label() ) ) {
 			/*

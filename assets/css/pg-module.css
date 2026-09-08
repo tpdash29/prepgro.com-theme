@@ -498,7 +498,8 @@ body.pg-module .pgm-hero a:not(.pgm-btn) { color: var(--pge-color-on-dark, #6ba4
    exactly the wordmark's, so "prepGro" sits on the same baseline on every
    page and the label hangs beneath it.
    right:0 pins it to the wordmark's right edge, which is the end of "Gro". */
-body.pg-module .pgt-brandlogo__copy { position: relative; }
+body.pg-module .pgt-brandlogo__copy,
+.pgt-brandlogo--module .pgt-brandlogo__copy { position: relative; }
 .pgt-brandlogo__module {
 	position: absolute;
 	top: 100%;
