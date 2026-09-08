@@ -2508,19 +2508,6 @@ final class Chrome {
 	}
 
 	/**
-	 * The operating country's short name for the logo's country tag — every
-	 * lockup on every page, whenever a country is declared. Read from the
-	 * cached bundle's copy_suffix, so PGE_COUNTRY is still resolved in one
-	 * place only (seed_country_content()).
-	 *
-	 * @return string '' when no country resolved.
-	 */
-	private function country_label() {
-		$content = $this->country_content();
-		return isset( $content['copy_suffix'] ) ? (string) $content['copy_suffix'] : '';
-	}
-
-	/**
 	 * Brand-kit chip mark + wordmark lockup. Chip gradient
 	 * #0c1b9e→#0a84ff→#4d93ff at rx=18 on the 92-unit viewBox; wordmark
 	 * "prep" 500 ink / "Gro" 700 brand blue, in Outfit. Real text in the DOM
@@ -2557,11 +2544,15 @@ final class Chrome {
 	}
 
 	private function brand_kit_logo( $grad_id = 'pgtLogoChipGrad', $with_tagline = true ) {
-		// The country tag (below) rides INSIDE the "r" so it can be anchored to
-		// that letter: it starts where "r" starts and sits on the x-height, the
-		// top of "ro". Anything appended to $copy lands under the wordmark.
-		$in_r = '';
-		$copy = '';
+		/*
+		 * The wordmark is INVARIANT: identical on every country site, nothing
+		 * per-country drawn on or beside it (owner decision 2026-09-08, after a
+		 * day with a small lower-case country tag perched on the "ro": "too much
+		 * text around the logo"). The country is signalled by the flag chip in
+		 * the utility bar, the footer's locale line and the exam content — the
+		 * pattern global sites use — never by the lockup.
+		 */
+		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r</span><span class="pgt-brandlogo__o">o</span></span></span>';
 
 		/*
 		 * Product lockup. Inside a pillar, its NAME sits under the wordmark in
@@ -2580,25 +2571,6 @@ final class Chrome {
 		 */
 		$module   = $this->current_module_key();
 		$modifier = '';
-		/*
-		 * Country identity: the operating country's short name, lower-case,
-		 * perched on the "ro" of "Gro" — it starts at the "r" and sits on the
-		 * x-height (owner calls, 2026-09-08). It rides INSIDE the "r", not in
-		 * the slot under the wordmark, so it coexists with a pillar's name and
-		 * with the tagline and renders on EVERY lockup — header, drawer,
-		 * footer, the engine's login panel, every page ("I don't see the
-		 * country name on the other pages", owner, 2026-09-08; the earlier
-		 * app-only scope existed only because the tag used to take the
-		 * tagline's slot). An element ADDED to the lockup; the mark itself is
-		 * untouched. It is the footer's "prepGro - USA" vocabulary (the cached
-		 * bundle's copy_suffix), so header and footer never name the country
-		 * two ways; a country with no short name gets no tag.
-		 */
-		$country = $this->country_label();
-		if ( '' !== $country ) {
-			$in_r     = '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
-			$modifier = ' pgt-brandlogo--country';
-		}
 		if ( '' !== $module ) {
 			$names = array(
 				'evaluate' => __( 'Evaluate', 'prepgro-theme' ),
@@ -2610,12 +2582,11 @@ final class Chrome {
 				// Positions the slot (pg-module.css). Engine-tagged pillar
 				// pages carry pg-module-{key} but not the theme's bare
 				// pg-module class, so the lockup owns its own hook.
-				$modifier .= ' pgt-brandlogo--module';
+				$modifier = ' pgt-brandlogo--module';
 			}
 		} elseif ( $with_tagline ) {
 			$copy .= '<span class="pgt-brandlogo__tagline">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
-		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r' . $in_r . '</span><span class="pgt-brandlogo__o">o</span></span></span>' . $copy;
 		return '<span class="pgt-brandlogo' . $modifier . '">'
 			. '<svg class="pgt-brandlogo__chip" width="30" height="30" viewBox="0 0 92 92" aria-hidden="true">'
 			. '<defs><linearGradient id="' . esc_attr( $grad_id ) . '" x1="0" y1="0" x2="1" y2="1">'
