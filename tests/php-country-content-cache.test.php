@@ -27,7 +27,7 @@ $scenario = isset( $argv[1] ) ? $argv[1] : 'main';
 
 if ( 'main' === $scenario ) {
 	$fail = 0;
-	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us', 'logo-ca' ) as $s ) {
+	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us', 'logo-ca', 'logo-engine' ) as $s ) {
 		$o = array(); $rc = 0;
 		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' ' . $s . ' 2>&1', $o, $rc );
 		echo implode( "\n", $o ), "\n";
@@ -71,7 +71,7 @@ if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its
 }
 
 if ( 'blank' !== $scenario ) {
-	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us', 'logo-ca' => 'ca' )[ $scenario ] ?? $scenario );
+	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us', 'logo-ca' => 'ca', 'logo-engine' => 'ca' )[ $scenario ] ?? $scenario );
 }
 
 require dirname( __DIR__ ) . '/inc/class-chrome.php';
@@ -250,6 +250,27 @@ switch ( $scenario ) {
 		$out = $logo->invoke( $chrome, 'g3', true );
 		check( 'marketing: tagline, no country', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'pgt-brandlogo__country' ) );
 		check( 'marketing: no modifier class', false !== strpos( $out, '<span class="pgt-brandlogo">' ) );
+		break;
+
+	case 'logo-engine':
+		// The engine's App Shell tags pillar pages the theme's slug map never
+		// sees (/practice-tests/ and every per-exam landing are Excel's).
+		// The pillar name wins the slot; 'core' is not a pillar → country.
+		eval( 'namespace PrepGro\Engine\Public_Side; class App_Shell { public static $module = "excel"; public static function current_module() { return self::$module; } }' );
+		$logo = $ref->getMethod( 'brand_kit_logo' );
+		$out  = $logo->invoke( $chrome, 'g1', true );
+		check( 'engine says excel → "Excel" under the wordmark', false !== strpos( $out, '<span class="pgt-brandlogo__module">Excel</span>' ) );
+		check( 'engine excel: modifier positions the slot without body.pg-module', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--module">' ) );
+		check( 'engine excel: pillar beats country, no tagline', false === strpos( $out, 'pgt-brandlogo__country' ) && false === strpos( $out, 'pgt-brandlogo__tagline' ) );
+		\PrepGro\Engine\Public_Side\App_Shell::$module = 'elevate';
+		check( 'engine says elevate → "Elevate"', false !== strpos( $logo->invoke( $chrome, 'g2', true ), '__module">Elevate</span>' ) );
+		\PrepGro\Engine\Public_Side\App_Shell::$module = 'core';
+		$out = $logo->invoke( $chrome, 'g3', true );
+		check( 'engine says core (dashboard) → not a pillar, country tag', false === strpos( $out, 'pgt-brandlogo__module' ) && false !== strpos( $out, '__country">Canada</span>' ) );
+		\PrepGro\Engine\Public_Side\App_Shell::$module = null;
+		$GLOBALS['t_singular'] = false;
+		$out = $logo->invoke( $chrome, 'g4', true );
+		check( 'engine says nothing, marketing page → tagline only', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, '__country' ) && false === strpos( $out, '__module' ) );
 		break;
 
 	case 'sg':
