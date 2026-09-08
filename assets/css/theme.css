@@ -1661,13 +1661,13 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	color: var(--pge-color-body);
 }
 /* Below the nav breakpoint the burger takes over and space is tight — keep
-   the flag, drop the code. */
+   the flag, drop the code. This compact flag-only chip now runs all the way
+   down to phones: since 2026-09-08 the lockup is invariant (no country on
+   the wordmark), so the chip is the header's ONLY country signal, and hiding
+   it under 640px left phones with none at all (owner: "I would need that"). */
 @media (max-width: 1040px) {
 	.pgt-countrychip__code { display: none; }
 	.pgt-countrychip { padding: 5px 6px; }
-}
-@media (max-width: 640px) {
-	.pgt-countrychip { display: none; }
 }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-countrychip {
 	background: transparent;
