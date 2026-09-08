@@ -2561,7 +2561,11 @@ final class Chrome {
 	}
 
 	private function brand_kit_logo( $grad_id = 'pgtLogoChipGrad', $with_tagline = true ) {
-		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r</span><span class="pgt-brandlogo__o">o</span></span></span>';
+		// The country tag (below) rides INSIDE the "r" so it can be anchored to
+		// that letter: it starts where "r" starts and sits on the x-height, the
+		// top of "ro". Anything appended to $copy lands under the wordmark.
+		$in_r = '';
+		$copy = '';
 
 		/*
 		 * Product lockup. Inside a pillar, its NAME sits under the wordmark in
@@ -2596,19 +2600,21 @@ final class Chrome {
 		} elseif ( '' !== ( $country = $this->app_country_label() ) ) {
 			/*
 			 * Country identity inside the app (Today, exam runner, result,
-			 * LMS): the operating country's short name takes the same slot
-			 * a pillar's name does — the same ADDED-beneath-the-logo
-			 * mechanism, the mark itself still untouched. It is the footer's
+			 * LMS): the operating country's short name, lower-case, perched
+			 * on the "ro" of "Gro" — it starts at the "r" and sits on the
+			 * x-height (owner call, 2026-09-08). An element ADDED to the
+			 * lockup, the mark itself still untouched. It is the footer's
 			 * "prepGro - USA" vocabulary (the cached bundle's copy_suffix),
 			 * so header and footer never name the country two ways.
 			 * Marketing pages keep the mission tagline: there the product,
 			 * not the country, is the story.
 			 */
-			$copy    .= '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
+			$in_r     = '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
 			$modifier = ' pgt-brandlogo--country';
 		} elseif ( $with_tagline ) {
 			$copy .= '<span class="pgt-brandlogo__tagline">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
+		$copy = '<span class="pgt-brandlogo__word"><span class="pgt-brandlogo__prep">prep</span><span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r' . $in_r . '</span><span class="pgt-brandlogo__o">o</span></span></span>' . $copy;
 		return '<span class="pgt-brandlogo' . $modifier . '">'
 			. '<svg class="pgt-brandlogo__chip" width="30" height="30" viewBox="0 0 92 92" aria-hidden="true">'
 			. '<defs><linearGradient id="' . esc_attr( $grad_id ) . '" x1="0" y1="0" x2="1" y2="1">'

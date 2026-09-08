@@ -1625,32 +1625,33 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
    The footer states the tagline as its display headline instead. */
 .pgt-header .pgt-brandlogo__tagline { display: none; }
 
-/* Country sub-brand inside the app (Today, exam runner, result, LMS): the
-   pack's short name sits ABOVE "ro" — right-aligned to the wordmark, its
-   baseline on the cap line, so it fills the x-height gap the lowercase "ro"
-   leaves beside the "G" (owner's ask, 2026-09-07: hanging it under "Gro"
-   the way pg-module.css hangs the pillar label read as the logo being
-   pushed up, because the tag overshot the chip's bottom edge). An element
-   ADDED to the mark, the mark itself untouched. Out of flow for the same
-   reason the pillar label is: the wordmark must sit on one baseline on
-   every page. Muted ink, never a pillar or flag colour — the country is
-   stated, not celebrated. Marketing pages do not render it
-   (brand_kit_logo() gates on the app context).
-   Geometry: bottom:100% puts the tag's bottom on the wordmark's top edge;
-   the .38em nudge (of the tag's own size, which tracks the logo height like
-   the wordmark does) brings it down to Outfit's cap line, clear of "G" for
-   any country name length. */
-.pgt-brandlogo--country .pgt-brandlogo__copy { position: relative; }
+/* ---------- Country tag on the wordmark ----------
+   The operating country's short name, lower-case, perched on the "ro" of
+   "Gro": it STARTS where "r" starts and its box sits on the x-height, the
+   top of "ro" (owner call 2026-09-08 — earlier it hung right-aligned on the
+   cap line and read as pushing the logo up). The mark is untouched.
+
+   Geometry, all in the wordmark's own em so it holds at every lockup size
+   (header 25px, footer 22px, login panel). The tag lives INSIDE the "r"
+   span, which is the containing block, so its bottom edge is measured
+   from the bottom of the "r" inline box = baseline + descent. Outfit:
+   descent .275em, x-height .496em, cap .717em (measured with canvas
+   measureText at 25.46px: 7 / 12.63 / 18.25 px). The tag is .4em of the
+   wordmark, so the same offset in the tag's own em is (.275 + .496) / .4.
+   line-height 1 puts the tag's baseline .22em above its box bottom, so
+   descenders (germany, singapore, malaysia) reach the top of "ro" and
+   stop there. */
+.pgt-brandlogo--country .pgt-brandlogo__r { position: relative; }
 .pgt-brandlogo__country {
 	position: absolute;
-	right: 0;
-	bottom: 100%;
-	transform: translateY(.38em);
-	font-size: max(9px, calc(var(--pgt-logo-h, 30px) * .27));
+	left: 0;
+	bottom: calc((.275em + .496em) / .4);
+	font-size: .4em;
 	font-weight: 500;
 	letter-spacing: .02em;
 	line-height: 1;
 	white-space: nowrap;
+	text-transform: lowercase;
 	color: var(--pge-color-muted);
 }
 
