@@ -13,7 +13,7 @@
  *     ships).
  *   - The US locale line is byte-identical to the pre-2026-09 output.
  *   - Flag CSS variables derive from the pack's flag_strip hexes.
- *   - brand_kit_logo() names the country under the wordmark on app surfaces
+ *   - brand_kit_logo() is INVARIANT: no country ever appears on the lockup
  *     (the bundle's copy_suffix), never on marketing pages, never blank.
  *
  * PGE_COUNTRY is a constant, so each country runs as a child process
@@ -233,47 +233,47 @@ switch ( $scenario ) {
 		break;
 
 	case 'logo-ca':
-		// The logo's sub-brand slot names the country — app surfaces only,
-		// in the footer's short-name vocabulary, mark untouched.
+		// The lockup is INVARIANT (owner decision 2026-09-08 — "too much text
+		// around the logo"): the country is signalled by the flag chip, the
+		// footer's locale line and the content, never by the wordmark. A tag
+		// perched on the "ro" lived for one day and was removed on purpose;
+		// this scenario keeps it from creeping back in by accident.
 		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#d52b1e', '#FFF', '#d52b1e' ) );
 		$logo = $ref->getMethod( 'brand_kit_logo' );
 
-		// The tag rides INSIDE the "r" of "Gro" (anchored to the letter), so it
-		// coexists with the tagline and with a pillar's name, and renders on
-		// every page — app or marketing (owner, 2026-09-08).
 		$GLOBALS['t_singular'] = true; // exam runner / LMS single
 		$out = $logo->invoke( $chrome, 'g1', true );
-		check( 'app: country tag rides inside the "r"', false !== strpos( $out, '<span class="pgt-brandlogo__r">r<span class="pgt-brandlogo__country">Canada</span></span>' ) );
-		check( 'app: root carries the modifier (anchors the tag)', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
-		check( 'app: the tagline keeps its own slot (header CSS hides it)', false !== strpos( $out, 'pgt-brandlogo__tagline' ) );
+		check( 'app: no country on the lockup', false === strpos( $out, 'country' ) );
+		check( 'app: the wordmark is the plain lockup', false !== strpos( $out, '<span class="pgt-brandlogo__gro">G<span class="pgt-brandlogo__r">r</span><span class="pgt-brandlogo__o">o</span></span>' ) );
 		check( 'app: the mark is untouched', false !== strpos( $out, 'stop-color="#0c1b9e"' ) && false !== strpos( $out, 'stop-color="#0a84ff"' ) && false !== strpos( $out, 'stop-color="#4d93ff"' ) );
-		check( 'app: the drawer lockup (no tagline) names it too', false !== strpos( $logo->invoke( $chrome, 'g2', false ), 'pgt-brandlogo__country">Canada' ) );
+		check( 'app: the drawer lockup (no tagline) is plain too', false === strpos( $logo->invoke( $chrome, 'g2', false ), 'country' ) );
+		check( 'the chip still names the country', false !== strpos( $chrome->country_chip_html(), 'title="Canada"' ) );
 
 		$GLOBALS['t_singular'] = false; // marketing page
 		$out = $logo->invoke( $chrome, 'g3', true );
-		check( 'marketing: tagline AND country tag', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false !== strpos( $out, '__country">Canada</span>' ) );
-		check( 'marketing: same modifier class', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
+		check( 'marketing: tagline, no country', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'country' ) );
+		check( 'marketing: no modifier class', false !== strpos( $out, '<span class="pgt-brandlogo">' ) );
 		break;
-
 	case 'logo-engine':
 		// The engine's App Shell tags pillar pages the theme's slug map never
 		// sees (/practice-tests/ and every per-exam landing are Excel's).
-		// The pillar name wins the slot; 'core' is not a pillar → country.
+		// The pillar name takes the slot under the wordmark; 'core' is not a
+		// pillar → plain lockup. Never a country, on any of them.
 		eval( 'namespace PrepGro\Engine\Public_Side; class App_Shell { public static $module = "excel"; public static function current_module() { return self::$module; } }' );
 		$logo = $ref->getMethod( 'brand_kit_logo' );
 		$out  = $logo->invoke( $chrome, 'g1', true );
 		check( 'engine says excel → "Excel" under the wordmark', false !== strpos( $out, '<span class="pgt-brandlogo__module">Excel</span>' ) );
-		check( 'engine excel: both modifiers — country anchors the tag, module positions the slot', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country pgt-brandlogo--module">' ) );
-		check( 'engine excel: pillar name AND country tag, no tagline', false !== strpos( $out, '__country">Canada</span>' ) && false === strpos( $out, 'pgt-brandlogo__tagline' ) );
+		check( 'engine excel: modifier positions the slot without body.pg-module', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--module">' ) );
+		check( 'engine excel: pillar name only — no tagline, no country', false === strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'country' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = 'elevate';
 		check( 'engine says elevate → "Elevate"', false !== strpos( $logo->invoke( $chrome, 'g2', true ), '__module">Elevate</span>' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = 'core';
 		$out = $logo->invoke( $chrome, 'g3', true );
-		check( 'engine says core (dashboard) → not a pillar: no label, country tag', false === strpos( $out, 'pgt-brandlogo__module' ) && false !== strpos( $out, '__country">Canada</span>' ) );
+		check( 'engine says core (dashboard) → not a pillar: plain lockup', false === strpos( $out, 'pgt-brandlogo__module' ) && false === strpos( $out, 'country' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = null;
 		$GLOBALS['t_singular'] = false;
 		$out = $logo->invoke( $chrome, 'g4', true );
-		check( 'engine says nothing, marketing page → tagline + country tag, no label', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false !== strpos( $out, '__country">Canada</span>' ) && false === strpos( $out, '__module' ) );
+		check( 'engine says nothing, marketing page → tagline only', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'country' ) && false === strpos( $out, '__module' ) );
 		break;
 
 	case 'sg':
