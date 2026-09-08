@@ -414,6 +414,14 @@ a:hover { text-decoration: underline; }
 	flex-wrap: wrap;
 }
 .pgt-logo { display: inline-flex; align-items: center; text-decoration: none; flex: none; }
+/* The generic `a:hover { text-decoration: underline }` (type + pseudo-class)
+   outranks `.pgt-logo`'s text-decoration: none (one class) on specificity,
+   so hovering the header logo underlined the wordmark — and a propagated
+   decoration cannot be switched off from the children, only on the link.
+   Every link that wraps a lockup: header, drawer, the engine's login panel. */
+.pgt-logo:hover, .pgt-logo:focus-visible,
+.pgt-drawer__brand:hover, .pgt-drawer__brand:focus-visible,
+a:hover:has(.pgt-brandlogo), a:focus-visible:has(.pgt-brandlogo) { text-decoration: none; }
 .pgt-logo img, .pgt-logo .custom-logo, .pgt-logo .custom-logo-link img {
 	height: var(--pgt-logo-h, 30px);
 	max-height: var(--pgt-logo-h, 30px);

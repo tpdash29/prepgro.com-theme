@@ -238,18 +238,21 @@ switch ( $scenario ) {
 		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#d52b1e', '#FFF', '#d52b1e' ) );
 		$logo = $ref->getMethod( 'brand_kit_logo' );
 
-		$GLOBALS['t_singular'] = true; // exam runner / LMS single → app context
+		// The tag rides INSIDE the "r" of "Gro" (anchored to the letter), so it
+		// coexists with the tagline and with a pillar's name, and renders on
+		// every page — app or marketing (owner, 2026-09-08).
+		$GLOBALS['t_singular'] = true; // exam runner / LMS single
 		$out = $logo->invoke( $chrome, 'g1', true );
-		check( 'app: country hangs under the wordmark', false !== strpos( $out, '<span class="pgt-brandlogo__country">Canada</span>' ) );
-		check( 'app: root carries the modifier (positions the slot)', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
-		check( 'app: it REPLACES the tagline — one line under the wordmark', false === strpos( $out, 'pgt-brandlogo__tagline' ) );
+		check( 'app: country tag rides inside the "r"', false !== strpos( $out, '<span class="pgt-brandlogo__r">r<span class="pgt-brandlogo__country">Canada</span></span>' ) );
+		check( 'app: root carries the modifier (anchors the tag)', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
+		check( 'app: the tagline keeps its own slot (header CSS hides it)', false !== strpos( $out, 'pgt-brandlogo__tagline' ) );
 		check( 'app: the mark is untouched', false !== strpos( $out, 'stop-color="#0c1b9e"' ) && false !== strpos( $out, 'stop-color="#0a84ff"' ) && false !== strpos( $out, 'stop-color="#4d93ff"' ) );
 		check( 'app: the drawer lockup (no tagline) names it too', false !== strpos( $logo->invoke( $chrome, 'g2', false ), 'pgt-brandlogo__country">Canada' ) );
 
 		$GLOBALS['t_singular'] = false; // marketing page
 		$out = $logo->invoke( $chrome, 'g3', true );
-		check( 'marketing: tagline, no country', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'pgt-brandlogo__country' ) );
-		check( 'marketing: no modifier class', false !== strpos( $out, '<span class="pgt-brandlogo">' ) );
+		check( 'marketing: tagline AND country tag', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false !== strpos( $out, '__country">Canada</span>' ) );
+		check( 'marketing: same modifier class', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
 		break;
 
 	case 'logo-engine':
@@ -260,17 +263,17 @@ switch ( $scenario ) {
 		$logo = $ref->getMethod( 'brand_kit_logo' );
 		$out  = $logo->invoke( $chrome, 'g1', true );
 		check( 'engine says excel → "Excel" under the wordmark', false !== strpos( $out, '<span class="pgt-brandlogo__module">Excel</span>' ) );
-		check( 'engine excel: modifier positions the slot without body.pg-module', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--module">' ) );
-		check( 'engine excel: pillar beats country, no tagline', false === strpos( $out, 'pgt-brandlogo__country' ) && false === strpos( $out, 'pgt-brandlogo__tagline' ) );
+		check( 'engine excel: both modifiers — country anchors the tag, module positions the slot', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country pgt-brandlogo--module">' ) );
+		check( 'engine excel: pillar name AND country tag, no tagline', false !== strpos( $out, '__country">Canada</span>' ) && false === strpos( $out, 'pgt-brandlogo__tagline' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = 'elevate';
 		check( 'engine says elevate → "Elevate"', false !== strpos( $logo->invoke( $chrome, 'g2', true ), '__module">Elevate</span>' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = 'core';
 		$out = $logo->invoke( $chrome, 'g3', true );
-		check( 'engine says core (dashboard) → not a pillar, country tag', false === strpos( $out, 'pgt-brandlogo__module' ) && false !== strpos( $out, '__country">Canada</span>' ) );
+		check( 'engine says core (dashboard) → not a pillar: no label, country tag', false === strpos( $out, 'pgt-brandlogo__module' ) && false !== strpos( $out, '__country">Canada</span>' ) );
 		\PrepGro\Engine\Public_Side\App_Shell::$module = null;
 		$GLOBALS['t_singular'] = false;
 		$out = $logo->invoke( $chrome, 'g4', true );
-		check( 'engine says nothing, marketing page → tagline only', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, '__country' ) && false === strpos( $out, '__module' ) );
+		check( 'engine says nothing, marketing page → tagline + country tag, no label', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false !== strpos( $out, '__country">Canada</span>' ) && false === strpos( $out, '__module' ) );
 		break;
 
 	case 'sg':
