@@ -2508,18 +2508,14 @@ final class Chrome {
 	}
 
 	/**
-	 * The operating country's short name for the logo's sub-brand slot —
-	 * app surfaces only (dashboard, portals, exam runner, LMS singles), and
-	 * only when a country is declared. Read from the cached bundle's
-	 * copy_suffix, so PGE_COUNTRY is still resolved in one place only
-	 * (seed_country_content()).
+	 * The operating country's short name for the logo's country tag — every
+	 * lockup on every page, whenever a country is declared. Read from the
+	 * cached bundle's copy_suffix, so PGE_COUNTRY is still resolved in one
+	 * place only (seed_country_content()).
 	 *
-	 * @return string '' on marketing pages or with no country resolved.
+	 * @return string '' when no country resolved.
 	 */
-	private function app_country_label() {
-		if ( ! $this->is_app_context() ) {
-			return '';
-		}
+	private function country_label() {
 		$content = $this->country_content();
 		return isset( $content['copy_suffix'] ) ? (string) $content['copy_suffix'] : '';
 	}
@@ -2584,6 +2580,25 @@ final class Chrome {
 		 */
 		$module   = $this->current_module_key();
 		$modifier = '';
+		/*
+		 * Country identity: the operating country's short name, lower-case,
+		 * perched on the "ro" of "Gro" — it starts at the "r" and sits on the
+		 * x-height (owner calls, 2026-09-08). It rides INSIDE the "r", not in
+		 * the slot under the wordmark, so it coexists with a pillar's name and
+		 * with the tagline and renders on EVERY lockup — header, drawer,
+		 * footer, the engine's login panel, every page ("I don't see the
+		 * country name on the other pages", owner, 2026-09-08; the earlier
+		 * app-only scope existed only because the tag used to take the
+		 * tagline's slot). An element ADDED to the lockup; the mark itself is
+		 * untouched. It is the footer's "prepGro - USA" vocabulary (the cached
+		 * bundle's copy_suffix), so header and footer never name the country
+		 * two ways; a country with no short name gets no tag.
+		 */
+		$country = $this->country_label();
+		if ( '' !== $country ) {
+			$in_r     = '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
+			$modifier = ' pgt-brandlogo--country';
+		}
 		if ( '' !== $module ) {
 			$names = array(
 				'evaluate' => __( 'Evaluate', 'prepgro-theme' ),
@@ -2595,22 +2610,8 @@ final class Chrome {
 				// Positions the slot (pg-module.css). Engine-tagged pillar
 				// pages carry pg-module-{key} but not the theme's bare
 				// pg-module class, so the lockup owns its own hook.
-				$modifier = ' pgt-brandlogo--module';
+				$modifier .= ' pgt-brandlogo--module';
 			}
-		} elseif ( '' !== ( $country = $this->app_country_label() ) ) {
-			/*
-			 * Country identity inside the app (Today, exam runner, result,
-			 * LMS): the operating country's short name, lower-case, perched
-			 * on the "ro" of "Gro" — it starts at the "r" and sits on the
-			 * x-height (owner call, 2026-09-08). An element ADDED to the
-			 * lockup, the mark itself still untouched. It is the footer's
-			 * "prepGro - USA" vocabulary (the cached bundle's copy_suffix),
-			 * so header and footer never name the country two ways.
-			 * Marketing pages keep the mission tagline: there the product,
-			 * not the country, is the story.
-			 */
-			$in_r     = '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
-			$modifier = ' pgt-brandlogo--country';
 		} elseif ( $with_tagline ) {
 			$copy .= '<span class="pgt-brandlogo__tagline">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
