@@ -1625,6 +1625,35 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
    The footer states the tagline as its display headline instead. */
 .pgt-header .pgt-brandlogo__tagline { display: none; }
 
+/* Country sub-brand inside the app (Today, exam runner, result, LMS): the
+   pack's short name sits ABOVE "ro" — right-aligned to the wordmark, its
+   baseline on the cap line, so it fills the x-height gap the lowercase "ro"
+   leaves beside the "G" (owner's ask, 2026-09-07: hanging it under "Gro"
+   the way pg-module.css hangs the pillar label read as the logo being
+   pushed up, because the tag overshot the chip's bottom edge). An element
+   ADDED to the mark, the mark itself untouched. Out of flow for the same
+   reason the pillar label is: the wordmark must sit on one baseline on
+   every page. Muted ink, never a pillar or flag colour — the country is
+   stated, not celebrated. Marketing pages do not render it
+   (brand_kit_logo() gates on the app context).
+   Geometry: bottom:100% puts the tag's bottom on the wordmark's top edge;
+   the .38em nudge (of the tag's own size, which tracks the logo height like
+   the wordmark does) brings it down to Outfit's cap line, clear of "G" for
+   any country name length. */
+.pgt-brandlogo--country .pgt-brandlogo__copy { position: relative; }
+.pgt-brandlogo__country {
+	position: absolute;
+	right: 0;
+	bottom: 100%;
+	transform: translateY(.38em);
+	font-size: max(9px, calc(var(--pgt-logo-h, 30px) * .27));
+	font-weight: 500;
+	letter-spacing: .02em;
+	line-height: 1;
+	white-space: nowrap;
+	color: var(--pge-color-muted);
+}
+
 /* ---------- Country chip ----------
    Restores the header flag the 2026-08 rebuild dropped in favour of a
    footer-only text locale line. Inline SVG, not an emoji flag: emoji flags

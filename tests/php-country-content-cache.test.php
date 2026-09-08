@@ -13,6 +13,8 @@
  *     ships).
  *   - The US locale line is byte-identical to the pre-2026-09 output.
  *   - Flag CSS variables derive from the pack's flag_strip hexes.
+ *   - brand_kit_logo() names the country under the wordmark on app surfaces
+ *     (the bundle's copy_suffix), never on marketing pages, never blank.
  *
  * PGE_COUNTRY is a constant, so each country runs as a child process
  * (argv scenario) — one process, one country, as in real life.
@@ -25,7 +27,7 @@ $scenario = isset( $argv[1] ) ? $argv[1] : 'main';
 
 if ( 'main' === $scenario ) {
 	$fail = 0;
-	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us' ) as $s ) {
+	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us', 'logo-ca' ) as $s ) {
 		$o = array(); $rc = 0;
 		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' ' . $s . ' 2>&1', $o, $rc );
 		echo implode( "\n", $o ), "\n";
@@ -57,6 +59,9 @@ function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_url( $s ) { return (string) $s; }
 function wp_json_encode( $v ) { return json_encode( $v ); }
+// is_app_context()'s fallback signal (exam runner / LMS singles) — the
+// engine's App_Shell is absent in this harness, so this is the whole gate.
+function is_singular( $types = '' ) { return ! empty( $GLOBALS['t_singular'] ); }
 if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its helpers loaded
 	function pge_content( $key, $default = null ) { return array_key_exists( $key, $GLOBALS['t_pack'] ) ? $GLOBALS['t_pack'][ $key ] : $default; }
 	function pge_country_val( $key, $default = null ) { return array_key_exists( $key, $GLOBALS['t_country'] ) ? $GLOBALS['t_country'][ $key ] : $default; }
@@ -66,7 +71,7 @@ if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its
 }
 
 if ( 'blank' !== $scenario ) {
-	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us' )[ $scenario ] ?? $scenario );
+	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us', 'logo-ca' => 'ca' )[ $scenario ] ?? $scenario );
 }
 
 require dirname( __DIR__ ) . '/inc/class-chrome.php';
@@ -99,6 +104,9 @@ switch ( $scenario ) {
 		check( 'bundle still carries the key', $key === $b['key'] );
 		$b2 = $read->invoke( $chrome );
 		check( 'second read in the request is the memo', $b === $b2 );
+		$GLOBALS['t_singular'] = true; // an app surface…
+		$logo = $ref->getMethod( 'brand_kit_logo' );
+		check( 'blank code → no country under the logo even in the app', false === strpos( $logo->invoke( $chrome, 'g', true ), 'pgt-brandlogo__country' ) );
 		break;
 
 	case 'ca':
@@ -222,6 +230,26 @@ switch ( $scenario ) {
 			check( 'CA: kicker carries the eyebrow, escaped', false !== strpos( $out, '<span class="pgh-hero__kicker-text">Provincial exam prep for Canadian students</span>' ) );
 			check( 'CA: the status chip still follows, unchanged', substr( $out, -strlen( $literal ) ) === $literal );
 		}
+		break;
+
+	case 'logo-ca':
+		// The logo's sub-brand slot names the country — app surfaces only,
+		// in the footer's short-name vocabulary, mark untouched.
+		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#d52b1e', '#FFF', '#d52b1e' ) );
+		$logo = $ref->getMethod( 'brand_kit_logo' );
+
+		$GLOBALS['t_singular'] = true; // exam runner / LMS single → app context
+		$out = $logo->invoke( $chrome, 'g1', true );
+		check( 'app: country hangs under the wordmark', false !== strpos( $out, '<span class="pgt-brandlogo__country">Canada</span>' ) );
+		check( 'app: root carries the modifier (positions the slot)', false !== strpos( $out, '<span class="pgt-brandlogo pgt-brandlogo--country">' ) );
+		check( 'app: it REPLACES the tagline — one line under the wordmark', false === strpos( $out, 'pgt-brandlogo__tagline' ) );
+		check( 'app: the mark is untouched', false !== strpos( $out, 'stop-color="#0c1b9e"' ) && false !== strpos( $out, 'stop-color="#0a84ff"' ) && false !== strpos( $out, 'stop-color="#4d93ff"' ) );
+		check( 'app: the drawer lockup (no tagline) names it too', false !== strpos( $logo->invoke( $chrome, 'g2', false ), 'pgt-brandlogo__country">Canada' ) );
+
+		$GLOBALS['t_singular'] = false; // marketing page
+		$out = $logo->invoke( $chrome, 'g3', true );
+		check( 'marketing: tagline, no country', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'pgt-brandlogo__country' ) );
+		check( 'marketing: no modifier class', false !== strpos( $out, '<span class="pgt-brandlogo">' ) );
 		break;
 
 	case 'sg':

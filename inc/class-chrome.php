@@ -2483,6 +2483,23 @@ final class Chrome {
 	}
 
 	/**
+	 * The operating country's short name for the logo's sub-brand slot —
+	 * app surfaces only (dashboard, portals, exam runner, LMS singles), and
+	 * only when a country is declared. Read from the cached bundle's
+	 * copy_suffix, so PGE_COUNTRY is still resolved in one place only
+	 * (seed_country_content()).
+	 *
+	 * @return string '' on marketing pages or with no country resolved.
+	 */
+	private function app_country_label() {
+		if ( ! $this->is_app_context() ) {
+			return '';
+		}
+		$content = $this->country_content();
+		return isset( $content['copy_suffix'] ) ? (string) $content['copy_suffix'] : '';
+	}
+
+	/**
 	 * Brand-kit chip mark + wordmark lockup. Chip gradient
 	 * #0c1b9e→#0a84ff→#4d93ff at rx=18 on the 92-unit viewBox; wordmark
 	 * "prep" 500 ink / "Gro" 700 brand blue, in Outfit. Real text in the DOM
@@ -2536,7 +2553,8 @@ final class Chrome {
 		 * the same line under the wordmark, and the tagline is display:none in
 		 * the header anyway (the kit's "primary lockup at navbar scale" rule).
 		 */
-		$module = $this->current_module_key();
+		$module   = $this->current_module_key();
+		$modifier = '';
 		if ( '' !== $module ) {
 			$names = array(
 				'evaluate' => __( 'Evaluate', 'prepgro-theme' ),
@@ -2546,10 +2564,23 @@ final class Chrome {
 			if ( isset( $names[ $module ] ) ) {
 				$copy .= '<span class="pgt-brandlogo__module">' . esc_html( $names[ $module ] ) . '</span>';
 			}
+		} elseif ( '' !== ( $country = $this->app_country_label() ) ) {
+			/*
+			 * Country identity inside the app (Today, exam runner, result,
+			 * LMS): the operating country's short name takes the same slot
+			 * a pillar's name does — the same ADDED-beneath-the-logo
+			 * mechanism, the mark itself still untouched. It is the footer's
+			 * "prepGro - USA" vocabulary (the cached bundle's copy_suffix),
+			 * so header and footer never name the country two ways.
+			 * Marketing pages keep the mission tagline: there the product,
+			 * not the country, is the story.
+			 */
+			$copy    .= '<span class="pgt-brandlogo__country">' . esc_html( $country ) . '</span>';
+			$modifier = ' pgt-brandlogo--country';
 		} elseif ( $with_tagline ) {
 			$copy .= '<span class="pgt-brandlogo__tagline">' . esc_html__( 'Evaluate. Elevate. Excel.', 'prepgro-theme' ) . '</span>';
 		}
-		return '<span class="pgt-brandlogo">'
+		return '<span class="pgt-brandlogo' . $modifier . '">'
 			. '<svg class="pgt-brandlogo__chip" width="30" height="30" viewBox="0 0 92 92" aria-hidden="true">'
 			. '<defs><linearGradient id="' . esc_attr( $grad_id ) . '" x1="0" y1="0" x2="1" y2="1">'
 			. '<stop offset="0%" stop-color="#0c1b9e"/><stop offset="52%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#4d93ff"/>'
