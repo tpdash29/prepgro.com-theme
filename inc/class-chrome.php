@@ -884,6 +884,56 @@ final class Chrome {
 	}
 
 	/**
+	 * The country's own support email and customer WhatsApp number, printed
+	 * beside the footer statement.
+	 *
+	 * Both are collected once, in the engine's Setup Wizard (Contact &
+	 * Support step) — `pge_contact_email` and `pge_customer_whatsapp_number`
+	 * — and reported to Dash the moment this Engine pairs, so an operator
+	 * fills them in exactly here and nowhere else (see Dash_Pairing::
+	 * self_description() and, on the Dash side, PairingBroker::
+	 * adoptEngineContactDetails()). Printing them here is the OTHER half of
+	 * that: it is what makes them true to advertise in the first place. This
+	 * is deliberately not the tutor WhatsApp number — tutors are reached
+	 * through one fixed Indian number regardless of country, which has
+	 * nothing to do with this site's own visitors and is never sourced from
+	 * a per-site option.
+	 *
+	 * Renders nothing when neither is set, rather than an empty row — a
+	 * fresh install that skipped the wizard step should not show a blank
+	 * "Contact" line.
+	 *
+	 * @return string
+	 */
+	private function footer_contact_line() {
+		$email    = trim( (string) get_option( 'pge_contact_email', '' ) );
+		$whatsapp = trim( (string) get_option( 'pge_customer_whatsapp_number', '' ) );
+
+		if ( '' === $email && '' === $whatsapp ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<p class="pgt-footer__contact">
+			<?php if ( '' !== $email ) : ?>
+				<a class="pgt-footer__contact-item" href="<?php echo esc_url( 'mailto:' . $email ); ?>" data-nav="footer:contact-email">
+					<?php echo Icons::svg( 'mail', array( 'size' => 14 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $email ); ?>
+				</a>
+			<?php endif; ?>
+			<?php if ( '' !== $whatsapp ) : ?>
+				<a class="pgt-footer__contact-item" href="<?php echo esc_url( 'https://wa.me/' . ltrim( $whatsapp, '+' ) ); ?>" data-nav="footer:contact-whatsapp" target="_blank" rel="noopener">
+					<?php echo Icons::svg( 'help-circle', array( 'size' => 14 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo esc_html( $whatsapp ); ?>
+				</a>
+			<?php endif; ?>
+		</p>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
 	 * Seed chips under the search field (README §3).
 	 *
 	 * @return string[]
@@ -1976,6 +2026,7 @@ final class Chrome {
 								<a class="pgt-footer__statement-line" href="<?php echo esc_url( $pgt_line['url'] ); ?>"><?php echo esc_html( $pgt_line['label'] ); ?></a>
 							<?php endforeach; ?>
 						</h2>
+						<?php echo $this->footer_contact_line(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</div>
 					<div class="pgt-footer__cols">
 						<?php foreach ( $this->footer_columns() as $key => $col ) : ?>

@@ -1549,6 +1549,31 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	color: var(--pge-color-primary);
 	text-decoration: none;
 }
+/* The country's own support email / WhatsApp number, printed under the
+   statement — see Chrome::footer_contact_line(). Small and quiet on
+   purpose: it is a utility line, not another headline competing with the
+   statement above it. */
+.pgt-footer__contact {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 14px 0 0;
+	font-size: 13px;
+}
+.pgt-footer__contact-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--pgt-footer-fg, var(--pge-color-ink));
+	opacity: .72;
+	text-decoration: none;
+	transition: opacity 140ms var(--pgt-ease), color 140ms var(--pgt-ease);
+}
+.pgt-footer__contact-item:hover,
+.pgt-footer__contact-item:focus-visible {
+	opacity: 1;
+	color: var(--pge-color-primary);
+}
 .pgt-footer__cols {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
