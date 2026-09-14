@@ -247,7 +247,7 @@ final class Chrome {
 				'id'    => 'help',
 				'label' => __( 'Help', 'prepgro-theme' ),
 				'url'   => home_url( '/contact-us/' ),
-				'owns'  => array( '/contact-us/', '/about-us/', '/blog/' ),
+				'owns'  => array( '/contact-us/', '/about-us/', '/blog/', '/' . Tour_Page::SLUG . '/' ),
 				'panel' => 'help',
 				// Help has no landing page of its own, so the label is a pure
 				// disclosure trigger rather than a link (README A2).
@@ -491,7 +491,7 @@ final class Chrome {
 						'note'    => __( 'by level', 'prepgro-theme' ),
 						'items'   => array(
 							array( 'icon' => 'dollar-sign', 'title' => __( 'Unlimited test pack', 'prepgro-theme' ), 'sub' => $this->from_price( 'monthly', __( 'From $9.99/month', 'prepgro-theme' ) ), 'url' => home_url( '/pricing/' ) ),
-							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
+							array( 'icon' => 'list', 'title' => __( 'Browse all exams', 'prepgro-theme' ), 'sub' => __( 'Pick your subject', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
 							array( 'icon' => 'circle-check', 'title' => __( 'Test-day checklist', 'prepgro-theme' ), 'sub' => __( 'The week before', 'prepgro-theme' ), 'url' => home_url( '/test-day-checklist/' ) ),
 						),
 					),
@@ -521,7 +521,7 @@ final class Chrome {
 						'note'    => __( 'reading', 'prepgro-theme' ),
 						'items'   => array(
 							array( 'icon' => 'book-open', 'title' => __( 'Journal', 'prepgro-theme' ), 'sub' => __( 'Notes on prepping well', 'prepgro-theme' ), 'url' => $this->blog_url() ),
-							array( 'icon' => 'activity', 'title' => __( 'How prepGro works', 'prepgro-theme' ), 'sub' => __( 'The three-part loop', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
+							array( 'icon' => 'activity', 'title' => __( 'How prepGro works', 'prepgro-theme' ), 'sub' => __( 'The three-part loop', 'prepgro-theme' ), 'url' => Tour_Page::instance()->link() ),
 							array( 'icon' => 'users', 'title' => __( 'About prepGro', 'prepgro-theme' ), 'sub' => __( 'Who we are', 'prepgro-theme' ), 'url' => home_url( '/about-us/' ) ),
 						),
 					),
@@ -650,6 +650,15 @@ final class Chrome {
 	}
 
 	/**
+	 * The front page's state list, where a visitor finds their state's tests.
+	 *
+	 * @return string
+	 */
+	private function state_tests_url() {
+		return home_url( '/#pg-states' );
+	}
+
+	/**
 	 * Where "Find a tutor" should send this visitor.
 	 *
 	 * NOT the price list. This CTA promises the matching flow ("Matched to
@@ -701,10 +710,10 @@ final class Chrome {
 		$entries = array(
 			array( 'icon' => 'graduation-cap', 'title' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ), 'sub' => __( 'College admission', 'prepgro-theme' ), 'path' => '/sat-act-psat/' ),
 			array( 'icon' => 'list', 'title' => __( 'AP subjects', 'prepgro-theme' ), 'sub' => __( '38 exams covered', 'prepgro-theme' ), 'path' => '/practice-tests/ap/' ),
-			// Was /all-exams/ — Excel's practice catalogue, not a diagnostic.
-			// /diagnostic-tests/ is Evaluate's own catalogue now; ?filter=state
-			// pre-selects its "State-test diagnostic" chip (theme.js reads it).
-			array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'All 50 states', 'prepgro-theme' ), 'path' => '/diagnostic-tests/?filter=state' ),
+			// The front page's state list: each state's own tests and papers
+			// (owner rule 2026-09-14: the state test is the pitch, not the
+			// diagnostic catalogue this used to open).
+			array( 'icon' => 'map-pin', 'title' => __( 'State tests & grades 3–12', 'prepgro-theme' ), 'sub' => __( 'Find your state’s test', 'prepgro-theme' ), 'path' => '/#pg-states' ),
 		);
 		if ( function_exists( 'pge_content' ) ) {
 			$entries = (array) pge_content( 'exam_menu', $entries );
@@ -837,7 +846,7 @@ final class Chrome {
 			'explore' => array(
 				'title' => __( 'Explore', 'prepgro-theme' ),
 				'links' => array(
-					array( 'id' => 'how', 'label' => __( 'How it works', 'prepgro-theme' ), 'url' => home_url( '/#pg-how' ) ),
+					array( 'id' => 'how', 'label' => __( 'How prepGro works', 'prepgro-theme' ), 'url' => Tour_Page::instance()->link() ),
 					array( 'id' => 'exams', 'label' => __( 'Practice tests', 'prepgro-theme' ), 'url' => home_url( '/practice-tests/' ) ),
 					array( 'id' => 'diagnostics', 'label' => __( 'Diagnostic tests', 'prepgro-theme' ), 'url' => home_url( '/diagnostic-tests/' ) ),
 					array( 'id' => 'courses', 'label' => __( 'Courses', 'prepgro-theme' ), 'url' => home_url( '/courses/' ) ),
@@ -848,7 +857,7 @@ final class Chrome {
 			'support' => array(
 				'title' => __( 'Product', 'prepgro-theme' ),
 				'links' => array(
-					array( 'id' => 'readiness', 'label' => __( 'Free readiness check', 'prepgro-theme' ), 'url' => $this->start_practicing_url() ),
+					array( 'id' => 'state-tests', 'label' => __( 'State test practice', 'prepgro-theme' ), 'url' => $this->state_tests_url() ),
 					array( 'id' => 'practice', 'label' => __( 'Unlimited practice', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
 					array( 'id' => 'tutor', 'label' => __( 'Find a tutor', 'prepgro-theme' ), 'url' => home_url( '/elevate/' ) ),
 					array( 'id' => 'faq', 'label' => __( 'Parent FAQ', 'prepgro-theme' ), 'url' => home_url( '/#pg-faq' ) ),
@@ -1567,7 +1576,16 @@ final class Chrome {
 						// chrome, on every page of the site, pointed at a dead
 						// pillar. The nav's own links are filtered elsewhere;
 						// this one is markup, so it needs its own gate.
-						if ( $this->pillar_on( 'evaluate' ) ) :
+						//
+						// A visitor came for their state test (owner rule,
+						// 2026-09-14), so for them this button finds it: the
+						// state list on the front page. Only signed-in learners
+						// keep the check, which routes to their own next step.
+						if ( ! is_user_logged_in() ) :
+							?>
+							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="header:state-tests-cta"><?php esc_html_e( 'Find my state test', 'prepgro-theme' ); ?></a>
+							<?php
+						elseif ( $this->pillar_on( 'evaluate' ) ) :
 							?>
 							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( $this->start_practicing_url() ); ?>" data-nav="header:readiness-cta"><?php esc_html_e( 'Free check', 'prepgro-theme' ); ?></a>
 							<?php
@@ -1819,7 +1837,9 @@ final class Chrome {
 				</button>
 			</div>
 			<div class="pgt-drawer__body">
-				<?php if ( $this->pillar_on( 'evaluate' ) ) : // Same gate as the desktop header CTA above. ?>
+				<?php if ( ! is_user_logged_in() ) : // Same rule as the desktop header CTA above. ?>
+					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="drawer:state-tests-cta"><?php esc_html_e( 'Find my state test', 'prepgro-theme' ); ?></a>
+				<?php elseif ( $this->pillar_on( 'evaluate' ) ) : ?>
 					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->start_practicing_url() ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
 				<?php endif; ?>
 				<nav class="pgt-drawer__nav" aria-label="<?php esc_attr_e( 'Menu', 'prepgro-theme' ); ?>">

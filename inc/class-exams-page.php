@@ -313,6 +313,20 @@ final class Exams_Page {
 			return array( 'mode' => 'practice', 'primary' => $browse, 'secondary' => null );
 		}
 
+		// A visitor came for their state test (owner rule, 2026-09-14): on
+		// the practice catalogue, practice leads and their state's tests are
+		// the second option. The diagnostic is never the visitor's first ask.
+		if ( ! is_user_logged_in() ) {
+			return array(
+				'mode'      => 'practice',
+				'primary'   => $browse,
+				'secondary' => array(
+					'label' => __( 'Find my state’s tests', 'prepgro-theme' ),
+					'url'   => home_url( '/#pg-states' ),
+				),
+			);
+		}
+
 		$diagnosed = function_exists( 'pge_learner_has_results' ) && \pge_learner_has_results();
 
 		if ( $diagnosed ) {

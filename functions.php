@@ -32,12 +32,14 @@ require_once PGT_DIR . '/inc/class-blog.php';
 require_once PGT_DIR . '/inc/class-theme-options.php';
 require_once PGT_DIR . '/inc/class-chrome.php';
 require_once PGT_DIR . '/inc/class-homepage-sections.php';
+require_once PGT_DIR . '/inc/class-tour-page.php';
 
 \PrepGro\Theme\Theme_Setup::instance()->init();
 \PrepGro\Theme\Token_Loader::instance()->init();
 \PrepGro\Theme\Theme_Options::instance()->init();
 \PrepGro\Theme\Chrome::instance()->init();
 \PrepGro\Theme\Homepage_Sections::instance()->init();
+\PrepGro\Theme\Tour_Page::instance()->init();
 \PrepGro\Theme\Module_Pages::instance()->init();
 \PrepGro\Theme\Pricing_Page::instance()->init();
 \PrepGro\Theme\Exams_Page::instance()->init();
@@ -313,14 +315,14 @@ add_action(
 		$pgt_screens = array(
 			'pgt-home'    => array(
 				'file' => 'pg-home.css',
-				'on'   => is_front_page(),
+				'on'   => is_front_page() || \PrepGro\Theme\Tour_Page::instance()->is_tour(),
 			),
 			// Re-skins the engine's [pge_device_stage] from the retired
-			// neumorphic system to the A1 flat one. Front page only, because
-			// that is the only screen that embeds the stage.
+			// neumorphic system to the A1 flat one, on the two screens that
+			// can embed the stage.
 			'pgt-devices' => array(
 				'file' => 'pg-devicestage.css',
-				'on'   => is_front_page(),
+				'on'   => is_front_page() || \PrepGro\Theme\Tour_Page::instance()->is_tour(),
 			),
 			'pgt-module'  => array(
 				'file' => 'pg-module.css',
@@ -409,6 +411,14 @@ add_action(
 		if ( function_exists( 'pge_content' ) ) {
 			$description = (string) pge_content( 'front_page.meta_description', $description );
 		}
+		/**
+		 * The front page's description. The engine fills it from the papers
+		 * this site publishes (the country's state tests, or one state's
+		 * tests on /learn/{country}/{state}/).
+		 *
+		 * @param string $description Default description.
+		 */
+		$description = (string) apply_filters( 'pgt_front_page_meta_description', $description );
 		echo '<meta name="description" content="' . esc_attr( $description ) . '">' . "\n";
 	},
 	2
@@ -540,3 +550,20 @@ function pgt_countdown( $key ) {
 		. '<span class="pgt-cd__date">' . esc_html( $absolute ) . '</span>'
 		. '</div>';
 }
+
+/**
+ * The front page's sections come from the engine (Core\Journey\Home_Page).
+ * If the theme is deployed ahead of the engine, or the engine is off, render
+ * them as nothing rather than printing "[pge_home_hero]" to visitors.
+ */
+add_action(
+	'init',
+	function () {
+		foreach ( array( 'hero', 'trust', 'glance', 'tests', 'practice', 'support', 'cta', 'faq' ) as $part ) {
+			if ( ! shortcode_exists( 'pge_home_' . $part ) ) {
+				add_shortcode( 'pge_home_' . $part, '__return_empty_string' );
+			}
+		}
+	},
+	99
+);

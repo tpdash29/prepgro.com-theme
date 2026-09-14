@@ -3,222 +3,77 @@
 <!-- wp:group {"tagName":"main","anchor":"pgt-main","layout":{"type":"default"}} -->
 <main id="pgt-main" class="wp-block-group">
 
-  <!-- 1. Hero. The opening line renders via [pgt_home_kicker] (US status
-       chip byte for byte; packs with homepage.eyebrow get a flag + country
-       line above it). The float-card column renders via [pgt_home_floats]
-       (inc/class-homepage-sections.php) so its sample copy can follow the
-       active country pack; with no pack content it emits the original US
-       markup byte for byte. -->
-  <!-- wp:html -->
-  <section class="pgh-hero" id="pg-hero">
-    <div class="pgh-hero__copy">
-      [pgt_home_kicker]
-      <h1 class="pgh-hero__title">Know the gaps.<br><span class="pgh-hero__quiet">Close them by test day.</span></h1>
-      <p class="pgh-hero__sub">One free check shows exactly which skills are weak. Then unlimited practice &mdash; and a live tutor when you want one &mdash; works on those, and nothing else.</p>
-      <div class="pgh-hero__cta">
-        <a class="pgt-btn pgt-btn--primary pgt-btn--lg" href="/get-started/">Take the free readiness check</a>
-        <a class="pgt-btn pgt-btn--ghost pgt-btn--lg" href="/sample-report/">See a sample report</a>
-      </div>
-    </div>
+  <!-- The front page talks about this country, the visitor's state and that
+       state's tests, and its main action is exam practice (owner rules,
+       2026-09-14). Every section below is rendered by the engine
+       (Core\Journey\Home_Page) from the papers this site publishes, so no
+       exam name or number is typed here. The same template serves the
+       country view at / and each state's homepage at
+       /learn/{country}/{state}/. Photos come from Customize → PrepGro
+       Images (the "Homepage …" slots, each with an AI prompt); until one is
+       uploaded a visitor sees the section without it. The whole-product
+       story that used to be here is at /how-prepgro-works/. -->
 
-    [pgt_home_floats]
+  <!-- 1. Hero: country (or state) kicker, the state test headline, the state
+       picker. The pack's landmark skyline stays behind it. -->
+  <!-- wp:html -->
+  <section class="pgh-hero pgh-hero--exam" id="pg-hero">
+    [pge_home_hero]
     [pgt_hero_skyline]
   </section>
   <!-- /wp:html -->
 
-  <!-- 2. Trust strip. Renders via [pgt_home_trust]: the "50 states covered"
-       item is country-aware, the rest is verbatim. -->
+  <!-- 2. Counts: papers, states, state tests, grades. -->
   <!-- wp:html -->
   <section class="pgh-trust">
-    [pgt_home_trust]
+    [pge_home_trust]
   </section>
   <!-- /wp:html -->
 
-  <!-- 3. Three parts. One loop. -->
+  <!-- 3. At a glance (infographic): the country's testing road with papers
+       by subject, or the state's grade-by-subject map of its tests. -->
   <!-- wp:html -->
-  <section class="pgh-section" id="pg-how">
-    <div class="pgh-container">
-      <div class="pgh-center pgh-center--head">
-        <span class="pgh-chip">The portal</span>
-        <h2 class="pgh-h2">Three parts. One loop.</h2>
-        <p class="pgh-lead">Diagnose, learn, prove. Each part feeds the next, so nothing is guesswork.</p>
-      </div>
-      <div class="pgh-loop">
-        <article class="pgh-loopcard">
-          <span class="pgh-phase pgh-phase--evaluate">Evaluate</span>
-          <h3>Free diagnostic test</h3>
-          <p>A short adaptive test that names the exact skills holding the score down.</p>
-          <div class="pgh-statblock">
-            <div class="pgh-statrow"><span>Length</span><span class="pgh-mono">~20 min</span></div>
-            <div class="pgh-statrow"><span>Report</span><span class="pgh-mono">Same day</span></div>
-            <div class="pgh-statrow"><span>Cost</span><span class="pgh-mono">Free</span></div>
-          </div>
-          <a class="pgh-linkarrow" href="/get-started/">Take the free check<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </article>
-        <article class="pgh-loopcard">
-          <span class="pgh-phase pgh-phase--elevate">Elevate</span>
-          <h3>Lessons + tutor on demand</h3>
-          <p>A weekly plan of short lessons, plus 8 live 1:1 classes a month if you want them.</p>
-          <div class="pgh-statblock">
-            <div class="pgh-statrow"><span>Lessons</span><span class="pgh-mono">Skill-mapped</span></div>
-            <div class="pgh-statrow"><span>Live classes</span><span class="pgh-mono">8 / month</span></div>
-            <div class="pgh-statrow"><span>Plan</span><span class="pgh-mono">Weekly</span></div>
-          </div>
-          <a class="pgh-linkarrow" href="/elevate/">See the library<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </article>
-        <article class="pgh-loopcard">
-          <span class="pgh-phase pgh-phase--excel">Excel</span>
-          <h3>Unlimited practice tests</h3>
-          <p>Timed and untimed practice across every subject at your level, with explanations — and every question you miss comes back as its own scored practice set until you fix it.</p>
-          <div class="pgh-statblock">
-            <div class="pgh-statrow"><span>Attempts</span><span class="pgh-mono">Unlimited</span></div>
-            <div class="pgh-statrow"><span>Review</span><span class="pgh-mono">Every answer</span></div>
-            <div class="pgh-statrow"><span>Trend</span><span class="pgh-mono">By skill</span></div>
-          </div>
-          <a class="pgh-linkarrow" href="/excel/">Start practicing<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </article>
-      </div>
-    </div>
+  <section class="pgh-section pgh-section--glance" id="pg-glance">
+    [pge_home_glance]
   </section>
   <!-- /wp:html -->
 
-  <!-- 4. Device stage — the Knowt-style phone showcase. Markup and base CSS
-       come from the engine ([pge_device_stage]); assets/css/pg-devicestage.css
-       reskins it from the retired neumorphic system to the A1 flat one.
-       flow="modules" labels the floating cards with the Evaluate → Elevate →
-       Excel journey introduced by the section above. -->
+  <!-- 4. The tests: every state and the national tests (country view), or one
+       state's tests grade by grade with every paper linked (state view). -->
   <!-- wp:html -->
-  <section class="pgh-section pgh-section--flush pgh-devices" id="pg-devices">
-    <div class="pgh-container">
-      <div class="pgh-center pgh-center--head">
-        <span class="pgh-chip">One account, every device</span>
-        <h2 class="pgh-h2">The whole loop fits in a pocket.</h2>
-        <p class="pgh-lead">Practice between classes on a phone. Sit the full mock at a desk. One running score either way.</p>
-      </div>
-      [pge_device_stage part="stage" flow="modules"]
-    </div>
+  <section class="pgh-section pgh-section--tests">
+    [pge_home_tests]
   </section>
   <!-- /wp:html -->
 
-  <!-- 5. Report showcase -->
+  <!-- 5. How practice works: three numbered steps beside a photo. -->
   <!-- wp:html -->
-  <section class="pgh-section pgh-section--flush" id="pg-report">
-    <div class="pgh-reportpanel">
-      <div class="pgh-reportpanel__copy">
-        <span class="pgh-chip pgh-chip--onpanel">The report</span>
-        <h2 class="pgh-h2 pgh-h2--md">Specific enough to act on tonight.</h2>
-        <p class="pgh-lead">No percentile mystery. Skill by skill, with one recommended next step.</p>
-        <ul class="pgh-checklist">
-          <li><span class="pgh-checklist__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Strengths first, so students hear what is working</li>
-          <li><span class="pgh-checklist__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>The 4 skills to fix, in the order to fix them</li>
-          <li><span class="pgh-checklist__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>One recommended next step, not forty options</li>
-          <li><span class="pgh-checklist__tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>A readiness trend once there is enough evidence</li>
-        </ul>
-      </div>
-
-      <div class="pgh-reportcard">
-        <div class="pgh-reportcard__head">
-          <div>
-            <p class="pgh-reportcard__title">Readiness check &middot; Grade 11 math</p>
-            <p class="pgh-reportcard__meta">Completed 14 Mar &middot; 22 min</p>
-          </div>
-          <span class="pgt-sample">Sample</span>
-        </div>
-        <div class="pgh-tiles">
-          <div class="pgh-tile"><p class="pgh-tile__label">Est. score</p><p class="pgh-tile__value pgh-mono">1240</p></div>
-          <div class="pgh-tile"><p class="pgh-tile__label">Skills to fix</p><p class="pgh-tile__value pgh-tile__value--accent pgh-mono">4</p></div>
-        </div>
-        <div class="pgh-reportskills">
-          <div class="pgh-reportskill"><span>Proportional reasoning</span><div class="pgh-track"><i class="pgh-track__fill" style="--w:88%;--c:var(--blue-600)"></i></div><span class="pgh-mono">88%</span></div>
-          <div class="pgh-reportskill"><span>Expressions &amp; equations</span><div class="pgh-track"><i class="pgh-track__fill" style="--w:81%;--c:var(--blue-600)"></i></div><span class="pgh-mono">81%</span></div>
-          <div class="pgh-reportskill"><span>Geometry: volume</span><div class="pgh-track"><i class="pgh-track__fill" style="--w:56%;--c:var(--amber-600)"></i></div><span class="pgh-mono">56%</span></div>
-          <div class="pgh-reportskill"><span>Statistics &amp; probability</span><div class="pgh-track"><i class="pgh-track__fill" style="--w:44%;--c:var(--amber-600)"></i></div><span class="pgh-mono">44%</span></div>
-          <div class="pgh-reportskill"><span>Data analysis</span><div class="pgh-track"><i class="pgh-track__fill" style="--w:38%;--c:var(--amber-600)"></i></div><span class="pgh-mono">38%</span></div>
-        </div>
-        <div class="pgh-callout">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          <p>Start here: 3 lessons on data analysis, then a 12-question timed set.</p>
-        </div>
-      </div>
-    </div>
+  <section class="pgh-section pgh-section--flush" id="pg-how">
+    [pge_home_practice]
   </section>
   <!-- /wp:html -->
 
-  <!-- 6. Tutor band (ink). Rows render via [pgt_home_tutorband] — country-aware
-       when the pack authors front_page.tutor_rows, US sample rows otherwise. -->
+  <!-- 6. Support for the exam, one card per module: Evaluate (the optional
+       skills check), Elevate (lessons and tutors), Excel (unlimited
+       practice); links to How prepGro works. -->
   <!-- wp:html -->
-  <section class="pgh-tutorband" id="pg-experts">
-    <div class="pgh-tutorband__inner">
-      <div>
-        <span class="pgh-chip pgh-chip--ondark">Tutor on demand</span>
-        <h2 class="pgh-h2 pgh-h2--md pgh-h2--ondark">Matched to the gap, not the hour.</h2>
-        <p class="pgh-tutorband__lead">Eight live 1:1 classes a month with a tutor who already knows which skills are weak. Unlimited practice continues between classes.</p>
-        <a class="pgt-btn pgt-btn--on-dark" href="/elevate/">Find a tutor</a>
-      </div>
-      [pgt_home_tutorband]
-    </div>
+  <section class="pgh-section pgh-section--flush" id="pg-support">
+    [pge_home_support]
   </section>
   <!-- /wp:html -->
 
-  <!-- 7. Continue-on-desktop band — the second half of the device story.
-       No flow="modules" here on purpose: the deskband's step strip would
-       otherwise repeat section 3 verbatim. Left on its default flow it tells
-       the device-continuity story instead, which is new information.
-       This replaces the A5 photo band, which was the weakest section on the
-       page and is still available anywhere as [pgt_photo_band]. -->
+  <!-- 7. Closing band: a proverb, one encouraging line, the next step. -->
   <!-- wp:html -->
-  <section class="pgh-section pgh-section--flush pgh-devices pgh-devices--desk" id="pg-desktop">
-    <div class="pgh-container">
-      [pge_device_stage part="deskband"]
-    </div>
+  <section class="pgh-section pgh-section--flush" id="pg-start">
+    [pge_home_cta]
   </section>
   <!-- /wp:html -->
 
-  <!-- 8. FAQ -->
+  <!-- 8. FAQ, with FAQPage JSON-LD, plus ItemList / BreadcrumbList. -->
   <!-- wp:html -->
   <section class="pgh-section pgh-section--tight" id="pg-faq">
-    <div class="pgh-container pgh-container--narrow">
-      <div class="pgh-center pgh-center--head">
-        <span class="pgh-chip">FAQ</span>
-        <h2 class="pgh-h2 pgh-h2--sm">Good questions</h2>
-      </div>
-      <div class="pgh-faq">
-        <details class="pgh-faq__item">
-          <summary>How long is the readiness check?<span class="pgh-faq__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
-          <p>About 20 minutes. One question per screen, and you can save and resume. The report is ready as soon as it is finished.</p>
-        </details>
-        <details class="pgh-faq__item">
-          <summary>What does unlimited practice include?<span class="pgh-faq__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
-          <p>Unlimited mock practice tests across every subject at the grade level you choose, timed or untimed, with answer explanations, review and skill-level progress tracking.</p>
-        </details>
-        <details class="pgh-faq__item">
-          <summary>How many live classes come with a tutor plan?<span class="pgh-faq__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
-          <p>Eight live 1:1 classes each month, plus the Unlimited Test Pack covering every subject at that grade level.</p>
-        </details>
-        <details class="pgh-faq__item">
-          <summary>Which subjects are included?<span class="pgh-faq__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
-          <p>All of them. A plan is priced by grade level, not by subject, so every subject at the level you choose is included.</p>
-        </details>
-        <details class="pgh-faq__item">
-          <summary>Do you guarantee a score?<span class="pgh-faq__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
-          <p>No. Practice tests are designed to help students prepare; prepGro does not guarantee examination scores.</p>
-        </details>
-      </div>
-    </div>
+    [pge_home_faq]
   </section>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {"@type": "Question", "name": "How long is the readiness check?", "acceptedAnswer": {"@type": "Answer", "text": "About 20 minutes. One question per screen, and you can save and resume. The report is ready as soon as it is finished."}},
-      {"@type": "Question", "name": "What does unlimited practice include?", "acceptedAnswer": {"@type": "Answer", "text": "Unlimited mock practice tests across every subject at the grade level you choose, timed or untimed, with answer explanations, review and skill-level progress tracking."}},
-      {"@type": "Question", "name": "How many live classes come with a tutor plan?", "acceptedAnswer": {"@type": "Answer", "text": "Eight live 1:1 classes each month, plus the Unlimited Test Pack covering every subject at that grade level."}},
-      {"@type": "Question", "name": "Which subjects are included?", "acceptedAnswer": {"@type": "Answer", "text": "All of them. A plan is priced by grade level, not by subject, so every subject at the level you choose is included."}},
-      {"@type": "Question", "name": "Do you guarantee a score?", "acceptedAnswer": {"@type": "Answer", "text": "No. Practice tests are designed to help students prepare; prepGro does not guarantee examination scores."}}
-    ]
-  }
-  </script>
   <!-- /wp:html -->
 
 </main>

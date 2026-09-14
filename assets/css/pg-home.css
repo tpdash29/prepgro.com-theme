@@ -545,3 +545,319 @@ body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
    still has to be readable, it is just not clickable. */
 .pgh-loopcard--soon { opacity: .82; }
 .pgh-loopcard--soon .pgh-phase { filter: saturate(.3); }
+
+/* ── State-test front page (2026-09-14) ──────────────────────────────────
+   Owner rules: the front page talks about this country, the visitor's state
+   and that state's tests, and exam practice is the main action. The engine
+   (Core\Journey\Home_Page) renders the sections from the published papers;
+   these rules style its pieces with the same tokens as the rest of the page.
+   The same markup serves / (country) and /learn/{country}/{state}/ (state). */
+
+/* Hero: two lines, not three, and room for the picker. */
+.pgh-hero--exam .pgh-hero__title { text-wrap: balance; }
+.pgh-hero__alt { margin: 16px 0 0; font-size: 14.5px; }
+.pgh-hero__alt a { color: var(--pge-color-primary); font-weight: 600; }
+
+/* State picker: label above, select + button in one row that wraps. */
+.pgh-statepick { margin: 28px auto 0; max-width: 560px; text-align: left; }
+.pgh-statepick__label { display: block; margin: 0 0 8px; font-size: 13.5px; font-weight: 600; color: var(--pge-color-ink); }
+.pgh-statepick__row { display: flex; gap: 10px; flex-wrap: wrap; }
+.pgh-statepick select {
+	flex: 1 1 260px;
+	min-width: 0;
+	min-height: 52px;
+	padding: 0 44px 0 16px;
+	font: inherit;
+	font-size: 16px; /* 16px: no zoom-on-focus on iOS */
+	color: var(--pge-color-ink);
+	background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center / 18px 18px;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 14px;
+	appearance: none;
+	-webkit-appearance: none;
+}
+.pgh-statepick select:focus-visible { outline: 3px solid var(--blue-600); outline-offset: 2px; }
+.pgh-statepick .pgt-btn { flex: 0 0 auto; }
+@media (max-width: 520px) { .pgh-statepick .pgt-btn { flex: 1 1 100%; } }
+
+/* Section 3: state cards and national tests. */
+.pgh-h3 { font-size: 22px; letter-spacing: -.02em; font-weight: 600; color: var(--pge-color-ink); margin: 0 0 6px; }
+.pgh-states {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+	gap: 10px;
+}
+.pgh-statecard {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	height: 100%;
+	padding: 14px 16px;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 14px;
+	text-decoration: none;
+	transition: border-color .15s, box-shadow .15s;
+}
+.pgh-statecard:hover, .pgh-statecard:focus-visible { border-color: var(--blue-600); box-shadow: 0 6px 18px -10px rgba(27,59,235,.45); text-decoration: none; }
+.pgh-statecard__name { font-size: 15.5px; font-weight: 600; color: var(--pge-color-ink); }
+.pgh-statecard__tests { font-size: 13px; font-weight: 600; color: var(--pge-color-primary); overflow-wrap: anywhere; }
+.pgh-statecard__count { font-size: 12.5px; color: var(--pge-ink-500); }
+.pgh-national { margin-top: 48px; }
+.pgh-national .pgh-lead { margin-bottom: 16px; font-size: 15px; }
+
+/* State view: grade filter, one card per test, papers by grade. */
+.pgh-gradefilter { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 28px; }
+.pgh-gradefilter a {
+	padding: 7px 14px;
+	border: 1px solid var(--pge-color-line);
+	border-radius: var(--pge-radius-pill);
+	background: #fff;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--pge-ink-500);
+	text-decoration: none;
+}
+.pgh-gradefilter a[aria-current="page"] { background: var(--pge-color-primary); border-color: var(--pge-color-primary); color: #fff; }
+.pgh-prog {
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 22px;
+	padding: 24px;
+	margin: 0 0 18px;
+	scroll-margin-top: 90px;
+}
+.pgh-prog--national { background: var(--pge-gray-50); }
+.pgh-prog__title { margin: 0; font-size: 24px; letter-spacing: -.02em; font-weight: 600; color: var(--pge-color-ink); }
+.pgh-prog__name { margin: 4px 0 0; font-size: 14.5px; color: var(--pge-color-body); }
+.pgh-prog__meta { margin: 6px 0 0; font-size: 13.5px; color: var(--pge-ink-500); }
+.pgh-prog__grades {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+	gap: 18px;
+	margin-top: 20px;
+}
+.pgh-prog__grade h4 { margin: 0 0 8px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pge-ink-400); }
+.pgh-prog__grade ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pgh-prog__grade a { font-size: 15px; font-weight: 600; color: var(--pge-color-primary); text-decoration: none; }
+.pgh-prog__grade a:hover { text-decoration: underline; }
+.pgh-prog__links { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 8px 0 0; }
+.pgh-also { margin: 36px 0 12px; }
+
+/* Practice cards carry no phase chip, so the heading needs no top gap. */
+.pgh-loopcard--plain h3 { margin-top: 0; }
+/* The country's name beside the flag chip, only where the chip shows the flag alone. */
+.pgh-hero__kicker-text--narrow { display: none; }
+@media (max-width: 640px) { .pgh-hero__kicker-text--narrow { display: inline; } }
+
+/* ── Homepage photos and infographics (2026-09) ─────────────────────────
+   Photos come from the Customizer's "Homepage …" image slots through the
+   engine's pge_home_image filter. Every block below lays out without its
+   photo too: a visitor sees no box until one is uploaded. */
+.pgh-photo { box-shadow: 0 30px 60px -34px rgba(18, 38, 200, .35); }
+
+/* Hero with a photo: copy left, photo right, two facts pinned to it. */
+.pgh-hero__split { position: relative; z-index: 3; max-width: 1160px; margin-inline: auto; }
+.pgh-hero__media { position: relative; margin: 36px 0 0; }
+.pgh-hero__fact {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	padding: 9px 14px;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-radius: 14px;
+	box-shadow: var(--pge-shadow-md);
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--pge-color-ink);
+	white-space: nowrap;
+}
+.pgh-hero__fact--a { top: 18px; left: -12px; color: var(--pge-color-primary); }
+.pgh-hero__fact--b { right: -12px; bottom: 22px; }
+@media (min-width: 960px) {
+	.pgh-hero__split { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: clamp(32px, 4vw, 64px); align-items: center; }
+	.pgh-hero__split .pgh-hero__copy { text-align: left; margin: 0; max-width: none; }
+	.pgh-hero__split .pgh-hero__title { font-size: clamp(34px, 4.4vw, 54px); }
+	.pgh-hero__split .pgh-hero__kicker, .pgh-hero__split .pgh-hero__cta { justify-content: flex-start; }
+	.pgh-hero__split .pgh-hero__sub { margin-left: 0; }
+	.pgh-hero__split .pgh-statepick { margin-left: 0; }
+	.pgh-hero__media { margin: 0; }
+}
+@media (max-width: 640px) { .pgh-hero__fact--a { left: 10px; } .pgh-hero__fact--b { right: 10px; } }
+
+/* State outline icons: on each state card and beside the state's name. */
+.pgh-statecard { position: relative; padding-right: 64px; }
+.pgh-statecard__icon {
+	position: absolute;
+	top: 50%;
+	right: 14px;
+	width: 42px;
+	height: 42px;
+	transform: translateY(-50%);
+	color: var(--blue-100);
+	transition: color .15s, transform .15s;
+}
+.pgh-statecard:hover .pgh-statecard__icon, .pgh-statecard:focus-visible .pgh-statecard__icon { color: var(--pge-color-primary); transform: translateY(-50%) scale(1.06); }
+.pgh-hero__kicker-text { display: inline-flex; align-items: center; gap: 8px; }
+.pgh-hero__kicker .pgh-statecard__icon { position: static; width: 26px; height: 26px; transform: none; color: var(--pge-color-primary); }
+
+/* At a glance: the testing road. Three stages joined by one line. */
+.pgh-road {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+	gap: 18px;
+	position: relative;
+	counter-reset: road;
+}
+.pgh-road__stage {
+	--pgh-road: var(--pgt-pillar-evaluate);
+	--pgh-road-bg: var(--blue-50);
+	position: relative;
+	padding: 26px 24px 22px;
+	background: #fff;
+	border: 1px solid var(--pge-color-line);
+	border-top: 4px solid var(--pgh-road);
+	border-radius: 20px;
+}
+.pgh-road__stage--hs { --pgh-road: var(--pgt-pillar-elevate); --pgh-road-bg: var(--teal-50); }
+.pgh-road__stage--national { --pgh-road: var(--pgt-pillar-excel); --pgh-road-bg: var(--amber-50); }
+@media (min-width: 900px) {
+	.pgh-road__stage:not(:last-child)::after {
+		content: "";
+		position: absolute;
+		top: 48px;
+		right: -18px;
+		width: 18px;
+		height: 2px;
+		background: repeating-linear-gradient(90deg, var(--pge-color-line) 0 4px, transparent 4px 7px);
+	}
+}
+.pgh-road__icon {
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 14px;
+	background: var(--pgh-road-bg);
+	color: var(--pgh-road);
+}
+.pgh-road__icon svg { width: 22px; height: 22px; }
+.pgh-road__grades { margin: 14px 0 2px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pgh-road); }
+.pgh-road__title { margin: 0 0 6px; font-size: 21px; font-weight: 600; letter-spacing: -.02em; color: var(--pge-color-ink); }
+.pgh-road__text { margin: 0 0 10px; font-size: 14.5px; line-height: 1.55; color: var(--pge-ink-500); }
+.pgh-road__tests { margin: 0 0 16px; font-size: 13.5px; font-weight: 600; color: var(--pge-color-body); }
+.pgh-road__nums { display: flex; gap: 10px; margin: 0; }
+.pgh-road__nums > div { flex: 1; padding: 10px 12px; border-radius: 12px; background: var(--pgh-road-bg); }
+.pgh-road__nums dt { font-size: 12px; color: var(--pge-ink-500); }
+.pgh-road__nums dd { margin: 2px 0 0; font-size: 22px; color: var(--pgh-road); }
+
+/* Papers by subject: horizontal bars. */
+.pgh-bars { margin: 36px auto 0; max-width: 760px; }
+.pgh-bars .pgh-h3 { font-size: 17px; margin-bottom: 14px; text-align: center; }
+.pgh-bars__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pgh-bars__row { display: grid; grid-template-columns: minmax(110px, 190px) 1fr 52px; align-items: center; gap: 12px; font-size: 14px; }
+.pgh-bars__label { font-weight: 600; color: var(--pge-color-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgh-bars__track { height: 12px; border-radius: 99px; background: var(--pge-gray-100); overflow: hidden; }
+.pgh-bars__track i { display: block; height: 100%; width: var(--w); border-radius: inherit; background: var(--gradient-brand); }
+.pgh-bars__n { text-align: right; color: var(--pge-color-ink); font-size: 13.5px; }
+
+/* State view: grade-by-subject map. Scrolls inside itself on phones. */
+.pgh-map { overflow-x: auto; border: 1px solid var(--pge-color-line); border-radius: 18px; background: #fff; }
+.pgh-map:focus-visible { outline: 3px solid var(--blue-600); outline-offset: 2px; }
+.pgh-map__table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.pgh-map__table th, .pgh-map__table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--pge-gray-100); }
+.pgh-map__table tr:last-child th, .pgh-map__table tr:last-child td { border-bottom: 0; }
+.pgh-map__table thead th { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--pge-ink-400); background: var(--pge-gray-50); white-space: nowrap; }
+.pgh-map__table thead th.is-current { color: var(--pge-color-primary); }
+.pgh-map__table tbody th { text-align: left; font-weight: 600; color: var(--pge-color-body); min-width: 150px; padding-left: 18px; }
+.pgh-map__cell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	padding: 5px 9px;
+	border-radius: 99px;
+	background: var(--blue-50);
+	color: var(--pge-color-primary);
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+	text-decoration: none;
+}
+.pgh-map__cell:hover, .pgh-map__cell:focus-visible { background: var(--pge-color-primary); color: #fff; text-decoration: none; }
+.pgh-map__none { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--pge-gray-200); }
+
+/* How practice works: numbered steps, beside a photo when there is one. */
+.pgh-steps { display: grid; gap: clamp(28px, 4vw, 56px); align-items: center; max-width: 760px; margin-inline: auto; }
+.pgh-steps--photo { max-width: none; }
+@media (min-width: 960px) { .pgh-steps--photo { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); } }
+.pgh-steps__body .pgh-lead { margin: 0 0 24px; }
+.pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-chip,
+.pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-h2,
+.pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-lead { text-align: center; margin-inline: auto; }
+.pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-chip { display: table; }
+.pgh-steps__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.pgh-step { display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start; padding: 18px; background: #fff; border: 1px solid var(--pge-color-line); border-radius: 18px; }
+.pgh-step__icon { position: relative; display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--blue-50); color: var(--pge-color-primary); }
+.pgh-step__icon svg { width: 24px; height: 24px; }
+.pgh-step__n { position: absolute; top: -7px; right: -7px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pge-color-primary); color: #fff; font-size: 12px; font-weight: 700; }
+.pgh-step h3 { margin: 2px 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--pge-color-ink); }
+.pgh-step p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--pge-ink-500); }
+
+/* Support head: copy beside a photo when there is one. */
+.pgh-supporthead { max-width: 640px; margin: 0 auto 44px; }
+.pgh-supporthead--photo { max-width: none; display: grid; gap: clamp(24px, 4vw, 48px); align-items: center; }
+@media (min-width: 900px) { .pgh-supporthead--photo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pgh-supporthead .pgh-lead { margin-bottom: 14px; }
+.pgh-supporthead__media { margin: 0; }
+
+/* Closing band: a proverb, one encouraging line, the next step. Light, on
+   the brand kit: white card on a blue-50 wash, the signature chip gradient
+   as a top rule, ink type, the primary button. (Owner: no dark boxes.) */
+.pgh-ctaband {
+	position: relative;
+	overflow: hidden;
+	text-align: center;
+	padding: clamp(40px, 6vw, 72px) clamp(22px, 5vw, 64px);
+	border-radius: 28px;
+	border: 1px solid var(--blue-100);
+	background:
+		radial-gradient(640px 280px at 10% -20%, var(--blue-100), transparent 62%),
+		radial-gradient(560px 260px at 92% 120%, var(--blue-50), transparent 62%),
+		linear-gradient(180deg, var(--blue-50) 0%, #fff 100%);
+	box-shadow: var(--pge-shadow-md);
+}
+.pgh-ctaband::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 5px;
+	background: var(--gradient-brand);
+}
+.pgh-ctaband__proverb { margin: 0 auto 26px; max-width: 34ch; }
+.pgh-ctaband__proverb blockquote { margin: 0; }
+.pgh-ctaband__proverb p { margin: 0; font-size: clamp(19px, 2.2vw, 24px); line-height: 1.4; font-style: italic; font-weight: 500; color: var(--pge-color-primary); }
+.pgh-ctaband__proverb p::before { content: "\201C"; } .pgh-ctaband__proverb p::after { content: "\201D"; }
+.pgh-ctaband__proverb figcaption { margin-top: 8px; font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pge-ink-400); }
+.pgh-ctaband .pgh-h2 { margin: 0 auto 12px; max-width: 22ch; }
+.pgh-ctaband__text { margin: 0 auto; max-width: 56ch; font-size: 17px; line-height: 1.6; color: var(--pge-ink-500); }
+.pgh-ctaband__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 26px; margin-top: 28px; }
+.pgh-ctaband__plans { display: inline-flex; align-items: center; gap: 6px; color: var(--pge-color-primary); font-weight: 600; text-decoration: none; }
+.pgh-ctaband__plans svg { width: 18px; height: 18px; }
+.pgh-ctaband__plans:hover { text-decoration: underline; }
+/* Phones: two state cards a row (48 in one column is a long scroll), the
+   outline smaller in the top corner. */
+@media (max-width: 520px) {
+	.pgh-states:not(.pgh-states--national) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+	.pgh-states:not(.pgh-states--national) .pgh-statecard { padding: 12px 38px 12px 12px; }
+	.pgh-states:not(.pgh-states--national) .pgh-statecard__name { font-size: 14.5px; overflow-wrap: anywhere; }
+	.pgh-statecard__icon { top: 12px; right: 10px; width: 24px; height: 24px; transform: none; }
+	.pgh-statecard:hover .pgh-statecard__icon, .pgh-statecard:focus-visible .pgh-statecard__icon { transform: scale(1.06); }
+}

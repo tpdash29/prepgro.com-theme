@@ -66,6 +66,33 @@ final class Image_Slots {
 		}
 
 		$slots = array(
+			// The exam-first homepage (engine Core\Journey\Home_Page asks for
+			// these through the `pge_home_image` filter). A visitor sees no box
+			// at all until one is uploaded; the section lays out without it.
+			'pgt_home_hero_photo' => array(
+				'label'   => __( 'Homepage hero — photo', 'prepgro-theme' ),
+				'where'   => __( 'Beside the state picker at the top of the homepage and of every state homepage (/learn/…/{state}/). Two facts (paper count, a state test) are pinned over its corners, so keep them clear.', 'prepgro-theme' ),
+				'width'   => 1100,
+				'height'  => 920,
+				'alt'     => __( 'A parent and child working through a state test practice paper together.', 'prepgro-theme' ),
+				'subject' => 'a parent and their elementary-school child side by side at a kitchen table in the evening, the child working through a practice test on a laptop for the end-of-year state test, the parent smiling and encouraging, warm and optimistic mood; keep the top-left and bottom-right corners calm for overlaid labels',
+			),
+			'pgt_home_practice_photo' => array(
+				'label'   => __( 'Homepage "How practice works" — photo', 'prepgro-theme' ),
+				'where'   => __( 'Beside the three numbered steps (papers, timed or untimed, every answer explained) on the homepage.', 'prepgro-theme' ),
+				'width'   => 1200,
+				'height'  => 1000,
+				'alt'     => __( 'A student sitting a timed practice paper for the state test.', 'prepgro-theme' ),
+				'subject' => 'a middle-school student sitting a timed state test practice paper on a laptop at a tidy desk, scratch paper with math working beside it, a small desk timer in view, calm and confident expression',
+			),
+			'pgt_home_support_photo' => array(
+				'label'   => __( 'Homepage "Help with the skills" — photo', 'prepgro-theme' ),
+				'where'   => __( 'Beside the heading of the Evaluate / Elevate / Excel support section on the homepage.', 'prepgro-theme' ),
+				'width'   => 1200,
+				'height'  => 800,
+				'alt'     => __( 'A tutor helping a student with one skill on a video call.', 'prepgro-theme' ),
+				'subject' => 'a friendly tutor on a one-to-one video call helping a student with a single math skill, seen over the student\'s shoulder, the student leaning in with a small smile of understanding',
+			),
 			'pgt_home_band_main' => array(
 				'label'   => __( 'Homepage band — main photo', 'prepgro-theme' ),
 				'where'   => __( 'The large left-hand photo in the homepage photo band.', 'prepgro-theme' ),
