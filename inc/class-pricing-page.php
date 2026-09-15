@@ -319,9 +319,19 @@ final class Pricing_Page {
 				. '</div>';
 		}
 
+		// The level name inside the headline swaps with the tab, same trick as
+		// the "Showing prices for…" name in header() — all four rendered, only
+		// the current one visible, and the same data-pgt-levelname attribute
+		// so the existing tab-switch JS toggles this for free.
+		$h2_levelnames = '';
+		foreach ( $levels as $key => $l ) {
+			$h2_levelnames .= '<span class="pgp-card__h-level" data-pgt-levelname="' . esc_attr( $key ) . '"'
+				. ( $key === $current ? '' : ' hidden' ) . '>' . esc_html( $l['name'] ) . '</span>';
+		}
+
 		$out .= '<div class="pgp-card pgp-card--quiet">'
 			. '<span class="pgp-tag">' . esc_html__( 'Unlimited test pack', 'prepgro-theme' ) . '</span>'
-			. '<h2 class="pgp-card__h">' . esc_html__( 'Unlimited practice for every subject at this level', 'prepgro-theme' ) . '</h2>'
+			. '<h2 class="pgp-card__h">' . esc_html__( 'Unlimited practice for every subject in', 'prepgro-theme' ) . ' ' . $h2_levelnames . '</h2>'
 			. '<p class="pgp-card__b">' . esc_html__( 'Take practice tests as often as you need, review every answer, and see which skills to improve next.', 'prepgro-theme' ) . '</p>'
 			. '<div class="pgp-priceblock">' . $prices . '</div>'
 			. '<ul class="pgp-includes">' . $list( $pack_includes ) . '</ul>'

@@ -131,6 +131,8 @@
 	margin: 16px 0 10px;
 }
 .pgp-card__h--onblue { color: #fff; }
+.pgp-card__h-level { text-decoration: underline; text-underline-offset: 2px; }
+.pgp-card__h-level[hidden] { display: none; }
 .pgp-card__b { font-size: 15.5px; line-height: 1.6; color: var(--pge-ink-500); margin: 0 0 24px; }
 .pgp-card__b--onblue { color: rgba(255,255,255,.78); }
 
