@@ -145,7 +145,7 @@ final class Homepage_Sections {
 	}
 
 	/**
-	 * The Elevate loop card promises "8 live 1:1 classes a month" — true only
+	 * The Elevate loop card promises live 1:1 tutoring as a joinable add-on — true only
 	 * once the Live Tutor plans are ARMED (tutor-seed-packages.php `arm`
 	 * populates `live_teacher_package_ids`). Pre-launch, that promise on the
 	 * front page is a lie about a product nobody can buy, so while the plans
@@ -162,7 +162,8 @@ final class Homepage_Sections {
 		if ( empty( $block['blockName'] ) || 'core/html' !== $block['blockName'] ) {
 			return $content;
 		}
-		if ( false === strpos( $content, 'Lessons + tutor on demand' ) ) {
+		if ( false === strpos( $content, 'Lessons, and a tutor if you want one' )
+			&& false === strpos( $content, 'Lessons, plus tutoring as an add-on' ) ) {
 			return $content;
 		}
 		// Elevate off entirely → gate_loop_cards already badged the card.
@@ -176,17 +177,12 @@ final class Homepage_Sections {
 		}
 
 		$content = str_replace(
-			'<h3>Lessons + tutor on demand</h3>',
-			'<h3>' . esc_html__( 'Lessons that close the gaps', 'prepgro-theme' ) . '</h3>',
+			'<p>Short lessons on one skill at a time at your child’s grade, and live 1:1 classes with a tutor — an optional add-on you can join anytime.</p>',
+			'<p>' . esc_html__( 'Short lessons on one skill at a time at your child’s grade. Live 1:1 tutoring is an add-on that opens soon — join the waitlist from the study portal.', 'prepgro-theme' ) . '</p>',
 			$content
 		);
 		$content = str_replace(
-			'<p>A weekly plan of short lessons, plus 8 live 1:1 classes a month if you want them.</p>',
-			'<p>' . esc_html__( 'A weekly plan of short lessons mapped to your diagnostic. Live 1:1 tutoring opens soon — join the waitlist from the study portal.', 'prepgro-theme' ) . '</p>',
-			$content
-		);
-		$content = str_replace(
-			'<div class="pgh-statrow"><span>Live classes</span><span class="pgh-mono">8 / month</span></div>',
+			'<div class="pgh-statrow"><span>Live 1:1 tutoring</span><span class="pgh-mono">Add-on</span></div>',
 			'<div class="pgh-statrow"><span>' . esc_html__( 'Live 1:1 tutoring', 'prepgro-theme' ) . '</span><span class="pgh-mono">' . esc_html__( 'Waitlist', 'prepgro-theme' ) . '</span></div>',
 			$content
 		);

@@ -18,11 +18,11 @@
 /* ── Shared page furniture ─────────────────────────────────────────── */
 .pgh-container { max-width: 1160px; margin-inline: auto; }
 .pgh-container--narrow { max-width: 760px; }
-.pgh-section { padding: clamp(48px, 7vw, 80px) clamp(18px, 4vw, 32px); }
+.pgh-section { padding: clamp(32px, 4.5vw, 56px) clamp(18px, 4vw, 32px); }
 .pgh-section--flush { padding-top: 0; }
 .pgh-section--tight { padding-top: 0; }
 .pgh-center { text-align: center; }
-.pgh-center--head { max-width: 640px; margin: 0 auto 44px; }
+.pgh-center--head { max-width: 640px; margin: 0 auto 32px; }
 
 .pgh-mono { font-family: var(--pge-font-mono); font-weight: 700; }
 
