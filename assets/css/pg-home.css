@@ -302,6 +302,7 @@ body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
 .pgh-trust__item { display: flex; align-items: baseline; gap: 8px; }
 .pgh-trust__n { font-size: 19px; color: var(--pge-color-ink); }
 .pgh-trust__l { font-size: 13.5px; color: var(--pge-ink-500); }
+.pgh-trust__l--strong { font-size: 19px; font-weight: 700; color: var(--pge-color-ink); }
 
 /* ── 3. Three parts. One loop. ─────────────────────────────────────── */
 .pgh-loop {
@@ -817,13 +818,13 @@ body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
 .pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-h2,
 .pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-lead { text-align: center; margin-inline: auto; }
 .pgh-steps:not(.pgh-steps--photo) .pgh-steps__body > .pgh-chip { display: table; }
-.pgh-steps__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-.pgh-step { display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start; padding: 18px; background: #fff; border: 1px solid var(--pge-color-line); border-radius: 18px; }
-.pgh-step__icon { position: relative; display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--blue-50); color: var(--pge-color-primary); }
-.pgh-step__icon svg { width: 24px; height: 24px; }
-.pgh-step__n { position: absolute; top: -7px; right: -7px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--pge-color-primary); color: #fff; font-size: 12px; font-weight: 700; }
-.pgh-step h3 { margin: 2px 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--pge-color-ink); }
-.pgh-step p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--pge-ink-500); }
+.pgh-steps__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.pgh-step { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; padding: 14px 16px; background: #fff; border: 1px solid var(--pge-color-line); border-radius: 16px; }
+.pgh-step__icon { position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: var(--blue-50); color: var(--pge-color-primary); }
+.pgh-step__icon svg { width: 20px; height: 20px; }
+.pgh-step__n { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; background: var(--pge-color-primary); color: #fff; font-size: 11px; font-weight: 700; }
+.pgh-step h3 { margin: 1px 0 3px; font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: var(--pge-color-ink); }
+.pgh-step p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--pge-ink-500); }
 
 /* Support head: copy beside a photo when there is one. */
 .pgh-supporthead { max-width: 640px; margin: 0 auto 44px; }
