@@ -390,6 +390,31 @@ add_action(
 			PGT_VERSION,
 			true
 		);
+
+		// WooCommerce ships several styles/scripts as "global frontend
+		// assets" — product-card CSS, the small-screen breakpoint sheet, the
+		// block-theme cart/checkout styles, and the AJAX add-to-cart JS
+		// (with its jQuery blockUI + js-cookie deps) — on every request,
+		// whether or not the page has any WooCommerce content
+		// (class-wc-frontend-scripts.php: "// Global frontend scripts.").
+		// The homepage has no WooCommerce shortcode or block
+		// (class-homepage-sections.php), so this was 8 pure-waste requests
+		// and ~180KB on every first load (2026-09-14 Pingdom HAR). Order
+		// attribution (sourcebuster-js + wc-order-attribution) is left
+		// alone on purpose: first-touch marketing attribution has to start
+		// tracking from the landing page, not just checkout.
+		if ( class_exists( 'WooCommerce' )
+			&& ( is_front_page() || \PrepGro\Theme\Tour_Page::instance()->is_tour() ) ) {
+			wp_dequeue_style( 'woocommerce-general' );
+			wp_dequeue_style( 'woocommerce-layout' );
+			wp_dequeue_style( 'woocommerce-smallscreen' );
+			wp_dequeue_style( 'woocommerce-blocktheme' );
+			wp_dequeue_style( 'wc-blocks-style' );
+			wp_dequeue_script( 'woocommerce' );
+			wp_dequeue_script( 'wc-add-to-cart' );
+			wp_dequeue_script( 'wc-jquery-blockui' );
+			wp_dequeue_script( 'wc-js-cookie' );
+		}
 	},
 	20
 );
