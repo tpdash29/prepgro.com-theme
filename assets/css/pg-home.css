@@ -636,15 +636,48 @@ body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
 .pgh-prog__name { margin: 4px 0 0; font-size: 14.5px; color: var(--pge-color-body); }
 .pgh-prog__meta { margin: 6px 0 0; font-size: 13.5px; color: var(--pge-ink-500); }
 .pgh-prog__grades {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+	/* flex, not grid: a CSS grid's column tracks are shared by every row, so
+	 * a short last row (or a single-grade filter) still leaves the row's
+	 * unused tracks empty and white — grid has no "row only" fill. Flex-wrap
+	 * lets flex-grow redistribute the leftover width among just the items
+	 * actually present in that row, so the last row always fills edge to edge. */
+	display: flex;
+	flex-wrap: wrap;
 	gap: 18px;
 	margin-top: 20px;
 }
+.pgh-prog__grade { flex: 1 1 190px; }
 .pgh-prog__grade h4 { margin: 0 0 8px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--pge-ink-400); }
 .pgh-prog__grade ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .pgh-prog__grade a { font-size: 15px; font-weight: 600; color: var(--pge-color-primary); text-decoration: none; }
 .pgh-prog__grade a:hover { text-decoration: underline; }
+.pgh-prog__tip {
+	flex: 2 1 260px;
+	background: linear-gradient(160deg, var(--blue-50), #fff);
+	border: 1px solid var(--blue-200);
+	border-radius: 16px;
+	padding: 20px 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	justify-content: center;
+	min-height: 140px;
+}
+.pgh-prog__tip-icon {
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	background: #fff;
+	border: 1px solid var(--blue-200);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--pge-color-primary);
+	flex: none;
+}
+.pgh-prog__tip-icon svg { width: 20px; height: 20px; }
+.pgh-prog__tip-quote { margin: 0; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: var(--pge-color-ink); font-style: italic; }
+.pgh-prog__tip-author { display: block; margin-top: 6px; font-size: 12px; font-weight: 700; font-style: normal; color: var(--pge-color-primary); text-transform: uppercase; letter-spacing: .04em; }
 .pgh-prog__links { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 8px 0 0; }
 .pgh-also { margin: 36px 0 12px; }
 

@@ -1646,9 +1646,12 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 .pgt-brandlogo__word { font-family: var(--pge-font-heading); font-size: 20px; letter-spacing: -.015em; line-height: 1; }
 .pgt-logo .pgt-brandlogo__word { font-size: calc(var(--pgt-logo-h, 30px) * .67); }
 .pgt-brandlogo__prep { font-weight: 500; color: var(--pge-color-ink); }
-.pgt-brandlogo__gro { font-weight: 700; color: #0a84ff; }
-.pgt-brandlogo__r { font-weight: inherit; color: var(--pgt-pillar-elevate, #0f766e); }
-.pgt-brandlogo__o { font-weight: inherit; color: var(--pgt-pillar-excel, #b45309); }
+/* Matches the chip's mid-gradient stop (blue-500 azure), not the flat
+   --pge-color-primary — the wordmark is meant to read as the same blue
+   as the chip icon beside it, not the UI's button/link blue. */
+.pgt-brandlogo__gro { font-weight: 700; color: var(--pge-blue-500); }
+.pgt-brandlogo__r { font-weight: inherit; }
+.pgt-brandlogo__o { font-weight: inherit; }
 .pgt-brandlogo__copy { display: flex; flex-direction: column; gap: .18rem; }
 .pgt-brandlogo__tagline {
 	font-size: .6rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
@@ -2262,7 +2265,8 @@ html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header {
 	border-bottom-color: #2a3345;
 }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header .pgt-brandlogo__prep { color: #eef2f9; }
-html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-header .pgt-brandlogo__gro { color: #0a84ff; }
+/* .pgt-brandlogo__gro is left alone here: it stays the chip's blue-500 in
+   both themes (the chip gradient itself doesn't repaint for dark mode). */
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link,
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-burger span,
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-account__id strong,
@@ -2271,9 +2275,6 @@ html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__link,
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__brand .pgt-brandlogo__prep {
 	color: #eef2f9;
 }
-html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-drawer__brand .pgt-brandlogo__gro { color: #0a84ff; }
-html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-brandlogo__r { color: #2dd4bf; }
-html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-brandlogo__o { color: #fbbf24; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link:hover,
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link[aria-expanded="true"] { background: #2a3345; color: #fff; }
 html[data-pge-admin-theme="dark"][data-pge-dark-scope] .pgt-nav__link.is-current { background: #232c3d; color: #fff; }
