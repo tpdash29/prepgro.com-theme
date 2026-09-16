@@ -3,3 +3,4 @@ backup/
 .claude/
 prepgro-engine/
 node_modules/
+dist-zips/
