@@ -91,6 +91,116 @@ final class Chrome {
 		// reason never declare :root defaults for --pgt-flag-* in a
 		// stylesheet, a later same-specificity :root would win over the pack.
 		add_action( 'wp_head', array( $this, 'print_flag_vars' ), 3 );
+		add_action( 'wp_head', array( $this, 'print_brand_entity_schema' ), 20 );
+		add_filter( 'rank_math/json_ld', array( $this, 'rank_math_brand_alternate_names' ), 99 );
+	}
+
+	/**
+	 * Add alternateName to Rank Math's Organization / WebSite nodes.
+	 *
+	 * @param array $data Rank Math JSON-LD entities, keyed by node name.
+	 * @return array
+	 */
+	public function rank_math_brand_alternate_names( $data ) {
+		if ( ! is_array( $data ) || ! is_front_page() ) {
+			return $data;
+		}
+		$alts = array_values( array_filter( array_map( 'strval', $this->brand_alternate_names() ) ) );
+		foreach ( $data as $key => $node ) {
+			if ( ! is_array( $node ) || empty( $node['@type'] ) ) {
+				continue;
+			}
+			$types = (array) $node['@type'];
+			if ( array_intersect( $types, array( 'Organization', 'EducationalOrganization', 'WebSite' ) ) ) {
+				$existing                     = isset( $node['alternateName'] ) ? (array) $node['alternateName'] : array();
+				$data[ $key ]['alternateName'] = array_values( array_unique( array_merge( $existing, $alts ) ) );
+			}
+		}
+		return $data;
+	}
+
+	/* ─────────────────────────────────────────────────────────────────────
+	   Brand entity — the "PrepGrow" misspelling.
+
+	   People search for "prepgrow". Two signals tie that spelling to the
+	   prepGro entity: `alternateName` on Organization + WebSite JSON-LD
+	   (homepage only — that is where Google reads site-name / org data),
+	   and one plain-text line in the public footer that says the same thing
+	   in words. Keep the two lists in sync via brand_alternate_names().
+	   ──────────────────────────────────────────────────────────────────── */
+
+	/**
+	 * Spellings people use for the brand, other than "prepGro" itself.
+	 *
+	 * @return string[]
+	 */
+	private function brand_alternate_names() {
+		/**
+		 * Filter the brand's alternate names (common misspellings / spacings).
+		 *
+		 * @param string[] $names
+		 */
+		return (array) apply_filters( 'pgt_brand_alternate_names', array( 'PrepGrow', 'Prep Grow', 'Prep Gro' ) );
+	}
+
+	/**
+	 * One-sentence brand description shared by the footer line and schema.
+	 *
+	 * @return string
+	 */
+	private function brand_entity_description() {
+		return __( 'an adaptive test prep platform for grades 3–12 — diagnostics, personalized practice and live tutoring.', 'prepgro-theme' );
+	}
+
+	/**
+	 * Organization + WebSite JSON-LD with alternateName, front page only.
+	 *
+	 * @return void
+	 */
+	public function print_brand_entity_schema() {
+		if ( ! is_front_page() ) {
+			return;
+		}
+		// Rank Math already prints Organization + WebSite nodes; add the
+		// alternate names to those instead of emitting a duplicate graph.
+		if ( defined( 'RANK_MATH_VERSION' ) ) {
+			return;
+		}
+		$home  = home_url( '/' );
+		$alts  = array_values( array_filter( array_map( 'strval', $this->brand_alternate_names() ) ) );
+		$graph = array(
+			array(
+				'@type'         => 'Organization',
+				'@id'           => $home . '#organization',
+				'name'          => 'prepGro',
+				'alternateName' => $alts,
+				'url'           => $home,
+				'description'   => 'prepGro ' . $this->brand_entity_description(),
+			),
+			array(
+				'@type'         => 'WebSite',
+				'@id'           => $home . '#website',
+				'name'          => 'prepGro',
+				'alternateName' => $alts,
+				'url'           => $home,
+				'publisher'     => array( '@id' => $home . '#organization' ),
+			),
+		);
+		$logo_id = (int) get_theme_mod( 'custom_logo' );
+		$logo    = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		if ( $logo ) {
+			$graph[0]['logo'] = $logo;
+		}
+		printf(
+			'<script type="application/ld+json">%s</script>' . "\n",
+			wp_json_encode(
+				array(
+					'@context' => 'https://schema.org',
+					'@graph'   => $graph,
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG
+			)
+		);
 	}
 
 	/* ─────────────────────────────────────────────────────────────────────
@@ -2070,6 +2180,17 @@ final class Chrome {
 					</div>
 				</div>
 				<div class="pgt-footer__bottom">
+					<?php $pgt_alts = $this->brand_alternate_names(); ?>
+					<p class="pgt-footer__entity">
+						<?php
+						printf(
+							/* translators: 1: most common misspelling of the brand, e.g. "PrepGrow", 2: brand description */
+							esc_html__( 'prepGro (often searched as %1$s) is %2$s', 'prepgro-theme' ),
+							esc_html( $pgt_alts ? (string) reset( $pgt_alts ) : 'PrepGrow' ),
+							esc_html( $this->brand_entity_description() )
+						);
+						?>
+					</p>
 					<span class="pgt-footer__copy">
 						<?php
 						printf(

@@ -1605,6 +1605,8 @@ body.pge-portal-competitive .pgt-hero .pgt-hero__title .accent {
 	font-size: 13px;
 	color: var(--neutral-400);
 }
+/* Brand-entity line ("often searched as PrepGrow") — full row, quiet. */
+.pgt-footer__entity { flex: 1 0 100%; margin: 0 0 4px; font-size: 12px; line-height: 1.5; color: var(--neutral-400); }
 .pgt-footer__bottomlinks { display: inline-flex; flex-wrap: wrap; gap: .4rem 22px; align-items: center; }
 .pgt-footer__bottomlinks a { color: var(--neutral-400); text-decoration: none; }
 .pgt-footer__bottomlinks a:hover { color: var(--pge-color-ink); text-decoration: none; }
