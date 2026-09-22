@@ -4,7 +4,7 @@ Theme URI:         https://prepgro.com
 Description:        The PrepGro product theme — a modern block/FSE parent theme for PrepGro exam-prep country sites (school, college, competitive, certification). Ships a design-token system (CSS custom properties) the PrepGro Engine plugin consumes, plus funnel-oriented templates (landing, registration, dashboard, pricing, exam). Per-country branding via theme.json + thin optional child themes. Separate from prepgro-space (the corporate landing).
 Author:            PrepGro
 Author URI:        https://prepgro.com
-Version:           3.4.1
+Version:           3.4.6
 Requires at least: 6.0
 Tested up to:      6.5
 Requires PHP:      7.4
