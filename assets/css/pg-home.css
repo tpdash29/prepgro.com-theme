@@ -681,6 +681,15 @@ body[class*="brand-region-"]:not(.brand-region-usa) .pgh-hero {
 .pgh-prog__links { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 8px 0 0; }
 .pgh-also { margin: 36px 0 12px; }
 
+/* State-page testimonials (pg-testimonials): same data as the Settings →
+   Homepage Testimonials admin field, styled to this module's own tokens. */
+.pgh-testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 8px; }
+.pgh-testi { background: #fff; border: 1px solid var(--blue-200); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.pgh-testi__stars { color: #f59e0b; font-size: 15px; letter-spacing: 2px; }
+.pgh-testi__text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--pge-color-ink); font-style: italic; }
+.pgh-testi__author { font-size: 13px; font-weight: 700; color: var(--pge-color-primary); }
+.pgh-testi__grade { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--pge-ink-400); text-transform: none; letter-spacing: normal; }
+
 /* Practice cards carry no phase chip, so the heading needs no top gap. */
 .pgh-loopcard--plain h3 { margin-top: 0; }
 /* The country's name beside the flag chip, only where the chip shows the flag alone. */
