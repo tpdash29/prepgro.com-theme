@@ -572,6 +572,10 @@ a:hover:has(.pgt-brandlogo), a:focus-visible:has(.pgt-brandlogo) { text-decorati
 	font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
 	color: var(--pge-color-muted);
 }
+/* Parent-only rows in a child's view: present, disabled. */
+.pgt-account__item--locked { color: var(--pge-color-muted); opacity: .6; cursor: not-allowed; }
+.pgt-account__item--locked:hover { background: none; color: var(--pge-color-muted); }
+.pgt-account__lock { margin-left: auto; display: inline-flex; }
 .pgt-account__mini {
 	width: 24px; height: 24px; flex: none;
 	border-radius: 50%;

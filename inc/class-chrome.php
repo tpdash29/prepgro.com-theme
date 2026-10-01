@@ -1973,8 +1973,22 @@ final class Chrome {
 		if ( $others ) {
 			$menu .= $this->profile_switch_items( $others, __( 'Switch profile', 'prepgro-theme' ) );
 		}
+		// The parent's surfaces stay in the menu, disabled, with the way back
+		// to edit them (owner, 2026-09-30: disabled, not hidden).
+		$menu .= '<div class="pgt-account__group" role="presentation">' . esc_html__( 'Parent only', 'prepgro-theme' ) . '</div>';
+		$parent_only = array(
+			array( __( 'Profile & settings', 'prepgro-theme' ), 'user' ),
+			array( __( 'Plan & billing', 'prepgro-theme' ), 'credit-card' ),
+			array( __( 'Parent dashboard', 'prepgro-theme' ), 'users' ),
+		);
+		foreach ( $parent_only as $p ) {
+			$menu .= '<span class="pgt-account__item pgt-account__item--locked" aria-disabled="true">'
+				. Icons::svg( $p[1], array( 'size' => 16 ) ) . esc_html( $p[0] )
+				. '<span class="pgt-account__lock">' . Icons::svg( 'lock', array( 'size' => 12 ) ) . '<span class="pgt-visually-hidden">' . esc_html__( '(parent only)', 'prepgro-theme' ) . '</span></span>'
+				. '</span>';
+		}
 		$menu .= '<a class="pgt-account__item pgt-account__item--primary" href="' . esc_url( $view['exit_url'] ) . '" data-nav="account:exit-child">'
-			. Icons::svg( 'log-out', array( 'size' => 16 ) ) . esc_html__( 'Exit to parent dashboard', 'prepgro-theme' ) . '</a>';
+			. Icons::svg( 'log-out', array( 'size' => 16 ) ) . esc_html__( 'Exit to parent dashboard to edit', 'prepgro-theme' ) . '</a>';
 		$menu .= $this->signout_item();
 
 		// The visible cue: "Practicing as JD" sits inside the button, so it
