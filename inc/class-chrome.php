@@ -1410,14 +1410,30 @@ final class Chrome {
 
 		$user = wp_get_current_user();
 		$name = $user->display_name ? $user->display_name : $user->user_login;
+		$view = $this->profile_view( (int) $user->ID );
 
-		$children = $this->child_profiles( (int) $user->ID );
-		foreach ( $children as $child ) {
-			if ( $child['active'] ) {
-				// The activate route also mirrors the child's name into the
-				// parent's display_name, but the profile row is the truth.
-				$name = $child['name'];
-				break;
+		if ( $view ) {
+			// Whose view this sign-in is in: the child in a child's view, the
+			// parent in the parent's. Picking a child here hands the device
+			// over (the engine's enter link), not just the active-learner flag.
+			$name     = $view['name'];
+			$children = array();
+			foreach ( $view['children'] as $child ) {
+				$children[] = array(
+					'id'     => $child['id'],
+					'name'   => $child['name'],
+					'active' => 'child' === $view['mode'] && $child['active'],
+					'url'    => $child['enter_url'],
+				);
+			}
+		} else {
+			$children = $this->child_profiles( (int) $user->ID );
+			foreach ( $children as $child ) {
+				if ( $child['active'] ) {
+					// The profile row is the truth for who is studying.
+					$name = $child['name'];
+					break;
+				}
 			}
 		}
 
@@ -1428,7 +1444,9 @@ final class Chrome {
 		// now". Pure CSS; stills itself under prefers-reduced-motion.
 		$beacon = '<span class="pgt-topbar__beacon" aria-hidden="true"></span>';
 
-		if ( count( $children ) < 2 ) {
+		// A switcher needs somewhere to switch to: two children, or (in the
+		// parent's view) one child to hand over to.
+		if ( count( $children ) < ( $view && 'parent' === $view['mode'] ? 1 : 2 ) ) {
 			return $beacon . '<strong>' . esc_html( $name ) . '</strong>' . $phrase;
 		}
 
@@ -1438,9 +1456,15 @@ final class Chrome {
 		// (ownership check, competitive-mode guard) apply here as everywhere.
 		$options = '';
 		foreach ( $children as $child ) {
+			$current = $child['active'] ? '<span class="pgt-visually-hidden"> ' . esc_html__( '(current)', 'prepgro-theme' ) . '</span>' : '';
+			if ( ! empty( $child['url'] ) ) {
+				// Engine with Profile_View: a plain link, nonce'd on the server.
+				$options .= '<a class="pgt-topbar__learneropt' . ( $child['active'] ? ' is-active' : '' ) . '" href="' . esc_url( $child['url'] ) . '">'
+					. esc_html( $child['name'] ) . $current . '</a>';
+				continue;
+			}
 			$options .= '<button type="button" class="pgt-topbar__learneropt' . ( $child['active'] ? ' is-active' : '' ) . '" data-child="' . (int) $child['id'] . '">'
-				. esc_html( $child['name'] )
-				. ( $child['active'] ? '<span class="pgt-visually-hidden"> ' . esc_html__( '(current)', 'prepgro-theme' ) . '</span>' : '' )
+				. esc_html( $child['name'] ) . $current
 				. '</button>';
 		}
 
@@ -1871,7 +1895,28 @@ final class Chrome {
 
 		$user  = wp_get_current_user();
 		$name  = $user->display_name ? $user->display_name : $user->user_login;
-		$menu  = '<div class="pgt-account__id"><strong>' . esc_html( $name ) . '</strong><span>' . esc_html( $user->user_email ) . '</span></div>';
+		$view  = $this->profile_view( (int) $user->ID );
+
+		// A child's view: the child's monogram, "Practicing as JD" beside it,
+		// and the menu of a child — their learning, the other children, the
+		// way back to the parent. The account (and its email) is still the
+		// parent's, so the email stays on the menu.
+		if ( $view && 'child' === $view['mode'] && ! empty( $view['active_child'] ) ) {
+			return $this->child_account_cluster( $view );
+		}
+
+		$label = $name;
+		if ( $view ) {
+			$label = $view['name'];
+		}
+		$menu  = '<div class="pgt-account__id"><strong>' . esc_html( $label ) . '</strong><span>' . esc_html( $user->user_email ) . '</span></div>';
+
+		// The parent's view: their dashboard first, then the children they
+		// can hand the device to.
+		if ( $view && 'parent' === $view['mode'] && ! empty( $view['parent_url'] ) && ! empty( $view['children'] ) ) {
+			$menu .= '<a class="pgt-account__item pgt-account__item--primary" href="' . esc_url( $view['parent_url'] ) . '" data-nav="account:parent">'
+				. Icons::svg( 'users', array( 'size' => 16 ) ) . esc_html__( 'Parent dashboard', 'prepgro-theme' ) . '</a>';
+		}
 
 		foreach ( $this->account_links() as $l ) {
 			if ( empty( $l['label'] ) || empty( $l['url'] ) ) {
@@ -1882,12 +1927,106 @@ final class Chrome {
 			$menu .= '<a class="pgt-account__item" href="' . esc_url( $l['url'] ) . '" data-nav="' . esc_attr( 'account:' . $id ) . '">'
 				. Icons::svg( $icon, array( 'size' => 16 ) ) . esc_html( $l['label'] ) . '</a>';
 		}
-		$menu .= '<a class="pgt-account__item pgt-account__item--signout" href="' . esc_url( wp_logout_url( home_url( '/' ) ) ) . '" data-nav="account:signout">'
-			. Icons::svg( 'log-out', array( 'size' => 16 ) ) . esc_html__( 'Sign out', 'prepgro-theme' ) . '</a>';
+		if ( $view && 'parent' === $view['mode'] && ! empty( $view['children'] ) ) {
+			$menu .= $this->profile_switch_items( $view['children'], __( 'Practice as', 'prepgro-theme' ) );
+		}
+		$menu .= $this->signout_item();
 
-		$avatar = '<span class="pgt-account__avatar" aria-hidden="true">' . esc_html( $this->initials( $name ) ) . '</span>';
+		$initials = $view ? $view['initials'] : $this->initials( $name );
+		$avatar   = '<span class="pgt-account__avatar" aria-hidden="true">' . esc_html( $initials ) . '</span>';
 
 		return $this->account_shell( $avatar, $menu );
+	}
+
+	/**
+	 * The account cluster in a child's view.
+	 *
+	 * @param array $view Profile_View::context().
+	 * @return string
+	 */
+	private function child_account_cluster( array $view ) {
+		$child = $view['active_child'];
+		$menu  = '<div class="pgt-account__id"><strong>' . esc_html( $child['name'] ) . '</strong>'
+			. '<span>' . esc_html(
+				/* translators: %s: the family account's email address */
+				sprintf( __( 'Family account · %s', 'prepgro-theme' ), $view['account_email'] )
+			) . '</span></div>';
+
+		$items = array(
+			array( 'dashboard', __( 'Dashboard', 'prepgro-theme' ), home_url( '/my-dashboard/' ), 'layout-dashboard' ),
+			array( 'report', __( 'My readiness report', 'prepgro-theme' ), home_url( '/my-dashboard/?tab=readiness&seg=results' ), 'file-text' ),
+			array( 'profile', __( 'My profile', 'prepgro-theme' ), home_url( '/my-dashboard/?tab=account&seg=profile' ), 'user' ),
+		);
+		foreach ( $items as $i ) {
+			$menu .= '<a class="pgt-account__item" href="' . esc_url( $i[2] ) . '" data-nav="' . esc_attr( 'account:' . $i[0] ) . '">'
+				. Icons::svg( $i[3], array( 'size' => 16 ) ) . esc_html( $i[1] ) . '</a>';
+		}
+
+		$others = array_values(
+			array_filter(
+				$view['children'],
+				static function ( $c ) use ( $child ) {
+					return (int) $c['id'] !== (int) $child['id'];
+				}
+			)
+		);
+		if ( $others ) {
+			$menu .= $this->profile_switch_items( $others, __( 'Switch profile', 'prepgro-theme' ) );
+		}
+		$menu .= '<a class="pgt-account__item pgt-account__item--primary" href="' . esc_url( $view['exit_url'] ) . '" data-nav="account:exit-child">'
+			. Icons::svg( 'log-out', array( 'size' => 16 ) ) . esc_html__( 'Exit to parent dashboard', 'prepgro-theme' ) . '</a>';
+		$menu .= $this->signout_item();
+
+		// The visible cue: "Practicing as JD" sits inside the button, so it
+		// is the first thing in the header's top-right whichever page this is.
+		$avatar = '<span class="pgt-account__as" aria-hidden="true">' . esc_html__( 'Practicing as', 'prepgro-theme' ) . ' <b>' . esc_html( $child['initials'] ) . '</b></span>'
+			. '<span class="pgt-account__avatar pgt-account__avatar--child" aria-hidden="true">' . esc_html( $child['initials'] ) . '</span>'
+			. '<span class="pgt-visually-hidden">' . esc_html(
+				/* translators: %s: child's name */
+				sprintf( __( 'Practicing as %s.', 'prepgro-theme' ), $child['name'] )
+			) . '</span>';
+
+		return $this->account_shell( $avatar, $menu );
+	}
+
+	/**
+	 * A labelled group of "become this child" links.
+	 *
+	 * @param array  $children Profile_View children rows (with enter_url).
+	 * @param string $heading  Group label.
+	 * @return string
+	 */
+	private function profile_switch_items( array $children, $heading ) {
+		$out = '<div class="pgt-account__group" role="presentation">' . esc_html( $heading ) . '</div>';
+		foreach ( $children as $c ) {
+			$out .= '<a class="pgt-account__item pgt-account__item--child" href="' . esc_url( $c['enter_url'] ) . '" data-nav="account:enter-child">'
+				. '<span class="pgt-account__mini" aria-hidden="true">' . esc_html( $c['initials'] ) . '</span>'
+				. esc_html( $c['name'] ) . '</a>';
+		}
+		return $out;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function signout_item() {
+		return '<a class="pgt-account__item pgt-account__item--signout" href="' . esc_url( wp_logout_url( home_url( '/' ) ) ) . '" data-nav="account:signout">'
+			. Icons::svg( 'log-out', array( 'size' => 16 ) ) . esc_html__( 'Sign out', 'prepgro-theme' ) . '</a>';
+	}
+
+	/**
+	 * The engine's view of this sign-in (self / parent / child), or null when
+	 * the engine is inactive or predates it — callers then draw the account
+	 * exactly as before.
+	 *
+	 * @param int $user_id Current user.
+	 * @return array|null
+	 */
+	private function profile_view( $user_id ) {
+		if ( ! class_exists( '\\PrepGro\\Engine\\Core\\Onboarding\\Profile_View' ) ) {
+			return null;
+		}
+		return \PrepGro\Engine\Core\Onboarding\Profile_View::context( $user_id );
 	}
 
 	/**

@@ -338,7 +338,9 @@ a:hover { text-decoration: underline; }
 }
 .pgt-topbar__learneropt {
 	display: block;
+	box-sizing: border-box;
 	width: 100%;
+	text-decoration: none;
 	padding: 8px 10px;
 	background: transparent;
 	border: 0;
@@ -552,6 +554,31 @@ a:hover:has(.pgt-brandlogo), a:focus-visible:has(.pgt-brandlogo) { text-decorati
 	flex: none;
 }
 .pgt-account__avatar--anon { background: var(--neutral-300); color: var(--pge-white); }
+/* A child's view: "Practicing as JD" inside the account button. The label
+   gives way on narrow headers; the monogram (and the visually-hidden name)
+   stay. */
+.pgt-account__as {
+	padding: 0 4px 0 8px;
+	font-size: 12.5px; font-weight: 500;
+	color: var(--pge-color-muted);
+	white-space: nowrap;
+}
+.pgt-account__as b { color: var(--pge-color-primary); font-weight: 700; }
+@media (max-width: 640px) { .pgt-account__as { display: none; } }
+.pgt-account__group {
+	padding: 10px 12px 4px;
+	margin-top: 4px;
+	border-top: 1px solid var(--pge-gray-100);
+	font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+	color: var(--pge-color-muted);
+}
+.pgt-account__mini {
+	width: 24px; height: 24px; flex: none;
+	border-radius: 50%;
+	display: inline-flex; align-items: center; justify-content: center;
+	font-size: 10.5px; font-weight: 700; color: #fff;
+	background: var(--pge-gradient);
+}
 .pgt-account__chev { display: inline-flex; transition: transform 140ms ease; }
 .pgt-account__btn[aria-expanded="true"] .pgt-account__chev { transform: rotate(180deg); }
 .pgt-account__menu {
@@ -574,7 +601,7 @@ a:hover:has(.pgt-brandlogo), a:focus-visible:has(.pgt-brandlogo) { text-decorati
 	margin-bottom: 6px;
 }
 .pgt-account__id strong { color: var(--pge-color-ink); font-size: 14.5px; font-weight: 600; }
-.pgt-account__id span { color: var(--pge-color-muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+.pgt-account__id span { color: var(--pge-color-muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pgt-account__item {
 	display: flex; align-items: center; gap: 10px;
 	min-height: 42px;
