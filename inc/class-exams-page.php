@@ -313,37 +313,19 @@ final class Exams_Page {
 			return array( 'mode' => 'practice', 'primary' => $browse, 'secondary' => null );
 		}
 
-		// A visitor came for their state test (owner rule, 2026-09-14): on
-		// the practice catalogue, practice leads and their state's tests are
-		// the second option. The diagnostic is never the visitor's first ask.
-		if ( ! is_user_logged_in() ) {
-			return array(
-				'mode'      => 'practice',
-				'primary'   => $browse,
-				'secondary' => array(
-					'label' => __( 'Find my state’s tests', 'prepgro-theme' ),
-					'url'   => home_url( '/#pg-states' ),
-				),
-			);
-		}
-
 		$diagnosed = function_exists( 'pge_learner_has_results' ) && \pge_learner_has_results();
 
-		if ( $diagnosed ) {
+		if ( is_user_logged_in() || ! empty( $this->student_context()['grade'] ) || ! empty( $this->student_context()['state'] ) ) {
 			return array(
 				'mode'      => 'practice',
 				'primary'   => $browse,
 				'secondary' => array(
-					'label' => __( 'See my readiness report', 'prepgro-theme' ),
-					'url'   => home_url( '/my-dashboard/?tab=readiness&seg=results' ),
+					'label' => $diagnosed ? __( 'See my readiness report', 'prepgro-theme' ) : __( 'Find my state’s tests', 'prepgro-theme' ),
+					'url'   => $diagnosed ? home_url( '/my-dashboard/?tab=readiness&seg=results' ) : home_url( '/#pg-states' ),
 				),
 			);
 		}
 
-		// No evidence yet. start_practicing() is the resolver that gets the
-		// AUTH state right — sign-up for a visitor, the exact missing step for
-		// a half-onboarded account, the diagnostic for a ready one — so this
-		// never sends a signed-in learner back to a sign-up page.
 		$start = function_exists( 'pge_feature' )
 			&& class_exists( '\\PrepGro\\Engine\\Core\\Onboarding\\Destination' )
 				? \PrepGro\Engine\Core\Onboarding\Destination::start_practicing()
@@ -578,26 +560,50 @@ final class Exams_Page {
 	 */
 	private function exams() {
 		if ( null === $this->exams ) {
-			$this->exams = get_posts(
-				array(
-					'post_type'      => 'exam',
-					'post_status'    => 'publish',
-					'posts_per_page' => (int) apply_filters( 'pgt_exams_index_limit', 60 ),
-					'orderby'        => 'title',
-					'order'          => 'ASC',
-					'no_found_rows'  => true,
-					// Elevate course quizzes (Studio-generated, tagged
-					// _pge_quiz_course_id) live in this same CPT but only
-					// belong inside their course/lesson -- never as a
-					// standalone practice-test card.
-					'meta_query'     => array(
-						array(
-							'key'     => '_pge_quiz_course_id',
-							'compare' => 'NOT EXISTS',
-						),
+			$args = array(
+				'post_type'      => 'exam',
+				'post_status'    => 'publish',
+				'posts_per_page' => (int) apply_filters( 'pgt_exams_index_limit', 60 ),
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+				// Elevate course quizzes (Studio-generated, tagged
+				// _pge_quiz_course_id) live in this same CPT but only
+				// belong inside their course/lesson -- never as a
+				// standalone practice-test card.
+				'meta_query'     => array(
+					array(
+						'key'     => '_pge_quiz_course_id',
+						'compare' => 'NOT EXISTS',
 					),
-				)
+				),
 			);
+			$this->exams = get_posts( $args );
+
+			// The first 60 by title are Alabama's and Alaska's (857 papers
+			// on us.prepgro.com, 2026-10-08), so the grade + state match
+			// below found nothing for a learner anywhere else. Their own
+			// state's papers are loaded as well.
+			$state = $this->student_context()['state'];
+			if ( '' !== $state ) {
+				$args['posts_per_page'] = (int) apply_filters( 'pgt_exams_index_state_limit', 200 );
+				$args['meta_query'][]   = array(
+					'key'   => '_exam_state',
+					'value' => $state,
+				);
+				$seen = wp_list_pluck( $this->exams, 'ID' );
+				foreach ( get_posts( $args ) as $exam ) {
+					if ( ! in_array( $exam->ID, $seen, true ) ) {
+						$this->exams[] = $exam;
+					}
+				}
+				usort(
+					$this->exams,
+					static function ( $a, $b ) {
+						return strcasecmp( $a->post_title, $b->post_title );
+					}
+				);
+			}
 		}
 		return $this->exams;
 	}
@@ -615,7 +621,51 @@ final class Exams_Page {
 		}
 
 		$student = $this->student_context();
-		if ( $student['grade'] || $student['state'] ) {
+
+		// ── Logged-in users: strict filtering ────────────────────────────────
+		// We show ONLY the exams that match the user's grade + state.
+		// If the profile is incomplete (no grade, no state), return a prompt
+		// rather than the entire catalogue — showing all exams to an account
+		// that hasn't told us who they are is exactly the problem we are fixing.
+		if ( is_user_logged_in() ) {
+			if ( ! $student['grade'] && ! $student['state'] ) {
+				$dashboard_url = esc_url( home_url( '/my-dashboard/' ) );
+				return '<div class="pgx-profile-prompt">'
+					. '<p class="pgx-profile-prompt__icon" aria-hidden="true">📋</p>'
+					. '<h2 class="pgx-profile-prompt__title">' . esc_html__( 'Complete your profile to see your exams', 'prepgro-theme' ) . '</h2>'
+					. '<p class="pgx-profile-prompt__body">' . esc_html__( 'We need your grade and state to show you the right practice tests. It only takes a moment.', 'prepgro-theme' ) . '</p>'
+					. '<a class="pgx-btn pgx-btn--accent" href="' . $dashboard_url . '">' . esc_html__( 'Go to my dashboard', 'prepgro-theme' ) . '</a>'
+					. '</div>';
+			}
+
+			$filtered = array();
+			foreach ( $exams as $exam ) {
+				$exam_grade = (string) get_post_meta( $exam->ID, '_exam_grade', true );
+				$exam_state = (string) get_post_meta( $exam->ID, '_exam_state', true );
+				$grade_hit  = ! $student['grade'] || self::grade_hit( $exam->ID, $exam_grade, $student['grade'] );
+				$state_hit  = ! $student['state'] || $exam_state === $student['state'];
+				if ( $grade_hit && $state_hit ) {
+					$filtered[] = $exam;
+				}
+			}
+			$exams = $filtered;
+
+			if ( empty( $exams ) ) {
+				$dashboard_url = esc_url( home_url( '/my-dashboard/' ) );
+				return '<div class="pgx-profile-prompt">'
+					. '<p class="pgx-profile-prompt__icon" aria-hidden="true">🔍</p>'
+					. '<h2 class="pgx-profile-prompt__title">' . esc_html__( 'No exams found for your grade and state', 'prepgro-theme' ) . '</h2>'
+					. '<p class="pgx-profile-prompt__body">' . sprintf(
+						/* translators: 1: grade, 2: state */
+						esc_html__( 'We couldn\'t find any practice tests for %1$s in %2$s yet. You can update your profile or browse all exams.', 'prepgro-theme' ),
+						esc_html( $student['grade'] ),
+						esc_html( $student['state'] )
+					) . '</p>'
+					. '<a class="pgx-btn pgx-btn--accent" href="' . $dashboard_url . '">' . esc_html__( 'Update my profile', 'prepgro-theme' ) . '</a>'
+					. '</div>';
+			}
+		} elseif ( $student['grade'] || $student['state'] ) {
+			// Guest with a URL-param override — sort to top but still show all.
 			$exams = $this->sort_by_student_match( $exams, $student );
 		}
 
@@ -644,7 +694,7 @@ final class Exams_Page {
 
 			$exam_grade = (string) get_post_meta( $exam->ID, '_exam_grade', true );
 			$exam_state = (string) get_post_meta( $exam->ID, '_exam_state', true );
-			$is_mine    = $student['grade'] && $exam_grade === $student['grade']
+			$is_mine    = self::grade_hit( $exam->ID, $exam_grade, $student['grade'] )
 				&& ( ! $student['state'] || ! $exam_state || $exam_state === $student['state'] );
 
 			// Per the redesign, cards carry no dollar prices — pricing is
@@ -676,6 +726,27 @@ final class Exams_Page {
 	}
 
 	/**
+	 * Whether an exam is for this grade: its own `_exam_grade`, or a grade
+	 * its test is also sat in. The ACT and SAT papers are stored as Grade 11
+	 * and are sat in Grade 11 or 12 (owner, 2026-10-08); the engine's
+	 * National_Test knows which papers those are.
+	 *
+	 * @param int    $exam_id    Exam.
+	 * @param string $exam_grade Its `_exam_grade`.
+	 * @param string $grade      The student's grade ("Grade 12").
+	 * @return bool
+	 */
+	private static function grade_hit( $exam_id, $exam_grade, $grade ) {
+		if ( '' === (string) $grade ) {
+			return false;
+		}
+		if ( is_callable( array( '\\PrepGro\\Engine\\Core\\Content\\National_Test', 'in_grade' ) ) ) {
+			return \PrepGro\Engine\Core\Content\National_Test::in_grade( (int) $exam_id, $exam_grade, $grade );
+		}
+		return $exam_grade === $grade;
+	}
+
+	/**
 	 * Bubble exams matching the student's grade+state to the front. Stable
 	 * within each bucket (grade+state match, grade-only match, everything
 	 * else), preserving the incoming alphabetical order.
@@ -689,7 +760,7 @@ final class Exams_Page {
 		foreach ( $exams as $i => $exam ) {
 			$exam_grade = (string) get_post_meta( $exam->ID, '_exam_grade', true );
 			$exam_state = (string) get_post_meta( $exam->ID, '_exam_state', true );
-			$grade_hit  = $student['grade'] && $exam_grade === $student['grade'];
+			$grade_hit  = self::grade_hit( $exam->ID, $exam_grade, $student['grade'] );
 			$state_hit  = $student['state'] && $exam_state === $student['state'];
 
 			if ( $grade_hit && ( $state_hit || ! $student['state'] || ! $exam_state ) ) {
