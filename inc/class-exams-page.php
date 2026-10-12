@@ -313,6 +313,24 @@ final class Exams_Page {
 			return array( 'mode' => 'practice', 'primary' => $browse, 'secondary' => null );
 		}
 
+		// "Find my state's tests"; a pack may reword it (Canada: provincial exam).
+		$own        = function_exists( 'pge_content' ) ? \pge_content( 'home.header_cta', '' ) : '';
+		$find_tests = is_string( $own ) && '' !== $own ? $own : __( 'Find my state’s tests', 'prepgro-theme' );
+
+		// A visitor came for their state test (owner rule, 2026-09-14): on
+		// the practice catalogue, practice leads and their state's tests are
+		// the second option. The diagnostic is never the visitor's first ask.
+		if ( ! is_user_logged_in() ) {
+			return array(
+				'mode'      => 'practice',
+				'primary'   => $browse,
+				'secondary' => array(
+					'label' => $find_tests,
+					'url'   => home_url( '/#pg-states' ),
+				),
+			);
+		}
+
 		$diagnosed = function_exists( 'pge_learner_has_results' ) && \pge_learner_has_results();
 
 		if ( is_user_logged_in() || ! empty( $this->student_context()['grade'] ) || ! empty( $this->student_context()['state'] ) ) {
@@ -320,7 +338,7 @@ final class Exams_Page {
 				'mode'      => 'practice',
 				'primary'   => $browse,
 				'secondary' => array(
-					'label' => $diagnosed ? __( 'See my readiness report', 'prepgro-theme' ) : __( 'Find my state’s tests', 'prepgro-theme' ),
+					'label' => $diagnosed ? __( 'See my readiness report', 'prepgro-theme' ) : $find_tests,
 					'url'   => $diagnosed ? home_url( '/my-dashboard/?tab=readiness&seg=results' ) : home_url( '/#pg-states' ),
 				),
 			);

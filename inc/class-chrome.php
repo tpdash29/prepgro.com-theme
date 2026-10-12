@@ -769,6 +769,29 @@ final class Chrome {
 	}
 
 	/**
+	 * The header/drawer CTA that sends a visitor to their region's tests
+	 * ("Find my state test"; Canada says provincial exam).
+	 *
+	 * @return string
+	 */
+	private function tests_cta_label() {
+		return $this->pack_text( 'home.header_cta', __( 'Find my state test', 'prepgro-theme' ) );
+	}
+
+	/**
+	 * A string the country pack may reword (engine pge_content()), else the
+	 * theme's own default.
+	 *
+	 * @param string $key     Dot key in the pack's content block.
+	 * @param string $default Default text.
+	 * @return string
+	 */
+	private function pack_text( $key, $default ) {
+		$own = function_exists( 'pge_content' ) ? pge_content( $key, '' ) : '';
+		return is_string( $own ) && '' !== $own ? $own : $default;
+	}
+
+	/**
 	 * Where "Find a tutor" should send this visitor.
 	 *
 	 * NOT the price list. This CTA promises the matching flow ("Matched to
@@ -967,7 +990,7 @@ final class Chrome {
 			'support' => array(
 				'title' => __( 'Product', 'prepgro-theme' ),
 				'links' => array(
-					array( 'id' => 'state-tests', 'label' => __( 'State test practice', 'prepgro-theme' ), 'url' => $this->state_tests_url() ),
+					array( 'id' => 'state-tests', 'label' => $this->pack_text( 'home.menu_tests', __( 'State test practice', 'prepgro-theme' ) ), 'url' => $this->state_tests_url() ),
 					array( 'id' => 'practice', 'label' => __( 'Unlimited practice', 'prepgro-theme' ), 'url' => home_url( '/excel/' ) ),
 					array( 'id' => 'tutor', 'label' => __( 'Find a tutor', 'prepgro-theme' ), 'url' => home_url( '/elevate/' ) ),
 					array( 'id' => 'faq', 'label' => __( 'Parent FAQ', 'prepgro-theme' ), 'url' => home_url( '/#pg-faq' ) ),
@@ -1717,7 +1740,7 @@ final class Chrome {
 						// keep the check, which routes to their own next step.
 						if ( ! is_user_logged_in() ) :
 							?>
-							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="header:state-tests-cta"><?php esc_html_e( 'Find my state test', 'prepgro-theme' ); ?></a>
+							<a class="pgt-btn pgt-btn--primary pgt-header__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="header:state-tests-cta"><?php echo esc_html( $this->tests_cta_label() ); ?></a>
 							<?php
 						elseif ( $this->pillar_on( 'evaluate' ) ) :
 							?>
@@ -2101,7 +2124,7 @@ final class Chrome {
 			</div>
 			<div class="pgt-drawer__body">
 				<?php if ( ! is_user_logged_in() ) : // Same rule as the desktop header CTA above. ?>
-					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="drawer:state-tests-cta"><?php esc_html_e( 'Find my state test', 'prepgro-theme' ); ?></a>
+					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->state_tests_url() ); ?>" data-nav="drawer:state-tests-cta"><?php echo esc_html( $this->tests_cta_label() ); ?></a>
 				<?php elseif ( $this->pillar_on( 'evaluate' ) ) : ?>
 					<a class="pgt-btn pgt-btn--primary pgt-drawer__cta" href="<?php echo esc_url( $this->start_practicing_url() ); ?>" data-nav="drawer:readiness-cta"><?php esc_html_e( 'Take the free readiness check', 'prepgro-theme' ); ?></a>
 				<?php endif; ?>

@@ -59,6 +59,7 @@ final class Tour_Page {
 		add_filter( 'pge_home_image', array( $this, 'home_image' ), 10, 3 );
 		add_filter( 'pge_home_tour_url', array( $this, 'url' ) );
 		add_action( 'wp_head', array( $this, 'meta_description' ), 2 );
+		add_filter( 'render_block', array( $this, 'localize_cta' ) );
 	}
 
 	/**
@@ -159,7 +160,36 @@ final class Tour_Page {
 	 * @return string
 	 */
 	private function description() {
-		return __( 'How prepGro works: practice papers for your state test, an optional skills check, short lessons, live tutors and unlimited practice. Evaluate, Elevate and Excel in one loop.', 'prepgro-theme' );
+		$test = $this->pack_text( 'home.your_test', __( 'state test', 'prepgro-theme' ) );
+		/* translators: %s: the region's test, e.g. "state test" (Canada: "provincial exam"). */
+		return sprintf( __( 'How prepGro works: practice papers for your %s, an optional skills check, short lessons, live tutors and unlimited practice. Evaluate, Elevate and Excel in one loop.', 'prepgro-theme' ), $test );
+	}
+
+	/**
+	 * The template's "Find my state test" button, in the pack's words
+	 * (Canada: provincial exam). The block template is static HTML.
+	 *
+	 * @param string $html Rendered block.
+	 * @return string
+	 */
+	public function localize_cta( $html ) {
+		if ( ! $this->is_tour() || false === strpos( (string) $html, '>Find my state test</a>' ) ) {
+			return $html;
+		}
+		$label = $this->pack_text( 'home.header_cta', '' );
+		return '' === $label ? $html : str_replace( '>Find my state test</a>', '>' . esc_html( $label ) . '</a>', $html );
+	}
+
+	/**
+	 * A string the country pack may reword (engine pge_content()), else the default.
+	 *
+	 * @param string $key     Dot key in the pack's content block.
+	 * @param string $default Default text.
+	 * @return string
+	 */
+	private function pack_text( $key, $default ) {
+		$own = function_exists( 'pge_content' ) ? pge_content( $key, '' ) : '';
+		return is_string( $own ) && '' !== $own ? $own : $default;
 	}
 
 	/**

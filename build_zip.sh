@@ -89,6 +89,7 @@ mkdir -p "$STAGE"
 rsync -a "$ROOT/" "$STAGE/" \
   --exclude '.git*' \
   --exclude '.claude/' \
+  --exclude '.kilo/' \
   --exclude '.vscode/' \
   --exclude '.idea/' \
   --exclude '.DS_Store' \
