@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PGT_VERSION', '3.4.14' );
+define( 'PGT_VERSION', '3.4.15' );
 define( 'PGT_DIR', get_template_directory() );
 define( 'PGT_URI', get_template_directory_uri() );
 
@@ -290,13 +290,12 @@ add_action(
 			);
 		}
 
-		// Stylesheet version = the file's own mtime, so editing a stylesheet
-		// always busts the browser cache. Versioning by PGT_VERSION meant a CSS
-		// change shipped without a constant bump was invisible until a hard
-		// reload — a silent failure worth designing out.
+		// Include both the release and file mtime. ZIP extraction can preserve an
+		// older timestamp even when the stylesheet changes, so mtime alone can
+		// leave a browser serving stale CSS after a deployment.
 		$pgt_ver = static function ( $file ) {
 			$path = get_template_directory() . '/assets/css/' . $file;
-			return file_exists( $path ) ? (string) filemtime( $path ) : PGT_VERSION;
+			return file_exists( $path ) ? PGT_VERSION . '-' . filemtime( $path ) : PGT_VERSION;
 		};
 
 		// Main theme stylesheet — loaded after the token bundle (pge-tokens).
