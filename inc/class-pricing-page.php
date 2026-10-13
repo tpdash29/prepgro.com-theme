@@ -123,7 +123,7 @@ final class Pricing_Page {
 			. $this->header( $levels, $current, $tutor_on )
 			. '<section class="pgp-body">'
 			. $this->plans( $levels, $current, $tutor_on )
-			. $this->chart( $levels, $current, $tutor_on )
+			. $this->compare( $levels, $current )
 			. $this->readiness_band()
 			. $this->small_print( $tutor_on )
 			. '</section>'
@@ -155,14 +155,25 @@ final class Pricing_Page {
 		}
 
 		return '<section class="pgp-head">'
+			. '<div class="pgp-head__inner">'
 			. '<div class="pgp-head__copy">'
-			. '<span class="pgp-chip">' . esc_html__( 'Pricing', 'prepgro-theme' ) . '</span>'
-			. '<h1 class="pgp-h1">' . esc_html__( 'Practice more.', 'prepgro-theme' )
-			. '<br><span class="pgp-h1__quiet">' . esc_html__( 'Feel ready.', 'prepgro-theme' ) . '</span></h1>'
+			. '<span class="pgp-chip">' . esc_html__( 'Your practice plan', 'prepgro-theme' ) . '</span>'
+			. '<h1 class="pgp-h1">' . esc_html__( 'Walk into the next test', 'prepgro-theme' )
+			. '<br><span class="pgp-h1__quiet">' . esc_html__( 'ready.', 'prepgro-theme' ) . '</span></h1>'
 			. '<p class="pgp-lede">' . ( $tutor_on
-				? esc_html__( 'Choose the support that fits your child: independent unlimited test practice, or live 1:1 tutoring with practice included.', 'prepgro-theme' )
-				: esc_html__( 'Independent, unlimited test practice across every subject at your child’s level — practice as often as you need.', 'prepgro-theme' )
+				? esc_html__( 'Choose your child’s level, then pick unlimited independent practice or live 1:1 support with practice included.', 'prepgro-theme' )
+				: esc_html__( 'One pack opens practice tests across every subject at your child’s level. Retake, review, and build confidence at your own pace.', 'prepgro-theme' )
 			) . '</p>'
+			. '</div>'
+			. '<div class="pgp-paper" aria-hidden="true">'
+			. '<div class="pgp-paper__top"><span>prepGro / practice file</span><span>01—03</span></div>'
+			. '<div class="pgp-paper__title">' . esc_html__( 'The next test starts here.', 'prepgro-theme' ) . '</div>'
+			. '<div class="pgp-paper__rule"></div>'
+			. '<div class="pgp-paper__row"><span class="pgp-paper__num">01</span><span>' . esc_html__( 'Choose a level', 'prepgro-theme' ) . '</span><span class="pgp-paper__mark">● ○ ○ ○</span></div>'
+			. '<div class="pgp-paper__row"><span class="pgp-paper__num">02</span><span>' . esc_html__( 'Practice every subject', 'prepgro-theme' ) . '</span><span class="pgp-paper__mark">● ○ ○ ○</span></div>'
+			. '<div class="pgp-paper__row"><span class="pgp-paper__num">03</span><span>' . esc_html__( 'Review and improve', 'prepgro-theme' ) . '</span><span class="pgp-paper__mark">● ○ ○ ○</span></div>'
+			. '<div class="pgp-paper__stamp">' . esc_html__( 'READY TO PRACTICE', 'prepgro-theme' ) . '</div>'
+			. '</div>'
 			. '</div>'
 			. '<div class="pgp-levels">'
 			. '<span class="pgp-levels__label">' . esc_html__( 'Level', 'prepgro-theme' ) . '</span>'
@@ -252,7 +263,7 @@ final class Pricing_Page {
 			return $out;
 		};
 
-		$out = '<div class="pgp-plans">';
+		$out = '<div class="pgp-plans" id="pgp-plan">';
 
 		// ── Left: Unlimited Test Pack (quiet) ──
 		//
@@ -331,7 +342,7 @@ final class Pricing_Page {
 
 		$out .= '<div class="pgp-card pgp-card--quiet">'
 			. '<span class="pgp-tag">' . esc_html__( 'Unlimited test pack', 'prepgro-theme' ) . '</span>'
-			. '<h2 class="pgp-card__h">' . esc_html__( 'Unlimited practice for every subject in', 'prepgro-theme' ) . ' ' . $h2_levelnames . '</h2>'
+			. '<h2 class="pgp-card__h">' . $h2_levelnames . esc_html__( '. Practice without limits.', 'prepgro-theme' ) . '</h2>'
 			. '<p class="pgp-card__b">' . esc_html__( 'Take practice tests as often as you need, review every answer, and see which skills to improve next.', 'prepgro-theme' ) . '</p>'
 			. '<div class="pgp-priceblock">' . $prices . '</div>'
 			. '<ul class="pgp-includes">' . $list( $pack_includes ) . '</ul>'
@@ -374,80 +385,51 @@ final class Pricing_Page {
 	}
 
 	/**
-	 * A4 — cost-by-level chart. Bar width is price / CHART_MAX, read from the
-	 * same Pricing_Levels source as the cards above, so the two cannot drift.
+	 * Compare the actual amount charged for each level and billing term.
+	 * The selected row follows the level tabs through data-pgt-chartrow.
 	 *
-	 * @param array  $levels   Levels.
-	 * @param string $current  Active level.
-	 * @param bool   $tutor_on Whether the tutor row/legend/fact should render (Elevate on).
+	 * @param array  $levels  Resolved levels and package prices.
+	 * @param string $current Active level.
 	 * @return string
 	 */
-	private function chart( $levels, $current, $tutor_on = true ) {
-		$rows      = '';
-		$chart_max = Pricing_Levels::chart_max();
-		foreach ( $levels as $key => $l ) {
-			$pack = (float) $l['pack']['monthly'];
-			$pw   = max( 1, min( 100, round( $pack / $chart_max * 100 ) ) );
-
-			$tutor_bar = '';
-			if ( $tutor_on ) {
-				$tutor = (float) $l['tutor'];
-				$tw    = max( 1, min( 100, round( $tutor / $chart_max * 100 ) ) );
-				$tutor_bar = '<div class="pgp-barline"><span class="pgp-bar pgp-bar--tutor" style="width:' . esc_attr( $tw ) . '%"></span>'
-					. '<span class="pgp-barval pgp-barval--strong">' . esc_html( Pricing_Levels::money( $tutor ) ) . esc_html__( '/mo', 'prepgro-theme' ) . '</span></div>';
-			}
-
-			$rows .= '<div class="pgp-chartrow' . ( $key === $current ? ' is-on' : '' ) . '" data-pgt-chartrow="' . esc_attr( $key ) . '">'
-				. '<span class="pgp-chartrow__l">' . esc_html( $l['name'] ) . '</span>'
-				. '<div class="pgp-chartrow__bars">'
-				. '<div class="pgp-barline"><span class="pgp-bar pgp-bar--pack" style="width:' . esc_attr( $pw ) . '%"></span>'
-				. '<span class="pgp-barval">' . esc_html( Pricing_Levels::money( $pack ) ) . esc_html__( '/mo', 'prepgro-theme' ) . '</span></div>'
-				. $tutor_bar
-				. '</div></div>';
-		}
-
-		$facts = array(
-			array( 'v' => Pricing_Levels::money( 0 ), 'l' => __( 'to take the readiness check and read the report', 'prepgro-theme' ) ),
+	private function compare( $levels, $current ) {
+		$periods = array(
+			'monthly'   => __( 'each month', 'prepgro-theme' ),
+			'quarterly' => __( 'every 3 months', 'prepgro-theme' ),
+			'annual'    => __( 'once a year', 'prepgro-theme' ),
 		);
-		if ( $tutor_on ) {
-			// The per-class figure is derived, never typed: the high-school
-			// tutor price divided by the eight included classes.
-			$high      = isset( $levels['high'] ) ? (float) $levels['high']['tutor'] : 0;
-			$per_class = $high > 0 ? Pricing_Levels::money( round( $high / 8 ) ) : '—';
-
-			array_unshift(
-				$facts,
-				array( 'v' => '8', 'l' => __( 'live 1:1 classes included every month on a tutor plan', 'prepgro-theme' ) ),
-				array(
-					'v' => $per_class,
-					'l' => __( 'average cost per live class at the high-school level', 'prepgro-theme' ),
-				)
-			);
+		$rows = '';
+		foreach ( $levels as $key => $level ) {
+			$cells = '';
+			foreach ( $periods as $term => $period ) {
+				$value = Pricing_Levels::term_value( $level['pack'], $term );
+				$cells .= '<td data-label="' . esc_attr( Pricing_Levels::terms()[ $term ]['label'] ) . '">'
+					. '<strong>' . esc_html( Pricing_Levels::money( $value['total'] ) ) . '</strong>'
+					. '<small>' . esc_html( $period ) . '</small>'
+					. '</td>';
+			}
+			$rows .= '<tr class="pgp-compare__row' . ( $key === $current ? ' is-on' : '' ) . '" data-pgt-chartrow="' . esc_attr( $key ) . '">'
+				. '<th scope="row"><strong>' . esc_html( $level['name'] ) . '</strong><small>' . esc_html( $level['coverage'] ?? '' ) . '</small></th>'
+				. $cells
+				. '<td class="pgp-compare__action"><a href="' . esc_url( Pricing_Levels::url( $key ) . '#pgp-plan' ) . '">'
+				. esc_html__( 'View plan', 'prepgro-theme' ) . '<span aria-hidden="true"> →</span></a></td>'
+				. '</tr>';
 		}
 
-		$factrows = '';
-		foreach ( $facts as $f ) {
-			$factrows .= '<div class="pgp-fact"><p class="pgp-fact__v">' . esc_html( $f['v'] ) . '</p>'
-				. '<p class="pgp-fact__l">' . esc_html( $f['l'] ) . '</p></div>';
-		}
-
-		$legend_tutor = $tutor_on
-			? '<span class="pgp-legend__i"><i class="pgp-sw pgp-sw--tutor"></i>' . esc_html__( 'Live tutor plan', 'prepgro-theme' ) . '</span>'
-			: '';
-
-		return '<section class="pgp-chart">'
-			. '<div class="pgp-chart__head">'
-			. '<div>'
-			. '<span class="pgp-kicker">' . esc_html__( 'Compare', 'prepgro-theme' ) . '</span>'
-			. '<h2 class="pgp-chart__h">' . esc_html__( 'Monthly cost by level', 'prepgro-theme' ) . '</h2>'
+		return '<section class="pgp-compare-section" aria-labelledby="pgp-compare-title">'
+			. '<div class="pgp-compare-section__head">'
+			. '<div><span class="pgp-kicker">' . esc_html__( 'Compare', 'prepgro-theme' ) . '</span>'
+			. '<h2 id="pgp-compare-title">' . esc_html__( 'The right level. The right term.', 'prepgro-theme' ) . '</h2>'
+			. '</div><p>' . esc_html__( 'Every pack includes all subjects, unlimited attempts, and answer explanations at its level. Compare the amount charged at each billing date.', 'prepgro-theme' ) . '</p>'
 			. '</div>'
-			. '<div class="pgp-legend">'
-			. '<span class="pgp-legend__i"><i class="pgp-sw pgp-sw--pack"></i>' . esc_html__( 'Unlimited test pack', 'prepgro-theme' ) . '</span>'
-			. $legend_tutor
-			. '</div>'
-			. '</div>'
-			. '<div class="pgp-chartrows">' . $rows . '</div>'
-			. '<div class="pgp-facts">' . $factrows . Media::sample_badge() . '</div>'
+			. '<div class="pgp-compare-scroll"><table class="pgp-compare"><thead><tr>'
+			. '<th scope="col">' . esc_html__( 'Level', 'prepgro-theme' ) . '</th>'
+			. '<th scope="col">' . esc_html__( 'Monthly', 'prepgro-theme' ) . '</th>'
+			. '<th scope="col">' . esc_html__( '3 months', 'prepgro-theme' ) . '</th>'
+			. '<th scope="col">' . esc_html__( 'Annual', 'prepgro-theme' ) . '</th>'
+			. '<th scope="col"><span class="screen-reader-text">' . esc_html__( 'Select a plan', 'prepgro-theme' ) . '</span></th>'
+			. '</tr></thead><tbody>' . $rows . '</tbody></table></div>'
+			. '<p class="pgp-compare-section__foot">' . esc_html__( 'Quarterly and annual prices are paid in full at checkout. Your access renews for the term you choose.', 'prepgro-theme' ) . '</p>'
 			. '</section>';
 	}
 

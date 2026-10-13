@@ -86,24 +86,28 @@ final class Pricing_Levels {
 			'elementary' => array(
 				'name'  => __( 'Elementary', 'prepgro-theme' ),
 				'tier'  => 'Elementary',
+				'coverage' => __( 'Grades 3–5', 'prepgro-theme' ),
 				'pack'  => array( 'monthly' => 9.99, 'quarterly' => 24.99, 'annual' => 49.99 ),
 				'tutor' => 129,
 			),
 			'middle'     => array(
 				'name'  => __( 'Middle school', 'prepgro-theme' ),
 				'tier'  => 'Middle School',
+				'coverage' => __( 'Grades 6–8', 'prepgro-theme' ),
 				'pack'  => array( 'monthly' => 14.99, 'quarterly' => 34.99, 'annual' => 79.99 ),
 				'tutor' => 149,
 			),
 			'high'       => array(
 				'name'  => __( 'High school', 'prepgro-theme' ),
 				'tier'  => 'High School',
+				'coverage' => __( 'Grades 9–12', 'prepgro-theme' ),
 				'pack'  => array( 'monthly' => 24.99, 'quarterly' => 59.99, 'annual' => 119.99 ),
 				'tutor' => 179,
 			),
 			'ap'         => array(
 				'name'  => __( 'AP subjects', 'prepgro-theme' ),
 				'tier'  => 'All Access',
+				'coverage' => __( 'Grades 3–12', 'prepgro-theme' ),
 				'pack'  => array( 'monthly' => 29.99, 'quarterly' => 74.99, 'annual' => 149.99 ),
 				'tutor' => 249,
 			),
@@ -136,6 +140,9 @@ final class Pricing_Levels {
 			$tier                     = $tiers[ $i ];
 			$levels[ $key ]['tier']   = (string) $tier['name'];
 			$levels[ $key ]['name']   = (string) $tier['name'];
+			if ( ! empty( $tier['grades'] ) ) {
+				$levels[ $key ]['coverage'] = trim( (string) ( $pricing['grade_prefix'] ?? '' ) . ' ' . (string) $tier['grades'] );
+			}
 			if ( ! empty( $tier['suggested_prices'] ) && is_array( $tier['suggested_prices'] ) ) {
 				$levels[ $key ]['pack'] = array_merge( $levels[ $key ]['pack'], $tier['suggested_prices'] );
 			}
