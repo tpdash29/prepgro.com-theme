@@ -2242,7 +2242,7 @@ final class Chrome {
 		?>
 		<div class="pgt-appfooter">
 			<div class="pgt-container pgt-appfooter__inner">
-				<span class="pgt-appfooter__copy">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( $this->copyright_brand() ); ?></span>
+				<span class="pgt-appfooter__copy">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( $this->copyright_brand() ); ?> &middot; <?php esc_html_e( 'Powered by Gro Technologies', 'prepgro-theme' ); ?></span>
 				<nav class="pgt-appfooter__nav" aria-label="<?php esc_attr_e( 'Legal and support', 'prepgro-theme' ); ?>">
 					<a href="<?php echo esc_url( home_url( '/contact-us/' ) ); ?>" data-nav="footer:help"><?php esc_html_e( 'Help & support', 'prepgro-theme' ); ?></a>
 					<a href="<?php echo esc_url( home_url( '/privacy-policy/' ) ); ?>" data-nav="footer:privacy"><?php esc_html_e( 'Privacy', 'prepgro-theme' ); ?></a>
@@ -2371,7 +2371,7 @@ final class Chrome {
 						<?php
 						printf(
 							/* translators: 1: current year, 2: brand line, e.g. "prepGro - USA" */
-							esc_html__( '© %1$s %2$s. All rights reserved.', 'prepgro-theme' ),
+							esc_html__( '© %1$s %2$s. Powered by Gro Technologies. All rights reserved.', 'prepgro-theme' ),
 							esc_html( gmdate( 'Y' ) ),
 							esc_html( $this->copyright_brand() )
 						);
