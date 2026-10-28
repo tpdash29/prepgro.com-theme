@@ -9,8 +9,10 @@
  * country-aware resolver, and (b) actually matches cards: the indexes'
  * title-pattern family keys only ever coin ap|satact|gradschool|state, so
  * a regional chip ("Ontario · EQAO & OSSLT") used to filter nothing.
- * A chip may also list `terms` (programme names: EQAO, OSSLT) for cards
- * whose titles name the test but not the province.
+ * Any chip may also list `terms` (programme names: EQAO, NAPLAN, GCSE)
+ * matched in card titles — the only way a programme chip without a region
+ * matches anything, and how titles that name the test but not the
+ * province find their province.
  * Chips without a region — the US set — behave exactly as before.
  *
  * @package PrepGro\Theme
@@ -46,7 +48,7 @@ final class Region_Chips {
 	}
 
 	/**
-	 * The programme names a regional chip also matches in titles.
+	 * The programme names a chip matches in card titles.
 	 *
 	 * @param array $chip Pack chip.
 	 * @return string[]
@@ -63,19 +65,33 @@ final class Region_Chips {
 	}
 
 	/**
-	 * The chip key a card belongs to when the chips are regional: the chip
-	 * whose regions include the card's region, else the chip whose region
-	 * name or programme term appears in the card's title (diagnostics and courses carry no
-	 * region field). '' when the chips are not regional or nothing matches —
-	 * the caller then keeps its own title-pattern key.
+	 * The pack chip a card belongs to, in order of specificity:
+	 *   1. a chip `terms` programme name in the title ("NAPLAN", "HSC") —
+	 *      first, so a NAPLAN paper stored under Victoria never lands on
+	 *      the VCE chip when only some chips are regional;
+	 *   2. a regional chip whose `region` is the card's region;
+	 *   3. a regional chip whose region name is in the title (diagnostics
+	 *      and courses carry no region field).
+	 * '' when nothing matches — the caller keeps its title-pattern key, so
+	 * a pack without terms or regions (the US set) is unchanged.
 	 *
-	 * @param array  $chips  Normalised chips (each with an optional 'region').
+	 * @param array  $chips  Normalised chips.
 	 * @param string $region The card's region name ('' = unknown).
 	 * @param string $title  The card's title.
 	 * @return string
 	 */
 	public static function key_for( array $chips, $region, $title = '' ) {
+		$title  = (string) $title;
 		$region = trim( (string) $region );
+		if ( '' !== $title ) {
+			foreach ( $chips as $chip ) {
+				foreach ( self::terms( $chip ) as $term ) {
+					if ( self::in_title( $term, $title ) ) {
+						return (string) $chip['key'];
+					}
+				}
+			}
+		}
 		if ( '' !== $region ) {
 			foreach ( $chips as $chip ) {
 				foreach ( self::regions( $chip ) as $name ) {
@@ -85,21 +101,28 @@ final class Region_Chips {
 				}
 			}
 		}
-		$title = (string) $title;
 		if ( '' !== $title ) {
 			foreach ( $chips as $chip ) {
-				if ( ! self::regions( $chip ) ) {
-					continue;
-				}
-				$terms = array_merge( self::regions( $chip ), self::terms( $chip ) );
-				foreach ( $terms as $name ) {
-					if ( preg_match( '/\b' . preg_quote( $name, '/' ) . '\b/iu', $title ) ) {
+				foreach ( self::regions( $chip ) as $name ) {
+					if ( self::in_title( $name, $title ) ) {
 						return (string) $chip['key'];
 					}
 				}
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Whole-word, case-insensitive match that also works for terms ending
+	 * in punctuation ("11+", where \b would never match).
+	 *
+	 * @param string $needle Term.
+	 * @param string $title  Title.
+	 * @return bool
+	 */
+	private static function in_title( $needle, $title ) {
+		return (bool) preg_match( '/(?<![\p{L}\p{N}])' . preg_quote( $needle, '/' ) . '(?![\p{L}\p{N}])/iu', $title );
 	}
 
 	/**
@@ -139,7 +162,10 @@ final class Region_Chips {
 		$regions = self::regions( $chip );
 		if ( $regions ) {
 			$out['region'] = $regions;
-			$out['terms']  = self::terms( $chip );
+		}
+		$terms = self::terms( $chip );
+		if ( $terms ) {
+			$out['terms'] = $terms;
 		}
 		return $out;
 	}
