@@ -146,6 +146,9 @@
 }
 .pgx-filter:hover { border-color: var(--neutral-300); }
 .pgx-filter.is-on { background: var(--pgx-accent); border-color: var(--pgx-accent); color: #fff; }
+/* Regional chip (pack chips with a `region`): the province/state outline
+   leads the label, in the chip's own ink (white when on). */
+.pgx-filter__region { width: 14px; height: 14px; vertical-align: -2px; margin-right: 5px; }
 
 /* ── Exam cards ────────────────────────────────────────────────────── */
 .pgx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 16px; }
