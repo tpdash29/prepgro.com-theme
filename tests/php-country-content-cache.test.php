@@ -27,7 +27,7 @@ $scenario = isset( $argv[1] ) ? $argv[1] : 'main';
 
 if ( 'main' === $scenario ) {
 	$fail = 0;
-	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us', 'logo-ca', 'logo-engine' ) as $s ) {
+	foreach ( array( 'blank', 'ca', 'ca-noengine', 'de', 'sg', 'us', 'xx', 'kicker-us', 'kicker-ca', 'trust-ca', 'trust-au', 'trust-us', 'logo-ca', 'logo-engine', 'art-ca' ) as $s ) {
 		$o = array(); $rc = 0;
 		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ ) . ' ' . $s . ' 2>&1', $o, $rc );
 		echo implode( "\n", $o ), "\n";
@@ -58,6 +58,9 @@ function esc_html__( $s, $d = null ) { return htmlspecialchars( $s, ENT_QUOTES )
 function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_url( $s ) { return (string) $s; }
+function esc_html_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function esc_attr_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function home_url( $p = '' ) { return 'https://example.test' . $p; }
 function wp_json_encode( $v ) { return json_encode( $v ); }
 // is_app_context()'s fallback signal (exam runner / LMS singles) — the
 // engine's App_Shell is absent in this harness, so this is the whole gate.
@@ -71,7 +74,7 @@ if ( 'ca-noengine' !== $scenario ) { // that scenario = engine bailed before its
 }
 
 if ( 'blank' !== $scenario ) {
-	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us', 'logo-ca' => 'ca', 'logo-engine' => 'ca' )[ $scenario ] ?? $scenario );
+	define( 'PGE_COUNTRY', array( 'ca-noengine' => 'ca', 'kicker-us' => 'us', 'kicker-ca' => 'ca', 'trust-ca' => 'ca', 'trust-au' => 'au', 'trust-us' => 'us', 'logo-ca' => 'ca', 'logo-engine' => 'ca', 'art-ca' => 'ca' )[ $scenario ] ?? $scenario );
 }
 
 require dirname( __DIR__ ) . '/inc/class-chrome.php';
@@ -181,6 +184,8 @@ switch ( $scenario ) {
 		check( 'chip still resolves (theme-owned)', false !== strpos( $b['country_chip_html'], 'Canada' ) );
 		check( 'no flag vars without the engine', '' === $b['flag_vars_css'] );
 		check( 'NOT persisted while the engine is absent', ! array_key_exists( 'pgt_country_content', $GLOBALS['t_options'] ) );
+		check( 'no art css without the engine', '' === $b['country_art_css'] );
+		check( 'no art html without the engine', '' === $b['country_art_html'] );
 		break;
 
 	case 'de':
@@ -276,6 +281,72 @@ switch ( $scenario ) {
 		check( 'engine says nothing, marketing page → tagline only', false !== strpos( $out, 'pgt-brandlogo__tagline' ) && false === strpos( $out, 'country' ) && false === strpos( $out, '__module' ) );
 		break;
 
+	case 'art-ca':
+		// The country canvas: pack line art resolved once into the bundle as
+		// an inline-SVG floor + a data-URI mask custom property. The fixture
+		// deliberately carries " and # (the two characters that break a
+		// naive data URI) and spans lines (the footer output is minify()d).
+		$sky = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1600 220\">\n  <path d=\"M0 200 L1600 200\" stroke=\"currentColor\" fill=\"none\"/>\n  <rect width=\"4\" height=\"4\" fill=\"#fff\" opacity=\"0\"/>\n</svg>";
+		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#d52b1e', '#FFF', '#d52b1e' ), 'footer_skyline_svg' => $sky );
+		$key = $keyfn->invoke( $chrome );
+		$b   = $read->invoke( $chrome );
+		check( 'floor html is the floor wrapper', 0 === strpos( $b['country_art_html'], '<div class="pgt-floor"' ) );
+		check( 'floor html keeps currentColor', false !== strpos( $b['country_art_html'], 'stroke="currentColor"' ) );
+		check( 'floor html is one line', false === strpos( $b['country_art_html'], "\n" ) );
+		check( 'art css starts with the mask var', 0 === strpos( $b['country_art_css'], ':root{--pgt-country-art:url("data:image/svg+xml,%3Csvg' ) );
+		check( 'art css encodes #', false !== strpos( $b['country_art_css'], '%23fff' ) );
+		preg_match( '/url\("(.*?)"\)/', $b['country_art_css'], $m );
+		check( 'no raw " inside url("…")', isset( $m[1] ) && false === strpos( $m[1], '"' ) && false !== strpos( $m[1], "xmlns='http" ) );
+		check( 'ink is the flag tint', false !== strpos( $b['country_art_css'], '--pgt-country-art-ink:rgb(var(--pgt-flag-tint-1-rgb))' ) );
+		check( 'art bundle is persisted', isset( $GLOBALS['t_options']['pgt_country_content']['country_art_css'] ) );
+
+		// The art is in the cache key: a new sketch re-seeds.
+		$GLOBALS['t_pack']['footer_skyline_svg'] = str_replace( '1600 200', '1600 199', $sky );
+		check( 'key changes when the SVG changes', $key !== $keyfn->invoke( $chrome ) );
+
+		// The app footer carries the floor, after the text row, minified.
+		fresh( $chrome, $memo );
+		$GLOBALS['t_singular'] = true;
+		$out = $chrome->render_footer();
+		check( 'app footer has its text row', false !== strpos( $out, 'pgt-appfooter__inner' ) );
+		check( 'app footer has the floor', false !== strpos( $out, 'pgt-floor' ) );
+		check( 'floor comes after the text row', strpos( $out, 'pgt-floor' ) > strpos( $out, 'pgt-appfooter__inner' ) );
+		check( 'app footer has no newline', false === strpos( $out, "\n" ) );
+		ob_start();
+		$chrome->print_flag_vars();
+		$style = ob_get_clean();
+		check( 'app surface: flag-vars block carries the art var', false !== strpos( $style, '--pgt-country-art:' ) && false !== strpos( $style, '--pgt-flag-a:' ) );
+		$GLOBALS['t_singular'] = false;
+		ob_start();
+		$chrome->print_flag_vars();
+		$style = ob_get_clean();
+		check( 'marketing page: flag vars without the art var', false === strpos( $style, '--pgt-country-art' ) && false !== strpos( $style, '--pgt-flag-a:' ) );
+
+		// No flag strip: the art var alone still prints, inked with body.
+		fresh( $chrome, $memo );
+		unset( $GLOBALS['t_options']['pgt_country_content'] );
+		unset( $GLOBALS['t_pack']['flag_strip'] );
+		$GLOBALS['t_singular'] = true;
+		ob_start();
+		$chrome->print_flag_vars();
+		$style = ob_get_clean();
+		check( 'no flag vars, art css alone still prints', 0 === strpos( $style, '<style id="pgt-flag-vars">:root{--pgt-country-art:' ) );
+		check( 'no tint → body ink', false !== strpos( $style, '--pgt-country-art-ink:var(--pge-color-body,#0f1419)' ) );
+
+		// Script vectors are refused outright.
+		fresh( $chrome, $memo );
+		unset( $GLOBALS['t_options']['pgt_country_content'] );
+		$GLOBALS['t_pack']['footer_skyline_svg'] = str_replace( '</svg>', '<script>alert(1)</script></svg>', $sky );
+		$b = $read->invoke( $chrome );
+		check( '<script> → no floor html', '' === $b['country_art_html'] );
+		check( '<script> → no art css', '' === $b['country_art_css'] );
+		$GLOBALS['t_pack']['footer_skyline_svg'] = '<div>not svg</div>';
+		fresh( $chrome, $memo );
+		unset( $GLOBALS['t_options']['pgt_country_content'] );
+		$b = $read->invoke( $chrome );
+		check( 'non-svg → nothing', '' === $b['country_art_html'] && '' === $b['country_art_css'] );
+		break;
+
 	case 'sg':
 		$GLOBALS['t_pack'] = array( 'flag_strip' => array( '#ED2939', '#FFFFFF' ) );
 		$b = $read->invoke( $chrome );
@@ -290,6 +361,8 @@ switch ( $scenario ) {
 		check( 'US chip', false !== strpos( $b['country_chip_html'], 'title="United States"' ) );
 		check( 'US phrases are the US set', in_array( 'You’ve got this.', $b['topbar_phrases'], true ) );
 		check( 'no pack content → no flag vars', '' === $b['flag_vars_css'] );
+		check( 'no pack content → no floor html', '' === $b['country_art_html'] );
+		check( 'no pack content → no art css', '' === $b['country_art_css'] );
 		check( 'copyright suffix: USA (short form, not the chip name)', 'USA' === $b['copy_suffix'] );
 		break;
 
