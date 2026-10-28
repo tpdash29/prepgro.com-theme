@@ -25,6 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/class-region-chips.php';
+
 /**
  * Exams index and level routing.
  */
@@ -32,6 +34,9 @@ final class Exams_Page {
 
 	/** @var Exams_Page|null */
 	private static $instance = null;
+
+	/** @var array<int,array>|null Memoized filter chips. */
+	private $chips = null;
 
 	/** @var array{grade:string,state:string}|null Memoized per-request. */
 	private $student = null;
@@ -524,16 +529,14 @@ final class Exams_Page {
 	 * @return string
 	 */
 	private function filters() {
-		$chips = array( 'all' => __( 'All practice tests', 'prepgro-theme' ) );
+		$out = Region_Chips::button(
+			array(
+				'key'   => 'all',
+				'label' => __( 'All practice tests', 'prepgro-theme' ),
+			)
+		);
 		foreach ( $this->filter_chips() as $chip ) {
-			$chips[ $chip['key'] ] = $chip['label'];
-		}
-
-		$out = '';
-		foreach ( $chips as $key => $label ) {
-			$out .= '<button type="button" class="pgx-filter' . ( 'all' === $key ? ' is-on' : '' ) . '"'
-				. ' data-pgt-filter="' . esc_attr( $key ) . '" aria-pressed="' . ( 'all' === $key ? 'true' : 'false' ) . '">'
-				. esc_html( $label ) . '</button>';
+			$out .= Region_Chips::button( $chip );
 		}
 		return '<div class="pgx-filters">' . $out . '</div>';
 	}
@@ -543,9 +546,12 @@ final class Exams_Page {
 	 * families via `content.exam_filter_chips`; the US set is the fallback.
 	 * The 'all' chip stays the consumer's own — packs never declare it.
 	 *
-	 * @return array<int,array{key:string,label:string}>
+	 * @return array<int,array{key:string,label:string,region?:string[]}>
 	 */
 	private function filter_chips() {
+		if ( null !== $this->chips ) {
+			return $this->chips;
+		}
 		$chips = array(
 			array( 'key' => 'satact', 'label' => __( 'SAT · ACT · PSAT', 'prepgro-theme' ) ),
 			array( 'key' => 'ap', 'label' => __( 'AP subjects', 'prepgro-theme' ) ),
@@ -558,13 +564,12 @@ final class Exams_Page {
 
 		$out = array();
 		foreach ( $chips as $chip ) {
-			if ( is_array( $chip ) && ! empty( $chip['key'] ) && ! empty( $chip['label'] ) ) {
-				$out[] = array(
-					'key'   => (string) $chip['key'],
-					'label' => (string) $chip['label'],
-				);
+			$chip = Region_Chips::normalise( $chip );
+			if ( $chip ) {
+				$out[] = $chip;
 			}
 		}
+		$this->chips = $out;
 		return $out;
 	}
 
@@ -719,7 +724,7 @@ final class Exams_Page {
 			// centralised on the Pricing page and each card routes to its own
 			// level. The perk line replaces the price.
 			$out .= '<a class="pgx-card' . ( $is_mine ? ' pgx-card--mine' : '' ) . '" href="' . esc_url( get_permalink( $exam ) ) . '"'
-				. ' data-pgt-family="' . esc_attr( $this->family_key( $name ) ) . '"'
+				. ' data-pgt-family="' . esc_attr( $this->family_key( $name, $exam_state ) ) . '"'
 				. ( $exam_grade ? ' data-pgt-grade="' . esc_attr( $exam_grade ) . '"' : '' )
 				. ( $exam_state ? ' data-pgt-state="' . esc_attr( $exam_state ) . '"' : '' )
 				. '>'
@@ -818,10 +823,17 @@ final class Exams_Page {
 	/**
 	 * Which filter family an exam belongs to.
 	 *
-	 * @param string $name Exam name.
+	 * @param string $name   Exam name.
+	 * @param string $region The exam's `_exam_state` ('' = none).
 	 * @return string
 	 */
-	private function family_key( $name ) {
+	private function family_key( $name, $region = '' ) {
+		// A pack with regional chips (Canada: one chip per province) keys
+		// cards by region; the title-pattern keys below never match those.
+		$regional = Region_Chips::key_for( $this->filter_chips(), $region, $name );
+		if ( '' !== $regional ) {
+			return $regional;
+		}
 		$n = strtolower( $name );
 		if ( preg_match( '/\bap\b|advanced placement/', $n ) ) {
 			return 'ap';
@@ -838,21 +850,6 @@ final class Exams_Page {
 	/* ─────────────────────────────────────────────────────────────────────
 	   Browse by state.
 	   ──────────────────────────────────────────────────────────────────── */
-
-	/** @var array<string,string> US state name → 2-letter code (assets/states/*.svg lives in the engine). */
-	private const US_STATE_ABBR = array(
-		'Alabama' => 'AL', 'Alaska' => 'AK', 'Arizona' => 'AZ', 'Arkansas' => 'AR', 'California' => 'CA',
-		'Colorado' => 'CO', 'Connecticut' => 'CT', 'Delaware' => 'DE', 'Florida' => 'FL', 'Georgia' => 'GA',
-		'Hawaii' => 'HI', 'Idaho' => 'ID', 'Illinois' => 'IL', 'Indiana' => 'IN', 'Iowa' => 'IA',
-		'Kansas' => 'KS', 'Kentucky' => 'KY', 'Louisiana' => 'LA', 'Maine' => 'ME', 'Maryland' => 'MD',
-		'Massachusetts' => 'MA', 'Michigan' => 'MI', 'Minnesota' => 'MN', 'Mississippi' => 'MS', 'Missouri' => 'MO',
-		'Montana' => 'MT', 'Nebraska' => 'NE', 'Nevada' => 'NV', 'New Hampshire' => 'NH', 'New Jersey' => 'NJ',
-		'New Mexico' => 'NM', 'New York' => 'NY', 'North Carolina' => 'NC', 'North Dakota' => 'ND', 'Ohio' => 'OH',
-		'Oklahoma' => 'OK', 'Oregon' => 'OR', 'Pennsylvania' => 'PA', 'Rhode Island' => 'RI', 'South Carolina' => 'SC',
-		'South Dakota' => 'SD', 'Tennessee' => 'TN', 'Texas' => 'TX', 'Utah' => 'UT', 'Vermont' => 'VT',
-		'Virginia' => 'VA', 'Washington' => 'WA', 'West Virginia' => 'WV', 'Wisconsin' => 'WI', 'Wyoming' => 'WY',
-		'District of Columbia' => 'DC',
-	);
 
 	/**
 	 * "Browse by state" directory — testbook-v2's /learn/ hub has this
@@ -887,15 +884,16 @@ final class Exams_Page {
 		$country_slug = class_exists( '\\PrepGro\\Engine\\Geo_Data' )
 			? \PrepGro\Engine\Geo_Data::country_slug( $country_code )
 			: 'united-states';
-		$plugin_url = defined( 'PGE_URL' ) ? PGE_URL : '';
+		$outline_cls = '\\PrepGro\\Engine\\Public_Side\\Homepage';
+		$has_outline = class_exists( $outline_cls ) && method_exists( $outline_cls, 'region_outline_svg' );
 
 		$cards = '';
 		foreach ( $states as $state ) {
 			$is_mine = ( $state === $my_state );
-			$abbr    = self::US_STATE_ABBR[ $state ] ?? '';
-			$icon    = ( $abbr && $plugin_url )
-				? '<img src="' . esc_url( $plugin_url . 'assets/states/' . $abbr . '.svg' ) . '" alt="" width="26" height="26" loading="lazy">'
-				: Icons::svg( 'map-pin', array( 'size' => 20, 'stroke' => 1.8 ) );
+			// Outline through the engine's country-aware resolver (US, IN,
+			// CA today); map-pin for a region with no art.
+			$icon    = $has_outline ? (string) $outline_cls::region_outline_svg( $state, 'pgx-state-card__outline', 26 ) : '';
+			$icon    = '' !== $icon ? $icon : Icons::svg( 'map-pin', array( 'size' => 20, 'stroke' => 1.8 ) );
 			$url = home_url( '/learn/' . $country_slug . '/' . sanitize_title( $state ) . '/' );
 
 			$cards .= '<a class="pgx-state-card' . ( $is_mine ? ' pgx-state-card--mine' : '' ) . '" href="' . esc_url( $url ) . '">'
