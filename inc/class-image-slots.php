@@ -151,7 +151,7 @@ final class Image_Slots {
 			),
 			'pgt_footer_skyline' => array(
 				'label'   => __( 'Footer — landmark skyline', 'prepgro-theme' ),
-				'where'   => __( 'The faint landmark panorama behind the footer of every public page. Upload generated line-art here; until then the country pack\'s built-in sketch is used.', 'prepgro-theme' ),
+				'where'   => __( 'The faint landmark panorama in the floor band of every footer (public and app pages). Upload generated line-art here; until then the country pack\'s built-in sketch is used. A raster upload cannot be tinted, so the full-screen app surfaces (result viewer, diagnostic welcome) show no panorama while one is set.', 'prepgro-theme' ),
 				'width'   => 2520,
 				'height'  => 420,
 				'alt'     => '', // Decorative.

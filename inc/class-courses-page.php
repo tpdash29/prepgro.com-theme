@@ -23,6 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/class-region-chips.php';
+
 /**
  * Courses index.
  */
@@ -30,6 +32,9 @@ final class Courses_Page {
 
 	/** @var Courses_Page|null */
 	private static $instance = null;
+
+	/** @var array<int,array>|null Memoized filter chips. */
+	private $chips = null;
 
 	/** @var \WP_Post[]|null Memoized course list. */
 	private $courses = null;
@@ -147,16 +152,14 @@ final class Courses_Page {
 	 * @return string
 	 */
 	private function filters() {
-		$chips = array( 'all' => __( 'All courses', 'prepgro-theme' ) );
+		$out = Region_Chips::button(
+			array(
+				'key'   => 'all',
+				'label' => __( 'All courses', 'prepgro-theme' ),
+			)
+		);
 		foreach ( $this->filter_chips() as $chip ) {
-			$chips[ $chip['key'] ] = $chip['label'];
-		}
-
-		$out = '';
-		foreach ( $chips as $key => $label ) {
-			$out .= '<button type="button" class="pgx-filter' . ( 'all' === $key ? ' is-on' : '' ) . '"'
-				. ' data-pgt-filter="' . esc_attr( $key ) . '" aria-pressed="' . ( 'all' === $key ? 'true' : 'false' ) . '">'
-				. esc_html( $label ) . '</button>';
+			$out .= Region_Chips::button( $chip );
 		}
 		return '<div class="pgx-filters">' . $out . '</div>';
 	}
@@ -166,9 +169,12 @@ final class Courses_Page {
 	 * families via `content.exam_filter_chips`; the US set is the fallback.
 	 * The 'all' chip stays the consumer's own — packs never declare it.
 	 *
-	 * @return array<int,array{key:string,label:string}>
+	 * @return array<int,array{key:string,label:string,region?:string[]}>
 	 */
 	private function filter_chips() {
+		if ( null !== $this->chips ) {
+			return $this->chips;
+		}
 		$chips = array(
 			array( 'key' => 'satact', 'label' => __( 'SAT · ACT', 'prepgro-theme' ) ),
 			array( 'key' => 'ap', 'label' => __( 'AP', 'prepgro-theme' ) ),
@@ -181,13 +187,12 @@ final class Courses_Page {
 
 		$out = array();
 		foreach ( $chips as $chip ) {
-			if ( is_array( $chip ) && ! empty( $chip['key'] ) && ! empty( $chip['label'] ) ) {
-				$out[] = array(
-					'key'   => (string) $chip['key'],
-					'label' => (string) $chip['label'],
-				);
+			$chip = Region_Chips::normalise( $chip );
+			if ( $chip ) {
+				$out[] = $chip;
 			}
 		}
+		$this->chips = $out;
 		return $out;
 	}
 
@@ -344,6 +349,12 @@ final class Courses_Page {
 	 * @return string
 	 */
 	private function family_key( $name ) {
+		// A pack with regional chips (Canada: one chip per province) keys
+		// cards by region; the title-pattern keys below never match those.
+		$regional = Region_Chips::key_for( $this->filter_chips(), '', $name );
+		if ( '' !== $regional ) {
+			return $regional;
+		}
 		$n = strtolower( $name );
 		if ( preg_match( '/\bap\b|advanced placement/', $n ) ) {
 			return 'ap';

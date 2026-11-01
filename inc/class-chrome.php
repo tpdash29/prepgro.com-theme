@@ -2249,9 +2249,29 @@ final class Chrome {
 					<a href="<?php echo esc_url( home_url( '/terms-of-service/' ) ); ?>" data-nav="footer:terms"><?php esc_html_e( 'Terms', 'prepgro-theme' ); ?></a>
 				</nav>
 			</div>
+			<?php echo $this->country_floor_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- validated at seed time. ?>
 		</div>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * The country canvas: the install's landmark panorama in its own
+	 * "floor" band below a footer's text rows, inked with the flag tint by
+	 * the stylesheet. One fragment for both footers, resolved once at seed
+	 * time (build_country_art()); this is a cached-bundle read, no country
+	 * branch and no file lookups.
+	 *
+	 * @param string $class Optional extra class on the floor element.
+	 * @return string '' when the install has no art.
+	 */
+	private function country_floor_html( $class = '' ) {
+		$content = $this->country_content();
+		$html    = isset( $content['country_art_html'] ) ? (string) $content['country_art_html'] : '';
+		if ( '' === $html || '' === $class ) {
+			return $html;
+		}
+		return (string) preg_replace( '/^<div class="pgt-floor/', '<div class="pgt-floor ' . esc_attr( $class ), $html, 1 );
 	}
 
 	/**
@@ -2261,39 +2281,9 @@ final class Chrome {
 	 * @return string
 	 */
 	private function public_footer() {
-		// Pack landmark panorama behind the footer content. Priority: the
-		// Customizer upload (Appearance → Customize → Footer — landmark
-		// skyline), then an engine-shipped image file, then the pack's
-		// generated line-art SVG. Decorative, config-level trust (the pack
-		// profile is executable PHP).
-		$pgt_panorama_img = '';
-		if ( class_exists( __NAMESPACE__ . '\\Image_Slots' ) ) {
-			$pgt_sky_id = Image_Slots::pick( 'pgt_footer_skyline' );
-			if ( $pgt_sky_id ) {
-				$pgt_sky_url = wp_get_attachment_image_url( $pgt_sky_id, 'full' );
-				if ( $pgt_sky_url ) {
-					$pgt_panorama_img = $pgt_sky_url;
-				}
-			}
-		}
-		if ( '' === $pgt_panorama_img && defined( 'PGE_PATH' ) && defined( 'PGE_URL' ) && defined( 'PGE_COUNTRY' ) ) {
-			foreach ( array( 'png', 'webp', 'svg' ) as $pgt_sky_ext ) {
-				$pgt_sky_rel = 'assets/country/' . strtolower( PGE_COUNTRY ) . '/footer-skyline.' . $pgt_sky_ext;
-				if ( file_exists( PGE_PATH . $pgt_sky_rel ) ) {
-					$pgt_panorama_img = PGE_URL . $pgt_sky_rel;
-					break;
-				}
-			}
-		}
-		$pgt_panorama = $pgt_panorama_img ? '' : ( function_exists( 'pge_content' ) ? (string) pge_content( 'footer_skyline_svg', '' ) : '' );
 		ob_start();
 		?>
 		<div class="pgt-footer">
-			<?php if ( $pgt_panorama_img ) : ?>
-				<div class="pgt-footer__skyline pgt-footer__skyline--img" aria-hidden="true"><img src="<?php echo esc_url( $pgt_panorama_img ); ?>" alt="" loading="lazy" /></div>
-			<?php elseif ( $pgt_panorama ) : ?>
-				<div class="pgt-footer__skyline" aria-hidden="true"><?php echo $pgt_panorama; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-			<?php endif; ?>
 			<div class="pgt-footer__inner">
 				<div class="pgt-footer__top">
 					<div class="pgt-footer__about">
@@ -2384,6 +2374,7 @@ final class Chrome {
 					</span>
 				</div>
 			</div>
+			<?php echo $this->country_floor_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- validated at seed time. ?>
 		</div>
 		<?php
 		return (string) ob_get_clean();
@@ -2423,7 +2414,7 @@ final class Chrome {
 	 * edit. (Not mtime: on a multi-node host with divergent mtimes an
 	 * mtime key would re-seed and write wp_options on every request.)
 	 */
-	const COUNTRY_CONTENT_SCHEMA = 3;
+	const COUNTRY_CONTENT_SCHEMA = 4;
 
 	/**
 	 * Per-request memo of the resolved bundle, so a request that had to
@@ -2473,7 +2464,13 @@ final class Chrome {
 		if ( function_exists( 'pge_content' ) ) {
 			$inputs = ( function_exists( 'pge_global_home_url' ) ? (string) pge_global_home_url() : '' )
 				. '|' . ( function_exists( 'pge_pack_locale' ) ? (string) pge_pack_locale() : '' )
-				. '|' . wp_json_encode( pge_content( 'flag_strip', array() ) );
+				. '|' . wp_json_encode( pge_content( 'flag_strip', array() ) )
+				. '|' . md5( (string) wp_json_encode( pge_content( 'footer_skyline_svg', '' ) ) );
+		}
+		// The Customizer panorama upload outranks the pack art, so its
+		// attachment ids ride in the key too (theme mods: in memory).
+		if ( class_exists( __NAMESPACE__ . '\\Image_Slots' ) ) {
+			$inputs .= '|sky:' . implode( ',', Image_Slots::attachments( 'pgt_footer_skyline' ) );
 		}
 		return $code . '@' . PGT_VERSION . '+' . $engine . ':' . $stamp . '#' . substr( md5( $inputs ), 0, 8 );
 	}
@@ -2497,7 +2494,7 @@ final class Chrome {
 	 * re-resolved and persisted right here, once, and every later call —
 	 * same request or any later one — is the cheap branch again.
 	 *
-	 * @return array{key:string,code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string,flag_vars_css:string,copy_suffix:string}
+	 * @return array{key:string,code:string,topbar_phrases:string[],country_chip_html:string,locale_line_html:string,flag_vars_css:string,copy_suffix:string,country_art_html:string,country_art_css:string}
 	 */
 	private function country_content() {
 		if ( is_array( $this->country_content_memo ) ) {
@@ -2549,6 +2546,9 @@ final class Chrome {
 			'flag_vars_css'     => $this->build_flag_vars_css( $code ),
 			'copy_suffix'       => $this->build_copy_suffix( $code ),
 		);
+		$art                         = $this->build_country_art( $code, $content['flag_vars_css'] );
+		$content['country_art_html'] = $art['html'];
+		$content['country_art_css']  = $art['css'];
 
 		/**
 		 * Filter the fully-resolved, about-to-be-cached country content
@@ -2593,9 +2593,134 @@ final class Chrome {
 	 */
 	public function print_flag_vars() {
 		$content = $this->country_content();
-		if ( ! empty( $content['flag_vars_css'] ) ) {
-			echo '<style id="pgt-flag-vars">' . $content['flag_vars_css'] . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from validated hex at seed time.
+		$css     = isset( $content['flag_vars_css'] ) ? (string) $content['flag_vars_css'] : '';
+		// The panorama as a CSS mask (--pgt-country-art) for the engine's
+		// React full-screen surfaces (result viewer, diagnostic welcome).
+		// App surfaces only — a surface gate, not a country branch: it keeps
+		// a few KB of data URI off marketing pages and login, where the
+		// footer paints the art inline. Module detection runs on `wp`,
+		// before wp_head, so the gate is settled here.
+		if ( ! empty( $content['country_art_css'] ) && $this->is_app_context() ) {
+			$css .= $content['country_art_css'];
 		}
+		if ( '' !== $css ) {
+			echo '<style id="pgt-flag-vars">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from validated hex / validated SVG at seed time.
+		}
+	}
+
+	/**
+	 * The install's landmark panorama, resolved once for the cached bundle.
+	 * Priority: the Customizer upload (Appearance → Customize → Footer —
+	 * landmark skyline; its FIRST attachment, never a random pick — a
+	 * cached bundle must be deterministic), then an engine-shipped file
+	 * assets/country/{cc}/footer-skyline.{png,webp,svg}, then the pack's
+	 * line-art content.footer_skyline_svg. Decorative, config-level trust
+	 * (the pack profile is executable PHP), still validated.
+	 *
+	 * Vector art becomes BOTH an inline SVG (keeps currentColor, so the
+	 * footer floor inks it with the flag tint) and a data-URI mask custom
+	 * property for the React surfaces: currentColor in a mask resolves to
+	 * black = alpha 1, and the ink comes from background-color. The ink var
+	 * is emitted only together with the art var, so an unset art var
+	 * paints nothing anywhere. Raster art cannot be inked: footers show it
+	 * as an <img>, the React surfaces show nothing.
+	 *
+	 * SEED-TIME ONLY. Render path reads country_art_html / country_art_css.
+	 *
+	 * @param string $code      Two-letter country code (may be '').
+	 * @param string $flag_css  The bundle's flag_vars_css ('' = no tint).
+	 * @return array{kind:string,html:string,css:string}
+	 */
+	private function build_country_art( $code, $flag_css = '' ) {
+		$none = array(
+			'kind' => '',
+			'html' => '',
+			'css'  => '',
+		);
+		if ( '' === $code || ! function_exists( 'pge_content' ) ) {
+			return $none;
+		}
+
+		$img = '';
+		$svg = '';
+		if ( class_exists( __NAMESPACE__ . '\\Image_Slots' ) && function_exists( 'wp_get_attachment_image_url' ) ) {
+			$ids = Image_Slots::attachments( 'pgt_footer_skyline' );
+			if ( $ids ) {
+				$img = (string) wp_get_attachment_image_url( (int) $ids[0], 'full' );
+			}
+		}
+		if ( '' === $img && defined( 'PGE_PATH' ) && defined( 'PGE_URL' ) ) {
+			foreach ( array( 'png', 'webp', 'svg' ) as $ext ) {
+				$rel = 'assets/country/' . $code . '/footer-skyline.' . $ext;
+				if ( ! file_exists( PGE_PATH . $rel ) ) {
+					continue;
+				}
+				if ( 'svg' === $ext ) {
+					$svg = (string) file_get_contents( PGE_PATH . $rel ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local engine asset.
+				} else {
+					$img = PGE_URL . $rel;
+				}
+				break;
+			}
+		}
+		if ( '' === $img && '' === $svg ) {
+			$pack = pge_content( 'footer_skyline_svg', '' );
+			$svg  = is_string( $pack ) ? $pack : '';
+		}
+
+		if ( '' !== $img ) {
+			return array(
+				'kind' => 'img',
+				'html' => '<div class="pgt-floor pgt-floor--img" aria-hidden="true"><img src="' . esc_url( $img ) . '" alt="" loading="lazy" decoding="async" /></div>',
+				'css'  => '',
+			);
+		}
+
+		$svg = $this->clean_art_svg( $svg );
+		if ( '' === $svg ) {
+			return $none;
+		}
+		$enc = strtr(
+			str_replace( '"', "'", $svg ),
+			array(
+				'%' => '%25',
+				'#' => '%23',
+				'<' => '%3C',
+				'>' => '%3E',
+				'&' => '%26',
+				'{' => '%7B',
+				'}' => '%7D',
+			)
+		);
+		$ink = '' !== $flag_css ? 'rgb(var(--pgt-flag-tint-1-rgb))' : 'var(--pge-color-body,#0f1419)';
+		return array(
+			'kind' => 'svg',
+			'html' => '<div class="pgt-floor" aria-hidden="true">' . $svg . '</div>',
+			'css'  => ':root{--pgt-country-art:url("data:image/svg+xml,' . $enc . '");--pgt-country-art-ink:' . $ink . ';}',
+		);
+	}
+
+	/**
+	 * Validate and flatten panorama SVG markup: a single <svg> root with
+	 * an xmlns (a data-URI SVG without one renders nothing), no script
+	 * vectors, whitespace collapsed (the footers are minify()d and the
+	 * data URI must be one line).
+	 *
+	 * @param string $svg Raw markup.
+	 * @return string '' when unusable.
+	 */
+	private function clean_art_svg( $svg ) {
+		$svg = (string) preg_replace( '/^\s*<\?xml[^>]*\?>/', '', (string) $svg );
+		$svg = (string) preg_replace( '/<!--.*?-->/s', '', $svg );
+		if ( ! preg_match( '/^\s*<svg\b/i', $svg ) || false === strpos( $svg, 'xmlns=' ) ) {
+			return '';
+		}
+		if ( preg_match( '/<script|<foreignObject|javascript:|\son[a-z]+\s*=/i', $svg ) ) {
+			return '';
+		}
+		$svg = (string) preg_replace( '/\s+/', ' ', $svg );
+		$svg = (string) preg_replace( '/>\s+</', '><', $svg );
+		return trim( $svg );
 	}
 
 	/**
