@@ -155,6 +155,11 @@ final class Region_Chips {
 		if ( ! is_array( $chip ) || empty( $chip['key'] ) || empty( $chip['label'] ) ) {
 			return null;
 		}
+		// The 'all' chip is the index's own (it prints first, with the
+		// page's label); a pack that declares one too would print a second.
+		if ( 'all' === (string) $chip['key'] ) {
+			return null;
+		}
 		$out = array(
 			'key'   => (string) $chip['key'],
 			'label' => (string) $chip['label'],
