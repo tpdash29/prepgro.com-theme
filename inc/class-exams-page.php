@@ -611,8 +611,9 @@ final class Exams_Page {
 			if ( '' !== $state ) {
 				$args['posts_per_page'] = (int) apply_filters( 'pgt_exams_index_state_limit', 200 );
 				$args['meta_query'][]   = array(
-					'key'   => '_exam_state',
-					'value' => $state,
+					'key'     => '_exam_state',
+					'value'   => self::states_sat_in( $state ),
+					'compare' => 'IN',
 				);
 				$seen = wp_list_pluck( $this->exams, 'ID' );
 				foreach ( get_posts( $args ) as $exam ) {
@@ -629,6 +630,20 @@ final class Exams_Page {
 			}
 		}
 		return $this->exams;
+	}
+
+	/**
+	 * The states whose papers a learner from this state sits: their own,
+	 * plus the province a territory writes (Yukon sits British Columbia's;
+	 * the engine's country pack decides). Their own only on an older engine.
+	 *
+	 * @param string $state The learner's state.
+	 * @return string[]
+	 */
+	private static function states_sat_in( $state ) {
+		$fn = array( '\\PrepGro\\Engine\\Core\\Onboarding\\Learner_State_Policy', 'states_sat_in' );
+		$all = is_callable( $fn ) ? (array) call_user_func( $fn, $state ) : array();
+		return $all ? array_values( array_unique( array_merge( array( $state ), $all ) ) ) : array( $state );
 	}
 
 	/**
@@ -666,7 +681,7 @@ final class Exams_Page {
 				$exam_grade = (string) get_post_meta( $exam->ID, '_exam_grade', true );
 				$exam_state = (string) get_post_meta( $exam->ID, '_exam_state', true );
 				$grade_hit  = ! $student['grade'] || self::grade_hit( $exam->ID, $exam_grade, $student['grade'] );
-				$state_hit  = ! $student['state'] || $exam_state === $student['state'];
+				$state_hit  = ! $student['state'] || in_array( $exam_state, self::states_sat_in( $student['state'] ), true );
 				if ( $grade_hit && $state_hit ) {
 					$filtered[] = $exam;
 				}
