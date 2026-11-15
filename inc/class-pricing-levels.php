@@ -1,4 +1,6 @@
 <?php
+// Owner decision, 2026-11-15: practice packs are fixed-term purchases, never automatic renewals.
+
 /**
  * Pricing levels — the single source of truth for level-scoped prices and
  * for the exam → pricing routing rule (README §6 and §7).
@@ -170,19 +172,19 @@ final class Pricing_Levels {
 				'label'  => __( 'Monthly', 'prepgro-theme' ),
 				'months' => 1,
 				/* translators: %s: amount charged, e.g. $19.99. */
-				'billed' => __( 'Billed %s each month', 'prepgro-theme' ),
+				'billed' => __( 'Pay %s once for 1 month', 'prepgro-theme' ),
 			),
 			'quarterly' => array(
 				'label'  => __( 'Quarterly', 'prepgro-theme' ),
 				'months' => 3,
 				/* translators: %s: amount charged, e.g. $49.99. */
-				'billed' => __( 'Billed %s every 3 months', 'prepgro-theme' ),
+				'billed' => __( 'Pay %s once for 3 months', 'prepgro-theme' ),
 			),
 			'annual'    => array(
 				'label'  => __( 'Annual', 'prepgro-theme' ),
 				'months' => 12,
 				/* translators: %s: amount charged, e.g. $99.99. */
-				'billed' => __( 'Billed %s once a year', 'prepgro-theme' ),
+				'billed' => __( 'Pay %s once for 12 months', 'prepgro-theme' ),
 			),
 		);
 	}

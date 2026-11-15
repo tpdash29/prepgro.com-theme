@@ -1,4 +1,6 @@
 <?php
+// Owner decision, 2026-11-15: practice packs are fixed-term purchases, never automatic renewals.
+
 /**
  * Pricing page (README §7 + addendum A4).
  *
@@ -242,7 +244,7 @@ final class Pricing_Page {
 			__( 'Answer explanations and review', 'prepgro-theme' ),
 			__( 'Skill-level progress tracking', 'prepgro-theme' ),
 			__( 'Personalised next-step recommendations', 'prepgro-theme' ),
-			__( 'Access while your subscription is active', 'prepgro-theme' ),
+			__( 'Access for your chosen period', 'prepgro-theme' ),
 		);
 		$tutor_includes = array(
 			__( '8 live 1:1 classes per month', 'prepgro-theme' ),
@@ -301,12 +303,12 @@ final class Pricing_Page {
 						. esc_html(
 							sprintf(
 								/* translators: 1: total price, 2: term label, e.g. "$99.99 · Annual". */
-								__( 'Subscribe — %1$s %2$s', 'prepgro-theme' ),
+								__( 'Buy access — %1$s %2$s', 'prepgro-theme' ),
 								Pricing_Levels::money( $v['total'] ),
 								strtolower( $t['label'] )
 							)
 						) . '</a>'
-						. '<p class="pgp-reassure">' . esc_html__( 'Cancel anytime. Every subject at this level is included.', 'prepgro-theme' ) . '</p>'
+						. '<p class="pgp-reassure">' . esc_html__( 'One-time payment. No automatic renewal. Every subject at this level is included.', 'prepgro-theme' ) . '</p>'
 					// No purchasable SKU: say so, and keep the lead. Silently
 					// bouncing this click to the readiness funnel is what sent
 					// buyers to an exam page (see Pricing_Levels::enquiry_url).
@@ -394,9 +396,9 @@ final class Pricing_Page {
 	 */
 	private function compare( $levels, $current ) {
 		$periods = array(
-			'monthly'   => __( 'each month', 'prepgro-theme' ),
-			'quarterly' => __( 'every 3 months', 'prepgro-theme' ),
-			'annual'    => __( 'once a year', 'prepgro-theme' ),
+			'monthly'   => __( 'for 1 month', 'prepgro-theme' ),
+			'quarterly' => __( 'for 3 months', 'prepgro-theme' ),
+			'annual'    => __( 'for 12 months', 'prepgro-theme' ),
 		);
 		$rows = '';
 		foreach ( $levels as $key => $level ) {
@@ -420,7 +422,7 @@ final class Pricing_Page {
 			. '<div class="pgp-compare-section__head">'
 			. '<div><span class="pgp-kicker">' . esc_html__( 'Compare', 'prepgro-theme' ) . '</span>'
 			. '<h2 id="pgp-compare-title">' . esc_html__( 'The right level. The right term.', 'prepgro-theme' ) . '</h2>'
-			. '</div><p>' . esc_html__( 'Every pack includes all subjects, unlimited attempts, and answer explanations at its level. Compare the amount charged at each billing date.', 'prepgro-theme' ) . '</p>'
+			. '</div><p>' . esc_html__( 'Every pack includes all subjects, unlimited attempts, and answer explanations at its level. Compare the one-time price for each access period.', 'prepgro-theme' ) . '</p>'
 			. '</div>'
 			. '<div class="pgp-compare-scroll"><table class="pgp-compare"><thead><tr>'
 			. '<th scope="col">' . esc_html__( 'Level', 'prepgro-theme' ) . '</th>'
@@ -429,7 +431,7 @@ final class Pricing_Page {
 			. '<th scope="col">' . esc_html__( 'Annual', 'prepgro-theme' ) . '</th>'
 			. '<th scope="col"><span class="screen-reader-text">' . esc_html__( 'Select a plan', 'prepgro-theme' ) . '</span></th>'
 			. '</tr></thead><tbody>' . $rows . '</tbody></table></div>'
-			. '<p class="pgp-compare-section__foot">' . esc_html__( 'Quarterly and annual prices are paid in full at checkout. Your access renews for the term you choose.', 'prepgro-theme' ) . '</p>'
+			. '<p class="pgp-compare-section__foot">' . esc_html__( 'Pay once at checkout for your chosen access period. Purchase again when you want more access.', 'prepgro-theme' ) . '</p>'
 			. '</section>';
 	}
 
@@ -466,12 +468,12 @@ final class Pricing_Page {
 	 */
 	private function small_print( $tutor_on = true ) {
 		$items = array(
-			__( 'Subscriptions renew automatically unless cancelled before the next billing date.', 'prepgro-theme' ),
+			__( 'All practice packs are one-time purchases. Access expires at the end of your chosen period; you will not be charged automatically.', 'prepgro-theme' ),
 			__( 'Quarterly and annual plans provide the same unlimited practice access to every subject at the chosen level.', 'prepgro-theme' ),
 		);
 		if ( $tutor_on ) {
 			$items[] = __( 'Live Tutor plans include up to eight 1:1 live classes each month.', 'prepgro-theme' );
-			$items[] = __( 'Unlimited Test Pack access remains active until the end of the current paid Live Tutor billing period. After that, families can continue with a Test Pack subscription.', 'prepgro-theme' );
+			$items[] = __( 'Unlimited Test Pack access remains active until the end of the current paid Live Tutor billing period. After that, families can purchase a Test Pack for another access period.', 'prepgro-theme' );
 		}
 		$items[] = __( 'Practice tests are designed to help students prepare; prepGro does not guarantee examination scores.', 'prepgro-theme' );
 
